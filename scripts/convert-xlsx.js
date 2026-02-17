@@ -26,7 +26,7 @@ const SUBJECT_CODE = {
   '통합사회': 'iss'
 };
 
-// 월 → 분류 매핑
+// 월 → 분류 매핑 (일반 과목)
 const MONTH_TO_CATEGORY = {
   '03': '3월학평',
   '04': '4월학평',
@@ -37,6 +37,21 @@ const MONTH_TO_CATEGORY = {
   '10': '10월학평',
   '11': '수능'
 };
+
+// 월 → 분류 매핑 (통합사회: 월 이름만 사용)
+const MONTH_TO_CATEGORY_SIMPLE = {
+  '03': '3월',
+  '04': '4월',
+  '05': '5월',
+  '06': '6월',
+  '07': '7월',
+  '09': '9월',
+  '10': '10월',
+  '11': '11월'
+};
+
+// 월만 표기하는 과목
+const SIMPLE_CATEGORY_SUBJECTS = new Set(['통합사회']);
 
 // 이미지 폴더에서 시험 정보 스캔
 async function scanImageEntries(subject) {
@@ -55,7 +70,8 @@ async function scanImageEntries(subject) {
     const m = f.match(regex);
     if (!m) continue;
     const [, year, month, num] = m;
-    const category = MONTH_TO_CATEGORY[month];
+    const catMap = SIMPLE_CATEGORY_SUBJECTS.has(subject) ? MONTH_TO_CATEGORY_SIMPLE : MONTH_TO_CATEGORY;
+    const category = catMap[month];
     if (!category) continue;
     entries.push({
       학년도: year,
@@ -149,8 +165,17 @@ async function convert() {
       added++;
     }
 
-    // 정렬: 학년도 내림차순 → 분류 → 번호 오름차순
-    const catOrder = { '수능': 0, '9모': 1, '6모': 2, '10월학평': 3, '7월학평': 4, '5월학평': 5, '4월학평': 6, '3월학평': 7 };
+    // 정렬: 학년도 내림차순 → 분류(월 내림차순) → 번호 오름차순
+    const catOrder = {
+      '수능': 0, '11월': 0,
+      '9모': 1, '10월학평': 2, '10월': 2,
+      '9월': 3,
+      '7월학평': 4, '7월': 4,
+      '6모': 5, '6월': 5,
+      '5월학평': 6, '5월': 6,
+      '4월학평': 7, '4월': 7,
+      '3월학평': 8, '3월': 8
+    };
     data.sort((a, b) => {
       const yDiff = Number(b.학년도) - Number(a.학년도);
       if (yDiff !== 0) return yDiff;

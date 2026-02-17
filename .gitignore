@@ -8,3 +8,4 @@ __pycache__/
 
 # 원본 모의고사 소스 (public/images/ 에 변환 복사됨)
 모의고사/
+.vercel

@@ -1,9 +1,13 @@
 import { isGeoTesterLoaded } from '../core/DataManager.js';
 
-export function renderTableShell() {
+const GEOTESTER_SUBJECTS = new Set(['한국지리', '세계지리', '통합사회']);
+
+export function renderTableShell(subject) {
+  const showGeo = GEOTESTER_SUBJECTS.has(subject);
+  const cols = showGeo ? 13 : 12;
   return `
     <div class="table-wrapper">
-      <table id="dataTable">
+      <table id="dataTable" data-cols="${cols}">
         <thead>
           <tr>
             <th>학년도</th>
@@ -18,11 +22,11 @@ export function renderTableShell() {
             <th class="sortable" data-sort="정답률">정답률(%)</th>
             <th>난이도</th>
             <th>문제보기</th>
-            <th>GeoTester</th>
+            ${showGeo ? '<th>GeoTester</th>' : ''}
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="13" class="loading">
+          <tr><td colspan="${cols}" class="loading">
             <div class="spinner"></div>
             데이터를 불러오는 중...
           </td></tr>
@@ -34,15 +38,16 @@ export function renderTableShell() {
 
 export function renderTableRows(data, currentSubject) {
   const tbody = document.getElementById('tableBody');
+  const showGeo = GEOTESTER_SUBJECTS.has(currentSubject);
+  const cols = showGeo ? 13 : 12;
 
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="13" class="no-data">검색 결과가 없습니다</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data">검색 결과가 없습니다</td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(item => {
     const chapterNum = getChapterNumber(item.대단원);
-    // Escape HTML to prevent XSS
     const safeBalm = escapeHtml(item.발문);
     const safeContent = escapeHtml(item.문항내용);
     const safeYear = escapeHtml(String(item.학년도));
@@ -63,7 +68,7 @@ export function renderTableRows(data, currentSubject) {
         <td class="${getAccuracyClass(item.정답률)}">${escapeHtml(String(item.정답률))}</td>
         <td class="${getDifficultyClass(item.난이도)}">${escapeHtml(item.난이도)}</td>
         <td><button class="btn-view" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}">&#128196; 보기</button></td>
-        <td>${getGeoTesterBadge(item.GeoTester)}</td>
+        ${showGeo ? `<td>${getGeoTesterBadge(item.GeoTester)}</td>` : ''}
       </tr>
     `;
   }).join('');
@@ -72,18 +77,17 @@ export function renderTableRows(data, currentSubject) {
 export function showLoading() {
   const tbody = document.getElementById('tableBody');
   if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="13" class="loading"><div class="spinner"></div>데이터를 불러오는 중...</td></tr>';
+    const cols = document.getElementById('dataTable')?.dataset.cols || 13;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="loading"><div class="spinner"></div>데이터를 불러오는 중...</td></tr>`;
   }
 }
 
 export function bindTableEvents({ onSort, onViewQuestion }) {
-  // Sort header click
   document.querySelector('#dataTable thead').addEventListener('click', e => {
     const th = e.target.closest('th.sortable');
     if (th) onSort(th.dataset.sort);
   });
 
-  // View question button
   document.querySelector('#dataTable').addEventListener('click', e => {
     const btn = e.target.closest('.btn-view');
     if (btn) {
@@ -136,3 +140,5 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
+
+export { GEOTESTER_SUBJECTS };

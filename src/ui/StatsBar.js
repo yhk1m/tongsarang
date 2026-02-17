@@ -4,7 +4,7 @@ export function renderStatsBar() {
       <div class="table-title">&#128203; 문제 목록</div>
       <div class="table-stats">
         <span class="stat-item">총 문제 수: <strong id="totalCount">-</strong></span>
-        <span class="geotester-stat">
+        <span class="geotester-stat" id="geoTesterStat" style="display:none">
           GeoTester 탑재: <strong id="geoTesterCount">-</strong>
         </span>
         <span class="result-count" id="resultCount">검색 결과: 0개</span>
@@ -13,9 +13,15 @@ export function renderStatsBar() {
   `;
 }
 
-export function updateStats(stats) {
+export function updateStats(stats, showGeoTester) {
   document.getElementById('totalCount').textContent = stats.총문제수;
-  document.getElementById('geoTesterCount').textContent = stats.GeoTester탑재수;
+  const geoStat = document.getElementById('geoTesterStat');
+  if (showGeoTester) {
+    geoStat.style.display = '';
+    document.getElementById('geoTesterCount').textContent = stats.GeoTester탑재수;
+  } else {
+    geoStat.style.display = 'none';
+  }
 }
 
 export function updateResultCount(count) {

@@ -133,6 +133,16 @@ body {
 .badge-7월학평 { background: #e0f2f1; color: #00695c; }
 .badge-10월학평 { background: #f3e5f5; color: #6a1b9a; }
 
+/* 월 단위 분류 (통합사회 등) */
+.badge-3월 { background: #e8f5e9; color: #2e7d32; }
+.badge-4월 { background: #fff3e0; color: #e65100; }
+.badge-5월 { background: #fce4ec; color: #c2185b; }
+.badge-6월 { background: #e3f2fd; color: #1976d2; }
+.badge-7월 { background: #e0f2f1; color: #00695c; }
+.badge-9월 { background: #f3e5f5; color: #7b1fa2; }
+.badge-10월 { background: #ede7f6; color: #6a1b9a; }
+.badge-11월 { background: #ffebee; color: #c62828; }
+
 /* Difficulty */
 .difficulty-high { color: #c62828; font-weight: 600; }
 .difficulty-medium { color: #f57c00; font-weight: 600; }

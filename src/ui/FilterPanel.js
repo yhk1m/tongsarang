@@ -31,7 +31,7 @@ export function renderFilterPanel() {
           <label>난이도</label>
           <select id="filterDifficulty"><option value="">전체</option></select>
         </div>
-        <div class="filter-group">
+        <div class="filter-group" id="filterGeoTesterGroup" style="display:none">
           <label>GeoTester</label>
           <select id="filterGeoTester">
             <option value="">전체</option>
@@ -158,6 +158,12 @@ function updateAccuracyText() {
     textEl.textContent = `${checked.length}개 선택됨`;
     textEl.classList.add('selected');
   }
+}
+
+export function setGeoTesterFilterVisible(visible) {
+  const group = document.getElementById('filterGeoTesterGroup');
+  if (group) group.style.display = visible ? '' : 'none';
+  if (!visible) document.getElementById('filterGeoTester').value = '';
 }
 
 export function updateSubChapterOptions(allData, selectedChapter) {

@@ -1,8 +1,8 @@
 import { renderHeader } from './Header.js';
 import { renderSubjectNav, bindSubjectNav } from './SubjectNav.js';
-import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions } from './FilterPanel.js';
+import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions, setGeoTesterFilterVisible } from './FilterPanel.js';
 import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
-import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators } from './DataTable.js';
+import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage } from './ImageModal.js';
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
@@ -37,7 +37,7 @@ export class App {
             ${renderFilterPanel()}
             <div class="table-container">
               ${renderStatsBar()}
-              ${renderTableShell()}
+              <div id="tableShellContainer">${renderTableShell(this.currentSubject)}</div>
               <div id="paginationContainer"></div>
             </div>
           </div>
@@ -59,12 +59,15 @@ export class App {
       }
     });
 
+    this.bindTableDelegation();
+    bindModalEvents();
+  }
+
+  bindTableDelegation() {
     bindTableEvents({
       onSort: col => this.handleSort(col),
       onViewQuestion: (y, c, n) => showImage(this.currentSubject, y, c, n)
     });
-
-    bindModalEvents();
   }
 
   async switchSubject(subject) {
@@ -76,12 +79,23 @@ export class App {
       tab.classList.toggle('active', tab.dataset.subject === subject);
     });
 
+    // Re-render table shell (GeoTester column may change)
+    document.getElementById('tableShellContainer').innerHTML = renderTableShell(subject);
+    this.bindTableDelegation();
+
+    // Toggle GeoTester filter visibility
+    const showGeo = GEOTESTER_SUBJECTS.has(subject);
+    setGeoTesterFilterVisible(showGeo);
+
     resetFilterValues();
     await this.loadSubject(subject);
   }
 
   async loadSubject(subject) {
     showLoading();
+    const showGeo = GEOTESTER_SUBJECTS.has(subject);
+    setGeoTesterFilterVisible(showGeo);
+
     try {
       this.allData = await this.dm.loadSubject(subject);
       this.filteredData = this.allData;
@@ -90,13 +104,14 @@ export class App {
       populateFilterOptions(options);
 
       const stats = this.dm.getStats(this.allData);
-      updateStats(stats);
+      updateStats(stats, showGeo);
 
       this.pagination.reset(this.filteredData.length);
       this.renderData();
     } catch (err) {
+      const cols = showGeo ? 13 : 12;
       document.getElementById('tableBody').innerHTML =
-        `<tr><td colspan="13" class="no-data">데이터 로드 실패: ${err.message}</td></tr>`;
+        `<tr><td colspan="${cols}" class="no-data">데이터 로드 실패: ${err.message}</td></tr>`;
     }
   }
 
