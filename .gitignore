@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vercel/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+
+# 원본 모의고사 소스 (public/images/ 에 변환 복사됨)
+모의고사/

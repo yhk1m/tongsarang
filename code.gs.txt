@@ -1,0 +1,180 @@
+// ===== 메인 함수 =====
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('지리 기출문제 현황')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// ===== 데이터 조회 함수 =====
+function getGeographyData(sheetName) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  
+  if (!sheet) {
+    return { error: '시트를 찾을 수 없습니다: ' + sheetName };
+  }
+  
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  
+  // 헤더 인덱스 매핑
+  const headerMap = {};
+  headers.forEach((header, index) => {
+    headerMap[header] = index;
+  });
+  
+  // 데이터 변환 (첫 행은 헤더이므로 제외)
+  const result = [];
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    
+    // 빈 행 건너뛰기 (대단원이나 배점이 있는 경우만 포함)
+    if (!row[headerMap['대단원']] && !row[headerMap['배점']]) {
+      continue;
+    }
+    
+    result.push({
+      순번: row[headerMap['순번']] || '',
+      학년도: row[headerMap['학년도']] || '',
+      분류: row[headerMap['분류']] || '',
+      번호: row[headerMap['번호']] || '',
+      배점: row[headerMap['배점']] || '',
+      답: row[headerMap['답']] || '',
+      대단원: row[headerMap['대단원']] || '',
+      중단원: row[headerMap['중단원']] || '',
+      발문: row[headerMap['발문']] || '',
+      문항내용: row[headerMap['문항 내용']] || row[headerMap['문항내용']] || '',
+      정답률: row[headerMap['정답률(%)']] || '',
+      난이도: row[headerMap['난이도']] || '',
+      GeoTester: row[headerMap['GeoTester']] || ''  // GeoTester 탑재 여부
+    });
+  }
+  
+  return result;
+}
+
+// ===== 필터 옵션 조회 =====
+function getFilterOptions(sheetName) {
+  const data = getGeographyData(sheetName);
+  
+  if (data.error) {
+    return data;
+  }
+  
+  const options = {
+    학년도: [...new Set(data.map(item => item.학년도).filter(v => v))].sort((a, b) => b - a),
+    분류: [...new Set(data.map(item => item.분류).filter(v => v))],
+    대단원: [...new Set(data.map(item => item.대단원).filter(v => v))].sort(),
+    중단원: [...new Set(data.map(item => item.중단원).filter(v => v))].sort(),
+    난이도: [...new Set(data.map(item => item.난이도).filter(v => v))].sort()
+  };
+  
+  return options;
+}
+
+// ===== 통계 데이터 조회 =====
+function getStatistics(sheetName) {
+  const data = getGeographyData(sheetName);
+  
+  if (data.error) {
+    return data;
+  }
+  
+  const stats = {
+    총문제수: data.length,
+    GeoTester탑재수: 0,
+    학년도별: {},
+    분류별: {},
+    난이도별: {},
+    대단원별: {}
+  };
+  
+  data.forEach(item => {
+    // 학년도별 집계
+    if (item.학년도) {
+      stats.학년도별[item.학년도] = (stats.학년도별[item.학년도] || 0) + 1;
+    }
+    
+    // 분류별 집계
+    if (item.분류) {
+      stats.분류별[item.분류] = (stats.분류별[item.분류] || 0) + 1;
+    }
+    
+    // 난이도별 집계
+    if (item.난이도) {
+      stats.난이도별[item.난이도] = (stats.난이도별[item.난이도] || 0) + 1;
+    }
+    
+    // 대단원별 집계
+    if (item.대단원) {
+      stats.대단원별[item.대단원] = (stats.대단원별[item.대단원] || 0) + 1;
+    }
+    
+    // GeoTester 탑재 수 집계
+    if (item.GeoTester && (item.GeoTester === 'O' || item.GeoTester === 'o' || item.GeoTester === '○' || item.GeoTester === true || item.GeoTester === 'TRUE' || item.GeoTester === 'Y' || item.GeoTester === 'y')) {
+      stats.GeoTester탑재수++;
+    }
+  });
+  
+  return stats;
+}
+
+// ===== 데이터 업데이트 함수 =====
+function updateQuestionData(sheetName, rowData) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  
+  if (!sheet) {
+    return { success: false, message: '시트를 찾을 수 없습니다' };
+  }
+  
+  try {
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    
+    // 순번으로 행 찾기
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === rowData.순번) {
+        // 해당 행 업데이트
+        const headerMap = {};
+        headers.forEach((header, index) => {
+          headerMap[header] = index;
+        });
+        
+        sheet.getRange(i + 1, headerMap['배점'] + 1).setValue(rowData.배점);
+        sheet.getRange(i + 1, headerMap['답'] + 1).setValue(rowData.답);
+        sheet.getRange(i + 1, headerMap['발문'] + 1).setValue(rowData.발문);
+        sheet.getRange(i + 1, headerMap['문항 내용'] + 1).setValue(rowData.문항내용);
+        sheet.getRange(i + 1, headerMap['정답률(%)'] + 1).setValue(rowData.정답률);
+        sheet.getRange(i + 1, headerMap['난이도'] + 1).setValue(rowData.난이도);
+        
+        return { success: true, message: '데이터가 업데이트되었습니다' };
+      }
+    }
+    
+    return { success: false, message: '해당 순번을 찾을 수 없습니다' };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}
+
+// ===== 이미지 URL 조회 함수 =====
+function getImageUrl(subject, year, category, number) {
+  // 구글 드라이브에서 이미지 파일 찾기
+  const fileName = `${subject}_${year}_${category}_${number}`;
+  const files = DriveApp.getFilesByName(fileName + '.jpg');
+  
+  if (files.hasNext()) {
+    const file = files.next();
+    return `https://drive.google.com/uc?id=${file.getId()}`;
+  }
+  
+  // jpg가 없으면 png 찾기
+  const pngFiles = DriveApp.getFilesByName(fileName + '.png');
+  if (pngFiles.hasNext()) {
+    const file = pngFiles.next();
+    return `https://drive.google.com/uc?id=${file.getId()}`;
+  }
+  
+  return null;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "tongsarang",
+  "version": "1.0.0",
+  "description": "통사랑 - 사회탐구 기출문제 서칭 프로그램",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "convert-data": "node scripts/convert-xlsx.js"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "xlsx": "^0.18.5"
+  }
+}
