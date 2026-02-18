@@ -31,6 +31,19 @@ const COL_W = (PAGE_W - MARGIN * 2 - COL_GAP) / 2; // ~87.5mm
 const HEADER_H = 12;
 const USABLE_H = PAGE_H - MARGIN * 2 - HEADER_H;
 
+/** timestamp for filenames: YYYYMMDD_HHmm */
+function fileTimestamp() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+
+/** subject label for filenames */
+function subjectLabel(questions) {
+  const subjects = [...new Set(questions.map(q => q._subject))];
+  return subjects.length === 1 ? subjects[0] : subjects.join('_');
+}
+
 /**
  * Generate mock exam PDF (question sheet + answer sheet)
  * @param {Array} questions - selected question objects with _subject field
@@ -48,11 +61,14 @@ export async function generateMockExamPDF(questions, onProgress) {
     if (onProgress) onProgress(i + 1, total);
   }
 
+  const ts = fileTimestamp();
+  const label = subjectLabel(questions);
+
   // Generate question PDF
-  generateQuestionPDF(imageDataList, questions);
+  generateQuestionPDF(imageDataList, questions, `${ts}_${label}_문제지.pdf`);
 
   // Generate answer PDF
-  generateAnswerPDF(questions);
+  generateAnswerPDF(questions, `${ts}_${label}_정답표.pdf`);
 }
 
 /**
@@ -80,18 +96,18 @@ function loadAndProcessImage(question, newNumber) {
       ctx.drawImage(loadedImg, 0, 0);
 
       // Cover original number area with white rectangle
-      // Number area is approximately top-left, sized proportionally
-      const coverW = Math.round(canvas.width * 0.1);
-      const coverH = Math.round(canvas.height * 0.04);
+      // Narrower width to avoid covering question text, taller to fully hide number
+      const coverW = Math.round(canvas.width * 0.055);
+      const coverH = Math.round(canvas.height * 0.06);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, coverW, coverH);
 
       // Draw new number
-      const fontSize = Math.round(coverH * 0.8);
+      const fontSize = Math.round(coverH * 0.55);
       ctx.fillStyle = '#000000';
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${newNumber}.`, 4, coverH / 2);
+      ctx.fillText(`${newNumber}.`, 4, coverH * 0.4);
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       resolve({
@@ -135,7 +151,7 @@ function loadAndProcessImage(question, newNumber) {
 /**
  * Generate the question sheet PDF with 2-column layout
  */
-function generateQuestionPDF(imageDataList, questions) {
+function generateQuestionPDF(imageDataList, questions, fileName) {
   const doc = new jsPDF('p', 'mm', 'a4');
   let pageNum = 1;
   let col = 0; // 0=left, 1=right
@@ -187,7 +203,17 @@ function generateQuestionPDF(imageDataList, questions) {
     yPos += finalH + 2; // 2mm gap between images
   }
 
-  doc.save('모의고사_문제지.pdf');
+  // Draw column divider on all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    const dividerX = MARGIN + COL_W + COL_GAP / 2;
+    doc.setDrawColor(210, 210, 210);
+    doc.setLineWidth(0.3);
+    doc.line(dividerX, MARGIN + HEADER_H, dividerX, PAGE_H - MARGIN);
+  }
+
+  doc.save(fileName);
 }
 
 /**
@@ -213,7 +239,7 @@ function drawPageHeader(doc, pageNum) {
 /**
  * Generate the answer sheet PDF
  */
-function generateAnswerPDF(questions) {
+function generateAnswerPDF(questions, fileName) {
   const doc = new jsPDF('p', 'mm', 'a4');
 
   // Title
@@ -303,5 +329,5 @@ function generateAnswerPDF(questions) {
   doc.setLineWidth(0.3);
   doc.rect(MARGIN, tableTop, PAGE_W - MARGIN * 2, y - tableTop);
 
-  doc.save('모의고사_정답표.pdf');
+  doc.save(fileName);
 }
