@@ -75,7 +75,12 @@ export class App {
     });
 
     document.getElementById('btnLinker').addEventListener('click', () => {
-      openLinker(this.currentSubject);
+      const pw = prompt('비밀번호를 입력하세요');
+      if (pw === 'rs21') {
+        openLinker(this.currentSubject);
+      } else if (pw !== null) {
+        alert('비밀번호가 틀렸습니다.');
+      }
     });
   }
 
