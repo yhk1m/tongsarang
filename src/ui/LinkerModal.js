@@ -34,7 +34,8 @@ let lState = {
   filterYear: '',
   filterCategory: '',
   filterStatus: '',  // '' | 'mapped' | 'unmapped'
-  expandedAreas: new Set()
+  expandedAreas: new Set(),
+  curriculumVersion: null  // 교육과정 버전 (versions가 있는 과목만 사용)
 };
 
 export function renderLinkerModal() {
@@ -88,10 +89,10 @@ export async function openLinker(subject) {
   document.getElementById('linkerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // 데이터가 있는 과목 목록을 동적으로 로드
+  // 성취기준이 등록된 모든 과목 목록 (문항 데이터 유무와 무관)
   const left = document.getElementById('linkerLeft');
   left.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div></div>';
-  LINKER_SUBJECTS = await dm.getSubjectsWithData();
+  LINKER_SUBJECTS = Object.keys(ACHIEVEMENT_STANDARDS);
 
   // 과목 select 갱신
   const sel = document.getElementById('linkerSubject');
@@ -117,6 +118,7 @@ async function loadLinkerSubject() {
   lState.filterCategory = '';
   lState.filterStatus = '';
   lState.expandedAreas = new Set();
+  lState.curriculumVersion = null;
   applyFilter();
   lState.currentIdx = 0;
   renderLeftPanel();
@@ -241,26 +243,81 @@ function highlightCurrentItem() {
   if (active) active.scrollIntoView({ block: 'nearest' });
 }
 
+function getActiveStandards() {
+  const standards = ACHIEVEMENT_STANDARDS[lState.subject];
+  if (!standards) return null;
+  if (standards.versions) {
+    if (!lState.curriculumVersion) {
+      lState.curriculumVersion = Object.keys(standards.versions)[0];
+    }
+    return standards.versions[lState.curriculumVersion];
+  }
+  return standards;
+}
+
 function renderRightPanel() {
   const right = document.getElementById('linkerRight');
   const item = lState.filtered[lState.currentIdx];
 
-  if (!item) {
-    right.innerHTML = '<div class="linker-no-items">문항을 선택하세요</div>';
-    return;
+  const standards = ACHIEVEMENT_STANDARDS[lState.subject];
+  const activeStandards = getActiveStandards();
+  const currentMapping = item ? store.getMapping(lState.subject, item) : null;
+
+  // 교육과정 버전 드롭다운 (versions가 있는 과목만)
+  let versionDropdown = '';
+  if (standards?.versions) {
+    const versionKeys = Object.keys(standards.versions);
+    versionDropdown = `
+      <div class="linker-version-select">
+        <select id="linkerVersionSelect" class="linker-select linker-filter-select">
+          ${versionKeys.map(v => `<option value="${esc(v)}" ${lState.curriculumVersion === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}
+        </select>
+      </div>
+    `;
   }
 
-  const standards = ACHIEVEMENT_STANDARDS[lState.subject];
-  const currentMapping = store.getMapping(lState.subject, item);
+  if (!item) {
+    // 문항이 없어도 성취기준 트리는 표시
+    right.innerHTML = `
+      <div class="linker-standards-area" id="linkerStandardsArea" style="flex:1;">
+        ${versionDropdown}
+        ${renderStandardsTree(activeStandards, null)}
+      </div>
+    `;
+
+    const versionSel = document.getElementById('linkerVersionSelect');
+    if (versionSel) {
+      versionSel.addEventListener('change', e => {
+        lState.curriculumVersion = e.target.value;
+        lState.expandedAreas = new Set();
+        renderRightPanel();
+      });
+    }
+
+    // 영역 토글 바인딩
+    bindStandardsAreaToggle();
+    return;
+  }
 
   right.innerHTML = `
     <div class="linker-image-area" id="linkerImageArea">
       <div class="me-progress-overlay"><div class="spinner"></div></div>
     </div>
     <div class="linker-standards-area" id="linkerStandardsArea">
-      ${renderStandardsTree(standards, currentMapping)}
+      ${versionDropdown}
+      ${renderStandardsTree(activeStandards, currentMapping)}
     </div>
   `;
+
+  // 버전 드롭다운 이벤트
+  const versionSel = document.getElementById('linkerVersionSelect');
+  if (versionSel) {
+    versionSel.addEventListener('change', e => {
+      lState.curriculumVersion = e.target.value;
+      lState.expandedAreas = new Set();
+      renderRightPanel();
+    });
+  }
 
   loadItemImage(item);
   bindStandardsEvents(item);
@@ -345,11 +402,9 @@ function renderStandardsTree(standards, currentMapping) {
   `;
 }
 
-function bindStandardsEvents(item) {
+function bindStandardsAreaToggle() {
   const area = document.getElementById('linkerStandardsArea');
   if (!area) return;
-
-  // Area toggle (expand/collapse)
   area.querySelectorAll('.linker-area-header').forEach(header => {
     header.addEventListener('click', () => {
       const idx = parseInt(header.dataset.areaIdx);
@@ -367,6 +422,14 @@ function bindStandardsEvents(item) {
       }
     });
   });
+}
+
+function bindStandardsEvents(item) {
+  const area = document.getElementById('linkerStandardsArea');
+  if (!area) return;
+
+  // Area toggle (expand/collapse)
+  bindStandardsAreaToggle();
 
   // Radio selection
   area.querySelectorAll('input[name="linkerStandard"]').forEach(radio => {

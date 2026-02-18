@@ -226,6 +226,15 @@
   padding: 12px;
 }
 
+.linker-version-select {
+  margin-bottom: 10px;
+}
+
+.linker-version-select select {
+  width: 100%;
+  font-weight: 600;
+}
+
 .linker-standards-tree {
   display: flex;
   flex-direction: column;
