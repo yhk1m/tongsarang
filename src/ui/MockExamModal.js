@@ -1,6 +1,6 @@
 import { generateMockExamPDF } from './MockExamPDF.js';
 
-const SUBJECTS_WITH_DATA = ['한국지리', '세계지리', '통합사회'];
+let SUBJECTS_WITH_DATA = [];
 
 export function renderMockExamModal() {
   return `
@@ -41,7 +41,7 @@ export function bindMockExamEvents() {
   document.querySelector('.mockexam-wizard').addEventListener('click', e => e.stopPropagation());
 }
 
-export function openMockExam(currentSubject, dm) {
+export async function openMockExam(currentSubject, dm) {
   state = {
     step: 1,
     type: null,
@@ -54,6 +54,13 @@ export function openMockExam(currentSubject, dm) {
   };
   document.getElementById('mockExamModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // 데이터가 있는 과목 목록을 동적으로 로드
+  const body = document.getElementById('meBody');
+  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">과목 확인 중...</div></div>';
+  renderFooter('', '');
+  SUBJECTS_WITH_DATA = await dm.getSubjectsWithData();
+
   renderStep();
 }
 

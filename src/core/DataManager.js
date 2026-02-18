@@ -40,6 +40,20 @@ export class DataManager {
     return data;
   }
 
+  /** 문항이 1개 이상 있는 과목 목록 반환 (전체 과목을 로드하여 확인) */
+  async getSubjectsWithData() {
+    const result = [];
+    for (const subj of SUBJECTS) {
+      try {
+        const data = await this.loadSubject(subj.id);
+        if (data && data.length > 0) result.push(subj.id);
+      } catch {
+        // 데이터 없는 과목은 무시
+      }
+    }
+    return result;
+  }
+
   getFilterOptions(data) {
     return {
       학년도: [...new Set(data.map(d => d.학년도).filter(Boolean))].sort((a, b) => b - a),

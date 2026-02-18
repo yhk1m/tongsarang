@@ -22,7 +22,7 @@ const CATEGORY_TO_MONTH = {
   '6월': '06', '5월': '05', '4월': '04', '3월': '03'
 };
 
-const LINKER_SUBJECTS = ['한국지리', '세계지리', '통합사회'];
+let LINKER_SUBJECTS = [];
 
 let store = null;
 let dm = null;
@@ -44,9 +44,7 @@ export function renderLinkerModal() {
         <div class="linker-header">
           <h2>성취기준 연결하기</h2>
           <div class="linker-header-controls">
-            <select id="linkerSubject" class="linker-select">
-              ${LINKER_SUBJECTS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}
-            </select>
+            <select id="linkerSubject" class="linker-select"></select>
             <div class="linker-progress" id="linkerProgress"></div>
           </div>
           <button class="me-close" id="linkerClose">&times;</button>
@@ -87,13 +85,21 @@ export function bindLinkerEvents(linkerStore, dataManager) {
 }
 
 export async function openLinker(subject) {
-  lState.subject = subject || '한국지리';
-  // Ensure subject selector is set
-  if (!LINKER_SUBJECTS.includes(lState.subject)) lState.subject = '한국지리';
-  document.getElementById('linkerSubject').value = lState.subject;
-
   document.getElementById('linkerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // 데이터가 있는 과목 목록을 동적으로 로드
+  const left = document.getElementById('linkerLeft');
+  left.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div></div>';
+  LINKER_SUBJECTS = await dm.getSubjectsWithData();
+
+  // 과목 select 갱신
+  const sel = document.getElementById('linkerSubject');
+  sel.innerHTML = LINKER_SUBJECTS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+
+  lState.subject = LINKER_SUBJECTS.includes(subject) ? subject : (LINKER_SUBJECTS[0] || '한국지리');
+  sel.value = lState.subject;
+
   await loadLinkerSubject();
 }
 
