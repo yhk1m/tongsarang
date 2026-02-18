@@ -228,48 +228,101 @@ def parse_answer_from_text(text):
     return answers
 
 
-def extract_points_from_mun(filepath, total_questions=20):
-    """문제 PDF에서 3점 문항 찾기: 각 [3점]을 가장 가까운 앞의 문항번호에 매핑"""
-    three_pt = set()
+def extract_points_from_mun(filepath, total_questions=20, new_format=False):
+    """
+    문제 PDF에서 배점 추출 (좌표 기반, 2단 레이아웃 대응).
+
+    old format (2025-03 이전): [3점] 표시가 있으면 3점, 없으면 2점
+    new format (2025-06 이후): 모든 문항에 [1.5점], [2점], [2.5점] 표시
+    """
+    # 1단계: 모든 문항번호 후보와 배점 마커를 좌표와 함께 수집
+    raw_q_candidates = []  # (page_idx, question_num, x, y)
+    pt_markers = []        # (page_idx, point_value, x, y)
+
     try:
         with pdfplumber.open(filepath) as pdf:
-            full_text = ''
-            for page in pdf.pages:
-                t = page.extract_text()
-                if t:
-                    full_text += t + '\n'
+            for pi, page in enumerate(pdf.pages):
+                words = page.extract_words(use_text_flow=False)
 
-            # 문항 시작 위치 찾기 (다양한 패턴)
-            q_positions = {}
-            for m in re.finditer(r'(?:^|\n)\s*(\d{1,2})\s*[.．]', full_text):
-                num = int(m.group(1))
-                if 1 <= num <= 25:
-                    if num not in q_positions or m.start() < q_positions[num]:
-                        q_positions[num] = m.start()
+                for w in words:
+                    m = re.match(r'^(\d{1,2})\.(?!\d)', w['text'])
+                    if m:
+                        num = int(m.group(1))
+                        if 1 <= num <= total_questions:
+                            raw_q_candidates.append((pi, num, w['x0'], w['top']))
 
-            # [3점] 위치 찾기
-            three_pt_positions = []
-            for m in re.finditer(r'\[\s*3\s*점\s*\]', full_text):
-                three_pt_positions.append(m.start())
-
-            # 각 [3점]을 가장 가까운 앞의 문항번호에 매핑
-            sorted_qs = sorted(q_positions.items(), key=lambda x: x[1])
-            for pt_pos in three_pt_positions:
-                best_q = None
-                for q_num, q_pos in sorted_qs:
-                    if q_pos <= pt_pos:
-                        best_q = q_num
+                    if new_format:
+                        m2 = re.search(r'\[\s*(\d+\.?\d*)\s*점\s*\]', w['text'])
+                        if m2:
+                            val = float(m2.group(1))
+                            if val in (1.5, 2, 2.5):
+                                pt_markers.append((pi, val, w['x0'], w['top']))
                     else:
-                        break
-                if best_q:
-                    three_pt.add(best_q)
+                        if re.search(r'\[\s*3\s*점\s*\]', w['text']):
+                            pt_markers.append((pi, 3, w['x0'], w['top']))
 
     except Exception as e:
         print(f'    MUN parse error: {e}')
 
+    # 2단계: 빈도 기반 칼럼 경계 결정
+    # x좌표를 20px 단위로 그룹화하고 가장 빈번한 2개를 좌/우 칼럼으로 사용
+    from collections import Counter
+    x_counts = Counter(round(x / 20) * 20 for _, _, x, _ in raw_q_candidates)
+    top_two = x_counts.most_common(2)
+    if len(top_two) >= 2:
+        pos_a, pos_b = top_two[0][0], top_two[1][0]
+        right_col_x = max(pos_a, pos_b)
+        col_boundary = right_col_x - 15
+    else:
+        col_boundary = 9999  # 단일 칼럼
+
+    # 3단계: 칼럼별 필터링 (각 칼럼의 왼쪽 가장자리 근처만 유지)
+    left_cands = [(p, n, x, y) for p, n, x, y in raw_q_candidates if x < col_boundary]
+    right_cands = [(p, n, x, y) for p, n, x, y in raw_q_candidates if x >= col_boundary]
+
+    q_markers = []
+    if left_cands:
+        left_min_x = min(x for _, _, x, _ in left_cands)
+        for p, n, x, y in left_cands:
+            if x < left_min_x + 15:
+                q_markers.append((p, n, x, y))
+    if right_cands:
+        right_min_x = min(x for _, _, x, _ in right_cands)
+        for p, n, x, y in right_cands:
+            if x < right_min_x + 15:
+                q_markers.append((p, n, x, y))
+
+    # 4단계: 배점 마커를 같은 페이지·같은 칼럼의 가장 가까운 위 문항에 매핑
+    mapped = {}  # question_num → point_value
+    for pi, pt_val, pt_x, pt_y in pt_markers:
+        page_qs = [(n, x, y) for p, n, x, y in q_markers if p == pi]
+        best_q = None
+        best_dist = float('inf')
+        for n, qx, qy in page_qs:
+            same_col = (pt_x < col_boundary and qx < col_boundary) or \
+                       (pt_x >= col_boundary and qx >= col_boundary)
+            if not same_col:
+                continue
+            if qy <= pt_y:
+                dist = pt_y - qy
+                if dist < best_dist:
+                    best_dist = dist
+                    best_q = n
+        if best_q is not None:
+            mapped[best_q] = pt_val
+
+    # 최종 배점 딕셔너리 생성
     points = {}
-    for q in range(1, total_questions + 1):
-        points[q] = 3 if q in three_pt else 2
+    if new_format:
+        # 새 형식: 매핑 안 된 문항은 2점 (기본값)
+        for q in range(1, total_questions + 1):
+            points[q] = mapped.get(q, 2)
+    else:
+        # 구 형식: [3점] 매핑된 문항만 3점, 나머지 2점
+        for q in range(1, total_questions + 1):
+            points[q] = 3 if q in mapped else 2
+
+    three_pt = set(q for q, v in mapped.items() if v == 3) if not new_format else set()
     return points, three_pt
 
 
@@ -311,10 +364,14 @@ def main():
             print(f'    정답: 파일 없음')
 
         # 배점 추출
+        new_fmt = (year > 2025 or (year == 2025 and month != '03'))
         if os.path.exists(mun_file):
-            points, three_pt = extract_points_from_mun(mun_file, total_q)
+            points, three_pt = extract_points_from_mun(mun_file, total_q, new_format=new_fmt)
             total_pts = sum(points.values())
-            print(f'    배점: 3점={sorted(three_pt)}, 총={total_pts}점')
+            if new_fmt:
+                print(f'    배점: 총={total_pts}점 (1.5/2/2.5점 형식)')
+            else:
+                print(f'    배점: 3점={sorted(three_pt)}, 총={total_pts}점')
         else:
             points = {q: 2 for q in range(1, total_q + 1)}
             three_pt = set()
