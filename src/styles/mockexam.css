@@ -1,0 +1,396 @@
+/* Mock Exam Modal */
+.mockexam-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: meModalFadeIn 0.2s;
+}
+
+.mockexam-modal.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes meModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mockexam-wizard {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.me-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.me-header h2 {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.me-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #86868b;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.me-close:hover {
+  color: #1d1d1f;
+}
+
+/* Step indicator */
+.me-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.me-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85em;
+  color: #aeaeb2;
+}
+
+.me-step.active {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.me-step.done {
+  color: #6e6e73;
+}
+
+.me-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d1d1;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.me-step.active .me-step-num {
+  background: #1d1d1f;
+  color: #ffffff;
+  border-color: #1d1d1f;
+}
+
+.me-step.done .me-step-num {
+  background: #6e6e73;
+  color: #ffffff;
+  border-color: #6e6e73;
+}
+
+.me-step-arrow {
+  color: #d1d1d1;
+  font-size: 0.8em;
+}
+
+/* Body */
+.me-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* Footer */
+.me-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.me-footer-left {
+  font-size: 0.9em;
+  color: #6e6e73;
+}
+
+.me-footer-right {
+  display: flex;
+  gap: 8px;
+}
+
+/* Step 1: Type cards */
+.me-type-cards {
+  display: flex;
+  gap: 16px;
+}
+
+.me-type-card {
+  flex: 1;
+  padding: 24px;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.me-type-card:hover {
+  border-color: #1d1d1f;
+  background: #fafafa;
+}
+
+.me-type-card h3 {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+}
+
+.me-type-card p {
+  font-size: 0.85em;
+  color: #6e6e73;
+  line-height: 1.5;
+}
+
+/* Step 1 multi-subject checkboxes */
+.me-subject-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.me-subject-list label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background 0.15s;
+}
+
+.me-subject-list label:hover {
+  background: #f5f5f5;
+}
+
+.me-subject-list input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1d1d1f;
+}
+
+/* Step 2: Chapter tree */
+.me-chapter-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.me-chapter-group {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.me-chapter-major {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fafafa;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #1d1d1f;
+  user-select: none;
+}
+
+.me-chapter-major input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1d1d1f;
+}
+
+.me-chapter-major .me-count {
+  font-weight: 400;
+  color: #86868b;
+  font-size: 0.85em;
+  margin-left: auto;
+}
+
+.me-chapter-minors {
+  display: flex;
+  flex-direction: column;
+}
+
+.me-chapter-minor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 36px;
+  font-size: 0.85em;
+  color: #424245;
+  cursor: pointer;
+  border-top: 1px solid #f0f0f0;
+}
+
+.me-chapter-minor:hover {
+  background: #f5f5f5;
+}
+
+.me-chapter-minor input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #1d1d1f;
+}
+
+.me-chapter-minor .me-count {
+  color: #aeaeb2;
+  font-size: 0.85em;
+  margin-left: auto;
+}
+
+/* Subject separator in chapter tree (multi-subject) */
+.me-subject-separator {
+  font-weight: 700;
+  font-size: 0.95em;
+  color: #1d1d1f;
+  padding: 12px 0 6px;
+  border-bottom: 1px solid #d1d1d1;
+  margin-bottom: 8px;
+}
+
+.me-subject-separator:first-child {
+  padding-top: 0;
+}
+
+/* Step 3: Question table */
+.me-question-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.me-question-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #1d1d1f;
+  border-bottom: 2px solid #e5e5e5;
+  white-space: nowrap;
+}
+
+.me-question-table tbody td {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #424245;
+}
+
+.me-question-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.me-question-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #1d1d1f;
+}
+
+.me-question-table .me-balm-cell {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.me-select-count {
+  font-size: 0.9em;
+  color: #6e6e73;
+}
+
+.me-select-count strong {
+  color: #1d1d1f;
+}
+
+/* Progress overlay */
+.me-progress-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.me-progress-overlay .spinner {
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #1d1d1f;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.me-progress-text {
+  font-size: 0.95em;
+  color: #6e6e73;
+}
+
+/* No data message */
+.me-no-data {
+  text-align: center;
+  padding: 40px;
+  color: #86868b;
+  font-size: 0.95em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mockexam-wizard {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .me-type-cards {
+    flex-direction: column;
+  }
+
+  .me-body {
+    padding: 16px;
+  }
+}

@@ -4,6 +4,7 @@ import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterVa
 import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage } from './ImageModal.js';
+import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
 import { FilterManager } from '../core/FilterManager.js';
@@ -44,6 +45,7 @@ export class App {
         </div>
       </div>
       ${renderModal()}
+      ${renderMockExamModal()}
     `;
   }
 
@@ -61,6 +63,11 @@ export class App {
 
     this.bindTableDelegation();
     bindModalEvents();
+    bindMockExamEvents();
+
+    document.getElementById('btnMockExam').addEventListener('click', () => {
+      openMockExam(this.currentSubject, this.dm);
+    });
   }
 
   bindTableDelegation() {
