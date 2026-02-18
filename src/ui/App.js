@@ -5,9 +5,11 @@ import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage } from './ImageModal.js';
 import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
+import { renderLinkerModal, bindLinkerEvents, openLinker } from './LinkerModal.js';
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
 import { FilterManager } from '../core/FilterManager.js';
+import { LinkerStore } from '../core/LinkerStore.js';
 
 export class App {
   constructor(root) {
@@ -15,6 +17,7 @@ export class App {
     this.dm = new DataManager();
     this.fm = new FilterManager();
     this.pagination = new Pagination();
+    this.linkerStore = new LinkerStore();
     this.currentSubject = '한국지리';
     this.allData = [];
     this.filteredData = [];
@@ -46,6 +49,7 @@ export class App {
       </div>
       ${renderModal()}
       ${renderMockExamModal()}
+      ${renderLinkerModal()}
     `;
   }
 
@@ -64,9 +68,14 @@ export class App {
     this.bindTableDelegation();
     bindModalEvents();
     bindMockExamEvents();
+    bindLinkerEvents(this.linkerStore, this.dm);
 
     document.getElementById('btnMockExam').addEventListener('click', () => {
       openMockExam(this.currentSubject, this.dm);
+    });
+
+    document.getElementById('btnLinker').addEventListener('click', () => {
+      openLinker(this.currentSubject);
     });
   }
 

@@ -36,20 +36,43 @@ body {
   flex-wrap: wrap;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .btn-mockexam {
-  padding: 6px 14px;
-  font-size: 0.8em;
+  padding: 8px 18px;
+  font-size: 0.85em;
   font-weight: 600;
-  background: transparent;
-  color: #1d1d1f;
-  border: 1px solid #d1d1d1;
-  border-radius: 6px;
+  background: #1d1d1f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
 .btn-mockexam:hover {
+  background: #424245;
+}
+
+.btn-linker {
+  padding: 8px 18px;
+  font-size: 0.85em;
+  font-weight: 600;
+  background: transparent;
+  color: #1d1d1f;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-linker:hover {
   background: #f5f5f5;
 }
 

@@ -95,11 +95,11 @@ function renderStep1() {
     <div class="me-type-cards">
       <div class="me-type-card" id="meTypeSingle">
         <h3>과목별 모의고사</h3>
-        <p>현재 과목(${escHtml(state.currentSubject)})에서<br>성취기준별로 문항을 선택합니다</p>
+        <p>과목을 선택하여<br>성취기준별로 문항을 선택합니다</p>
       </div>
       <div class="me-type-card" id="meTypeMulti">
         <h3>통합 모의고사</h3>
-        <p>여러 과목의 문항을 모아<br>통합 모의고사를 만듭니다</p>
+        <p>모든 과목의 문항을 모아<br>통합 모의고사를 만듭니다</p>
       </div>
     </div>
     <div id="meSubjectPicker" style="display:none">
@@ -111,13 +111,13 @@ function renderStep1() {
 
   document.getElementById('meTypeSingle').addEventListener('click', () => {
     state.type = 'single';
-    state.subjects = [state.currentSubject];
-    goStep2();
+    showSubjectPicker();
   });
 
   document.getElementById('meTypeMulti').addEventListener('click', () => {
     state.type = 'multi';
-    showSubjectPicker();
+    state.subjects = [...SUBJECTS_WITH_DATA];
+    goStep2();
   });
 }
 
@@ -127,16 +127,16 @@ function showSubjectPicker() {
   const list = document.getElementById('meSubjectList');
   list.innerHTML = SUBJECTS_WITH_DATA.map(s => `
     <label>
-      <input type="checkbox" value="${escHtml(s)}" ${s === state.currentSubject ? 'checked' : ''}>
+      <input type="radio" name="meSingleSubject" value="${escHtml(s)}" ${s === state.currentSubject ? 'checked' : ''}>
       ${escHtml(s)}
     </label>
   `).join('');
 
   renderFooter('', '<button class="btn btn-primary" id="meSubjectNext">다음</button>');
   document.getElementById('meSubjectNext').addEventListener('click', () => {
-    const checked = Array.from(list.querySelectorAll('input:checked')).map(cb => cb.value);
-    if (checked.length === 0) return;
-    state.subjects = checked;
+    const selected = list.querySelector('input[name="meSingleSubject"]:checked');
+    if (!selected) return;
+    state.subjects = [selected.value];
     goStep2();
   });
 }
