@@ -35,6 +35,12 @@ body {
   font-weight: 700;
 }
 
+.header-left h1 .title-sub {
+  font-size: 0.85em;
+  color: #86868b;
+  font-weight: 500;
+}
+
 .header-left p {
   font-size: 1em;
   color: #6e6e73;
