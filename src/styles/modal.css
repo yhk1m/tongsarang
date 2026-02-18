@@ -35,7 +35,7 @@
   max-height: 80vh;
   object-fit: contain;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .modal-close {
@@ -52,7 +52,7 @@
 }
 
 .modal-close:hover {
-  color: #f44336;
+  color: #86868b;
 }
 
 .modal-info {
@@ -69,7 +69,7 @@
 }
 
 .modal-error {
-  color: #ff5252;
+  color: #aeaeb2;
   font-size: 1.2em;
   text-align: center;
   padding: 40px;
