@@ -195,6 +195,10 @@ tbody tr[data-chapter-num="10"] td:nth-child(7) { background-color: #cdcdcd; }
 
 .btn-expand, .btn-expand-std {
   display: none;
+}
+
+.btn-expand.visible, .btn-expand-std.visible {
+  display: inline-block;
   margin-top: 4px;
   padding: 2px 8px;
   font-size: 0.78em;

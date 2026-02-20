@@ -87,13 +87,12 @@ function initExpandButtons() {
     const btn = td.querySelector('.btn-expand');
     if (!textDiv || !btn) return;
     if (textDiv.scrollHeight > textDiv.clientHeight + 1) {
-      btn.style.display = '';
+      btn.classList.add('visible');
     }
   });
 
   document.querySelectorAll('#dataTable .btn-expand-std').forEach(btn => {
-    const detail = btn.parentElement.querySelector('.std-detail');
-    if (detail) btn.style.display = '';
+    btn.classList.add('visible');
   });
 }
 
