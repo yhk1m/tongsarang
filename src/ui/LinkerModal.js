@@ -6,7 +6,7 @@ const SUBJECT_CODE = {
   '세계지리': 'wgeo',
   '통합사회': 'iss',
   '한국사': 'korhis',
-  '정치와법': 'pol',
+  '정치와법': 'pollaw',
   '경제': 'econ',
   '사회문화': 'socul',
   '생활과윤리': 'leth',
@@ -26,6 +26,7 @@ let LINKER_SUBJECTS = [];
 
 let store = null;
 let dm = null;
+let onCloseCallback = null;
 let lState = {
   subject: '한국지리',
   items: [],         // 현재 과목의 전체 문항
@@ -60,9 +61,10 @@ export function renderLinkerModal() {
   `;
 }
 
-export function bindLinkerEvents(linkerStore, dataManager) {
+export function bindLinkerEvents(linkerStore, dataManager, onClose) {
   store = linkerStore;
   dm = dataManager;
+  onCloseCallback = onClose || null;
 
   const modal = document.getElementById('linkerModal');
   document.getElementById('linkerClose').addEventListener('click', closeLinker);
@@ -107,6 +109,7 @@ export async function openLinker(subject) {
 function closeLinker() {
   document.getElementById('linkerModal').classList.remove('open');
   document.body.style.overflow = '';
+  if (onCloseCallback) onCloseCallback();
 }
 
 async function loadLinkerSubject() {

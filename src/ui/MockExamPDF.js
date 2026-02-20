@@ -6,7 +6,7 @@ const SUBJECT_CODE = {
   '세계지리': 'wgeo',
   '통합사회': 'iss',
   '한국사': 'korhis',
-  '정치와법': 'pol',
+  '정치와법': 'pollaw',
   '경제': 'econ',
   '사회문화': 'socul',
   '생활과윤리': 'leth',
