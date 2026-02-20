@@ -23,7 +23,10 @@ const SUBJECTS = [
 const SUBJECT_CODE = {
   '한국지리': 'korgeo',
   '세계지리': 'wgeo',
-  '통합사회': 'iss'
+  '통합사회': 'iss',
+  '정치와법': 'pollaw',
+  '경제': 'econ',
+  '사회문화': 'socul',
 };
 
 // 월 → 분류 매핑 (일반 과목)

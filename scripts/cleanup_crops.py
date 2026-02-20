@@ -72,10 +72,14 @@ def detect_right_vertical_line(gray_arr):
                 center_col = (line_left + line_right) // 2
                 max_run = _longest_run(gray_arr[:, center_col] < 150)
 
-                if max_run >= h * 0.25:
+                if max_run >= h * 0.75:
                     if line_right + 1 < w:
                         right_area = gray_arr[:, line_right + 1:]
-                        if np.mean(right_area > 220) > 0.80:
+                        # Check area is blank: either mostly white (PNG)
+                        # or has no dark text content (JPEG with artifacts)
+                        is_white = np.mean(right_area > 220) > 0.80
+                        has_no_text = np.mean(right_area < 150) < 0.05
+                        if is_white or has_no_text:
                             return max(0, line_left - 2)
                     else:
                         return max(0, line_left - 2)
@@ -242,6 +246,44 @@ def detect_bottom_artifact(gray_arr):
 
             if is_narrow and (is_left_corner or is_right_corner):
                 return gap_above_start + 3
+
+    # ── Strategy 4: Bottom-edge page number (small gap) ──────────
+    # Handles page numbers right below answer text with minimal gap.
+    # Only triggers when the page number block is clearly isolated.
+    check_h4 = min(80, int(h * 0.08))
+    bottom_region = gray_arr[h - check_h4:, :]
+    bh, bw = bottom_region.shape
+    row_has_dark = np.any(bottom_region < 150, axis=1)
+
+    last_content = -1
+    first_content = bh
+    for r in range(bh - 1, -1, -1):
+        if row_has_dark[r]:
+            if last_content == -1:
+                last_content = r
+            first_content = r
+
+    if last_content >= 0 and first_content < last_content:
+        block_h = last_content - first_content + 1
+        if block_h <= 50:
+            block = bottom_region[first_content:last_content + 1, :]
+            col_has = np.any(block < 150, axis=0)
+            dark_cols = np.where(col_has)[0]
+            if len(dark_cols) > 0:
+                cw = dark_cols[-1] - dark_cols[0] + 1
+                is_narrow = cw < bw * 0.15
+                is_left = dark_cols[-1] < bw * 0.30
+                is_right = dark_cols[0] > bw * 0.70
+                if is_narrow and (is_left or is_right):
+                    abs_first = h - check_h4 + first_content
+                    gap = 0
+                    for gy in range(abs_first - 1, max(0, abs_first - 30), -1):
+                        if np.sum(gray_arr[gy, :] < 150) < 5:
+                            gap += 1
+                        else:
+                            break
+                    if gap >= 3:
+                        return abs_first - 1
 
     return None
 
