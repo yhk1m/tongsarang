@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'tongsarang_achievement_mappings';
+const DEFAULTS_LOADED_KEY = 'tongsarang_defaults_loaded_v2';
 
 export class LinkerStore {
   constructor() {
@@ -12,6 +13,27 @@ export class LinkerStore {
     } catch {
       return {};
     }
+  }
+
+  /** 기본 매핑 데이터 자동 로드 (최초 1회) */
+  async loadDefaults() {
+    const loaded = localStorage.getItem(DEFAULTS_LOADED_KEY);
+    if (loaded) return;
+    try {
+      const resp = await fetch(`${import.meta.env.BASE_URL}data/default_mappings.json`);
+      if (!resp.ok) return;
+      const defaults = await resp.json();
+      for (const [subject, mappings] of Object.entries(defaults)) {
+        if (!this.data[subject]) this.data[subject] = {};
+        for (const [key, val] of Object.entries(mappings)) {
+          if (!this.data[subject][key]) {
+            this.data[subject][key] = val;
+          }
+        }
+      }
+      this._save();
+      localStorage.setItem(DEFAULTS_LOADED_KEY, '1');
+    } catch { /* ignore */ }
   }
 
   _save() {
