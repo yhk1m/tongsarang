@@ -118,7 +118,7 @@ thead th.sortable.desc::after {
 
 /* Column widths */
 thead th:nth-child(1), tbody td:nth-child(1) { width: 70px; text-align: center; }
-thead th:nth-child(2), tbody td:nth-child(2) { width: 70px; text-align: center; }
+thead th:nth-child(2), tbody td:nth-child(2) { width: 105px; text-align: center; }
 thead th:nth-child(3), tbody td:nth-child(3) { width: 50px; text-align: center; }
 thead th:nth-child(4), tbody td:nth-child(4) { width: 50px; text-align: center; }
 thead th:nth-child(5), tbody td:nth-child(5) { width: 50px; text-align: center; }
@@ -177,6 +177,56 @@ tbody tr[data-chapter-num="7"] td:nth-child(7) { background-color: #d5d5d5; }
 tbody tr[data-chapter-num="8"] td:nth-child(7) { background-color: #cdcdcd; }
 tbody tr[data-chapter-num="9"] td:nth-child(7) { background-color: #c5c5c5; }
 tbody tr[data-chapter-num="10"] td:nth-child(7) { background-color: #cdcdcd; }
+
+/* Expandable cells - 발문/문항내용 3줄 제한 */
+.cell-expandable .cell-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.cell-expandable.expanded .cell-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.btn-expand, .btn-expand-std {
+  display: none;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 0.78em;
+  color: #0071e3;
+  background: none;
+  border: 1px solid #0071e3;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-expand:hover, .btn-expand-std:hover {
+  background: #0071e3;
+  color: white;
+}
+
+/* 성취기준 더보기 */
+.std-detail {
+  display: none;
+  margin-top: 4px;
+  padding: 4px 6px;
+  font-size: 0.85em;
+  color: #333;
+  background: #f5f5f5;
+  border-radius: 4px;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.cell-expandable.expanded .std-detail {
+  display: block;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

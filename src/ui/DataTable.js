@@ -1,4 +1,5 @@
 import { isGeoTesterLoaded } from '../core/DataManager.js';
+import { ACHIEVEMENT_STANDARDS } from '../data/achievementStandards.js';
 
 const GEOTESTER_SUBJECTS = new Set(['한국지리', '세계지리', '통합사회']);
 
@@ -16,7 +17,7 @@ export function renderTableShell(subject) {
             <th>배점</th>
             <th>답</th>
             <th>대단원</th>
-            <th>중단원</th>
+            <th>성취기준</th>
             <th>발문</th>
             <th>문항 내용</th>
             <th class="sortable" data-sort="정답률">정답률(%)</th>
@@ -36,7 +37,7 @@ export function renderTableShell(subject) {
   `;
 }
 
-export function renderTableRows(data, currentSubject) {
+export function renderTableRows(data, currentSubject, linkerStore) {
   const tbody = document.getElementById('tableBody');
   const showGeo = GEOTESTER_SUBJECTS.has(currentSubject);
   const cols = showGeo ? 13 : 12;
@@ -54,6 +55,10 @@ export function renderTableRows(data, currentSubject) {
     const safeCat = escapeHtml(item.분류);
     const safeNum = escapeHtml(String(item.번호));
 
+    const standardId = linkerStore ? linkerStore.getMapping(currentSubject, item) : null;
+    const standardText = standardId ? lookupStandardText(currentSubject, standardId) : '';
+    const standardDisplay = standardId || '미연결';
+
     return `
       <tr data-subject="${escapeHtml(currentSubject)}" data-chapter-num="${chapterNum}">
         <td><strong>${safeYear}</strong></td>
@@ -62,9 +67,9 @@ export function renderTableRows(data, currentSubject) {
         <td><strong>${escapeHtml(String(item.배점))}</strong></td>
         <td><strong>${escapeHtml(String(item.답))}</strong></td>
         <td>${escapeHtml(item.대단원)}</td>
-        <td>${escapeHtml(item.중단원)}</td>
-        <td>${safeBalm}</td>
-        <td>${safeContent}</td>
+        <td class="cell-expandable">${escapeHtml(standardDisplay)}${standardText ? `<div class="std-detail">${escapeHtml(standardText)}</div><button class="btn-expand-std">더보기</button>` : ''}</td>
+        <td class="cell-expandable"><div class="cell-text">${safeBalm}</div><button class="btn-expand">더보기</button></td>
+        <td class="cell-expandable"><div class="cell-text">${safeContent}</div><button class="btn-expand">더보기</button></td>
         <td class="${getAccuracyClass(item.정답률)}">${escapeHtml(String(item.정답률))}</td>
         <td class="${getDifficultyClass(item.난이도)}">${escapeHtml(item.난이도)}</td>
         <td><button class="btn-view" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}">&#128196; 보기</button></td>
@@ -72,6 +77,24 @@ export function renderTableRows(data, currentSubject) {
       </tr>
     `;
   }).join('');
+
+  initExpandButtons();
+}
+
+function initExpandButtons() {
+  document.querySelectorAll('#dataTable .cell-expandable').forEach(td => {
+    const textDiv = td.querySelector('.cell-text');
+    const btn = td.querySelector('.btn-expand');
+    if (!textDiv || !btn) return;
+    if (textDiv.scrollHeight > textDiv.clientHeight + 1) {
+      btn.style.display = '';
+    }
+  });
+
+  document.querySelectorAll('#dataTable .btn-expand-std').forEach(btn => {
+    const detail = btn.parentElement.querySelector('.std-detail');
+    if (detail) btn.style.display = '';
+  });
 }
 
 export function showLoading() {
@@ -92,6 +115,23 @@ export function bindTableEvents({ onSort, onViewQuestion }) {
     const btn = e.target.closest('.btn-view');
     if (btn) {
       onViewQuestion(btn.dataset.year, btn.dataset.cat, btn.dataset.num);
+      return;
+    }
+
+    const expandBtn = e.target.closest('.btn-expand');
+    if (expandBtn) {
+      const td = expandBtn.closest('.cell-expandable');
+      const isExpanded = td.classList.toggle('expanded');
+      expandBtn.textContent = isExpanded ? '접기' : '더보기';
+      return;
+    }
+
+    const stdBtn = e.target.closest('.btn-expand-std');
+    if (stdBtn) {
+      const td = stdBtn.closest('.cell-expandable');
+      const isExpanded = td.classList.toggle('expanded');
+      stdBtn.textContent = isExpanded ? '접기' : '더보기';
+      return;
     }
   });
 }
@@ -106,6 +146,26 @@ export function updateSortIndicators(column, order) {
 }
 
 // Helpers
+function lookupStandardText(subject, standardId) {
+  const subjectData = ACHIEVEMENT_STANDARDS[subject];
+  if (!subjectData || !standardId) return '';
+  for (const area of subjectData.areas) {
+    for (const s of area.standards) {
+      if (s.id === standardId) return s.text;
+    }
+  }
+  if (subjectData.versions) {
+    for (const version of Object.values(subjectData.versions)) {
+      for (const area of version.areas) {
+        for (const s of area.standards) {
+          if (s.id === standardId) return s.text;
+        }
+      }
+    }
+  }
+  return '';
+}
+
 function getChapterNumber(chapter) {
   if (!chapter) return '';
   const match = chapter.match(/^(\d+)\./);
