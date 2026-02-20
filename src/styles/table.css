@@ -200,7 +200,12 @@ tbody td:nth-child(7) {
   color: white;
 }
 
-/* 성취기준 더보기 */
+/* 성취기준 더보기 - 버튼 줄바꿈 */
+.cell-expandable .btn-expand-std.visible {
+  display: block;
+}
+
+
 .std-detail {
   display: none;
   margin-top: 4px;
