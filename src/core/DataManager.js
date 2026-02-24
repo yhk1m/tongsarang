@@ -54,12 +54,15 @@ export class DataManager {
     return result;
   }
 
-  getFilterOptions(data) {
+  getFilterOptions(data, linkerStore, subject) {
+    const linkedStandards = linkerStore && subject
+      ? data.map(d => linkerStore.getMapping(subject, d)).filter(Boolean)
+      : [];
     return {
       학년도: [...new Set(data.map(d => d.학년도).filter(Boolean))].sort((a, b) => b - a),
       분류: [...new Set(data.map(d => d.분류).filter(Boolean))],
       대단원: [...new Set(data.map(d => d.대단원).filter(Boolean))].sort(),
-      중단원: [...new Set(data.map(d => d.중단원).filter(Boolean))].sort(),
+      성취기준: [...new Set(linkedStandards)].sort(),
       난이도: [...new Set(data.map(d => d.난이도).filter(Boolean))].sort()
     };
   }

@@ -24,7 +24,7 @@ export function renderFilterPanel() {
           <select id="filterChapter"><option value="">전체</option></select>
         </div>
         <div class="filter-group">
-          <label>중단원</label>
+          <label>성취기준</label>
           <select id="filterSubChapter"><option value="">전체</option></select>
         </div>
         <div class="filter-group">
@@ -84,7 +84,7 @@ export function populateFilterOptions(options) {
   fillSelect('filterYear', options.학년도);
   fillSelect('filterCategory', options.분류);
   fillSelect('filterChapter', options.대단원);
-  fillSelect('filterSubChapter', options.중단원);
+  fillSelect('filterSubChapter', options.성취기준);
   fillSelect('filterDifficulty', options.난이도);
 }
 
@@ -101,7 +101,7 @@ export function getFilterValues() {
     학년도: document.getElementById('filterYear').value,
     분류: document.getElementById('filterCategory').value,
     대단원: document.getElementById('filterChapter').value,
-    중단원: document.getElementById('filterSubChapter').value,
+    성취기준: document.getElementById('filterSubChapter').value,
     난이도: document.getElementById('filterDifficulty').value,
     GeoTester: document.getElementById('filterGeoTester').value,
     정답률범위: Array.from(accChecked).map(cb => cb.value),
@@ -166,18 +166,21 @@ export function setGeoTesterFilterVisible(visible) {
   if (!visible) document.getElementById('filterGeoTester').value = '';
 }
 
-export function updateSubChapterOptions(allData, selectedChapter) {
+export function updateSubChapterOptions(allData, selectedChapter, linkerStore, subject) {
   const sel = document.getElementById('filterSubChapter');
   while (sel.options.length > 1) sel.remove(1);
 
-  let items;
-  if (selectedChapter) {
-    items = [...new Set(
-      allData.filter(d => d.대단원 === selectedChapter).map(d => d.중단원).filter(Boolean)
-    )].sort();
-  } else {
-    items = [...new Set(allData.map(d => d.중단원).filter(Boolean))].sort();
-  }
+  const filtered = selectedChapter
+    ? allData.filter(d => d.대단원 === selectedChapter)
+    : allData;
+
+  const items = [...new Set(
+    filtered.map(d => {
+      if (linkerStore && subject) return linkerStore.getMapping(subject, d);
+      return null;
+    }).filter(Boolean)
+  )].sort();
+
   items.forEach(v => sel.add(new Option(v, v)));
   sel.value = '';
 }

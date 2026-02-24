@@ -8,7 +8,7 @@ export class FilterManager {
     this.sortOrder = null; // 'asc' | 'desc' | null
   }
 
-  applyFilters(data, filters) {
+  applyFilters(data, filters, linkerStore, subject) {
     return data.filter(item => {
       // 학년도
       if (filters.학년도 && String(item.학년도) !== String(filters.학년도)) return false;
@@ -19,8 +19,11 @@ export class FilterManager {
       // 대단원
       if (filters.대단원 && item.대단원 !== filters.대단원) return false;
 
-      // 중단원
-      if (filters.중단원 && item.중단원 !== filters.중단원) return false;
+      // 성취기준 (LinkerStore 매핑 기반)
+      if (filters.성취기준) {
+        const linked = linkerStore ? linkerStore.getMapping(subject, item) : null;
+        if (linked !== filters.성취기준) return false;
+      }
 
       // 난이도
       if (filters.난이도 && item.난이도 !== filters.난이도) return false;

@@ -3,7 +3,7 @@ import { renderSubjectNav, bindSubjectNav } from './SubjectNav.js';
 import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions, setGeoTesterFilterVisible } from './FilterPanel.js';
 import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
-import { renderModal, bindModalEvents, showImage } from './ImageModal.js';
+import { renderModal, bindModalEvents, showImage, setNavList } from './ImageModal.js';
 import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
 import { renderLinkerModal, bindLinkerEvents, openLinker } from './LinkerModal.js';
 import { Pagination } from './Pagination.js';
@@ -26,6 +26,7 @@ export class App {
   async init() {
     this.render();
     this.bindEvents();
+    await this.linkerStore.loadDefaults();
     await this.loadSubject(this.currentSubject);
   }
 
@@ -61,14 +62,14 @@ export class App {
       onReset: () => this.resetFilters(),
       onChapterChange: () => {
         const chapter = document.getElementById('filterChapter').value;
-        updateSubChapterOptions(this.allData, chapter);
+        updateSubChapterOptions(this.allData, chapter, this.linkerStore, this.currentSubject);
       }
     });
 
     this.bindTableDelegation();
     bindModalEvents();
     bindMockExamEvents();
-    bindLinkerEvents(this.linkerStore, this.dm);
+    bindLinkerEvents(this.linkerStore, this.dm, () => this.onLinkerClose());
 
     document.getElementById('btnMockExam').addEventListener('click', () => {
       openMockExam(this.currentSubject, this.dm);
@@ -87,7 +88,11 @@ export class App {
   bindTableDelegation() {
     bindTableEvents({
       onSort: col => this.handleSort(col),
-      onViewQuestion: (y, c, n) => showImage(this.currentSubject, y, c, n)
+      onViewQuestion: (y, c, n) => {
+        const sorted = this.fm.applySorting(this.filteredData);
+        setNavList(this.currentSubject, sorted);
+        showImage(this.currentSubject, y, c, n);
+      }
     });
   }
 
@@ -121,7 +126,7 @@ export class App {
       this.allData = await this.dm.loadSubject(subject);
       this.filteredData = this.allData;
 
-      const options = this.dm.getFilterOptions(this.allData);
+      const options = this.dm.getFilterOptions(this.allData, this.linkerStore, this.currentSubject);
       populateFilterOptions(options);
 
       const stats = this.dm.getStats(this.allData);
@@ -138,7 +143,7 @@ export class App {
 
   applyFilters() {
     const filters = getFilterValues();
-    this.filteredData = this.fm.applyFilters(this.allData, filters);
+    this.filteredData = this.fm.applyFilters(this.allData, filters, this.linkerStore, this.currentSubject);
     this.pagination.reset(this.filteredData.length);
     this.renderData();
   }
@@ -147,7 +152,7 @@ export class App {
     resetFilterValues();
     this.fm.resetSort();
     updateSortIndicators(null, null);
-    updateSubChapterOptions(this.allData, '');
+    updateSubChapterOptions(this.allData, '', this.linkerStore, this.currentSubject);
     this.filteredData = this.allData;
     this.pagination.reset(this.filteredData.length);
     this.renderData();
@@ -159,11 +164,20 @@ export class App {
     this.renderData();
   }
 
+  onLinkerClose() {
+    // 성취기준 연결 변경 반영: 필터 옵션 갱신 + 테이블 다시 렌더
+    const options = this.dm.getFilterOptions(this.allData, this.linkerStore, this.currentSubject);
+    populateFilterOptions(options);
+    const chapter = document.getElementById('filterChapter').value;
+    updateSubChapterOptions(this.allData, chapter, this.linkerStore, this.currentSubject);
+    this.applyFilters();
+  }
+
   renderData() {
     const sorted = this.fm.applySorting(this.filteredData);
     const pageData = this.pagination.getPageData(sorted);
 
-    renderTableRows(pageData, this.currentSubject);
+    renderTableRows(pageData, this.currentSubject, this.linkerStore);
     updateResultCount(this.filteredData.length);
 
     // Pagination

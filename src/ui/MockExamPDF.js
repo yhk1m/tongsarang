@@ -1,5 +1,42 @@
 import { jsPDF } from 'jspdf';
 
+// ── 한글 폰트 캐시 ──
+let _fontCache = null;
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunks = [];
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    chunks.push(String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)));
+  }
+  return btoa(chunks.join(''));
+}
+
+async function loadFontData() {
+  if (_fontCache) return _fontCache;
+  const baseUrl = import.meta.env.BASE_URL;
+  const [regularResp, boldResp] = await Promise.all([
+    fetch(`${baseUrl}fonts/NanumGothic-Regular.ttf`),
+    fetch(`${baseUrl}fonts/NanumGothic-Bold.ttf`)
+  ]);
+  const [regularBuf, boldBuf] = await Promise.all([
+    regularResp.arrayBuffer(),
+    boldResp.arrayBuffer()
+  ]);
+  _fontCache = {
+    regular: arrayBufferToBase64(regularBuf),
+    bold: arrayBufferToBase64(boldBuf)
+  };
+  return _fontCache;
+}
+
+function registerFont(doc, fontData) {
+  doc.addFileToVFS('NanumGothic-Regular.ttf', fontData.regular);
+  doc.addFont('NanumGothic-Regular.ttf', 'NanumGothic', 'normal');
+  doc.addFileToVFS('NanumGothic-Bold.ttf', fontData.bold);
+  doc.addFont('NanumGothic-Bold.ttf', 'NanumGothic', 'bold');
+}
+
 // 과목 → 이미지 코드 매핑 (ImageModal과 동일)
 const SUBJECT_CODE = {
   '한국지리': 'korgeo',
@@ -52,6 +89,9 @@ function subjectLabel(questions) {
 export async function generateMockExamPDF(questions, onProgress) {
   const total = questions.length;
 
+  // Load Korean font data (cached after first load)
+  const fontData = await loadFontData();
+
   // Load and process all images
   const imageDataList = [];
   for (let i = 0; i < total; i++) {
@@ -65,10 +105,10 @@ export async function generateMockExamPDF(questions, onProgress) {
   const label = subjectLabel(questions);
 
   // Generate question PDF
-  generateQuestionPDF(imageDataList, questions, `${ts}_${label}_문제지.pdf`);
+  generateQuestionPDF(imageDataList, questions, `${ts}_${label}_문제지.pdf`, fontData);
 
   // Generate answer PDF
-  generateAnswerPDF(questions, `${ts}_${label}_정답표.pdf`);
+  generateAnswerPDF(questions, `${ts}_${label}_정답표.pdf`, fontData);
 }
 
 /**
@@ -151,8 +191,10 @@ function loadAndProcessImage(question, newNumber) {
 /**
  * Generate the question sheet PDF with 2-column layout
  */
-function generateQuestionPDF(imageDataList, questions, fileName) {
+function generateQuestionPDF(imageDataList, questions, fileName, fontData) {
   const doc = new jsPDF('p', 'mm', 'a4');
+  registerFont(doc, fontData);
+
   let pageNum = 1;
   let col = 0; // 0=left, 1=right
   let yPos = 0; // current y position within the column (relative to content start)
@@ -220,12 +262,12 @@ function generateQuestionPDF(imageDataList, questions, fileName) {
  * Draw page header
  */
 function drawPageHeader(doc, pageNum) {
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NanumGothic', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(30, 30, 31);
-  doc.text('Mock Exam', MARGIN, MARGIN + 6);
+  doc.text('모의고사 문제지', MARGIN, MARGIN + 6);
 
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NanumGothic', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(110, 110, 115);
   doc.text(`- ${pageNum} -`, PAGE_W / 2, PAGE_H - MARGIN + 5, { align: 'center' });
@@ -239,17 +281,18 @@ function drawPageHeader(doc, pageNum) {
 /**
  * Generate the answer sheet PDF
  */
-function generateAnswerPDF(questions, fileName) {
+function generateAnswerPDF(questions, fileName, fontData) {
   const doc = new jsPDF('p', 'mm', 'a4');
+  registerFont(doc, fontData);
 
   // Title
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NanumGothic', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(30, 30, 31);
-  doc.text('Answer Sheet', PAGE_W / 2, MARGIN + 10, { align: 'center' });
+  doc.text('정답표', PAGE_W / 2, MARGIN + 10, { align: 'center' });
 
   // Date
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NanumGothic', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(110, 110, 115);
   const dateStr = new Date().toLocaleDateString('ko-KR');
@@ -257,18 +300,18 @@ function generateAnswerPDF(questions, fileName) {
 
   // Table
   const tableTop = MARGIN + 28;
-  const colWidths = [20, 25, 25, 25, 85]; // No, Answer, Score, Subject(if multi), Source
+  const colWidths = [20, 25, 25, 25, 85]; // 번호, 정답, 배점, 과목(복수 시), 출처
   const multiSubject = new Set(questions.map(q => q._subject)).size > 1;
 
-  const headers = ['No.', 'Answer', 'Score'];
-  if (multiSubject) headers.push('Subject');
-  headers.push('Source');
+  const headers = ['번호', '정답', '배점'];
+  if (multiSubject) headers.push('과목');
+  headers.push('출처');
 
   const rowH = 7;
   let y = tableTop;
 
   // Header row
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('NanumGothic', 'bold');
   doc.setFontSize(9);
   doc.setFillColor(250, 250, 250);
   doc.setTextColor(30, 30, 31);
@@ -289,7 +332,7 @@ function generateAnswerPDF(questions, fileName) {
   y += rowH;
 
   // Data rows
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('NanumGothic', 'normal');
   doc.setFontSize(8);
 
   for (let i = 0; i < questions.length; i++) {
