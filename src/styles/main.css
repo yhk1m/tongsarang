@@ -76,6 +76,12 @@ body {
   background: #f5f5f5;
 }
 
+.header-logo {
+  height: 1.2em;
+  vertical-align: -0.15em;
+  margin-right: 6px;
+}
+
 .header-left h1 {
   font-size: 2em;
   margin-bottom: 0;
