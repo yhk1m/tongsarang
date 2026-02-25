@@ -92,39 +92,48 @@ function renderFormTab() {
         <label for="reportContent">오류 내용 <span class="required">*</span></label>
         <textarea id="reportContent" rows="4" placeholder="발견한 오류를 설명해 주세요" required></textarea>
       </div>
-      <details class="report-details">
-        <summary>제보자 정보 (선택)</summary>
-        <div class="report-details-inner">
-          <div class="report-row">
-            <div class="report-field">
-              <label for="reportName">이름</label>
-              <input type="text" id="reportName" placeholder="이름">
-            </div>
-            <div class="report-field">
-              <label for="reportSchool">소속</label>
-              <input type="text" id="reportSchool" placeholder="소속">
-            </div>
-          </div>
-          <div class="report-row">
-            <div class="report-field">
-              <label for="reportTeachSubject">담당과목</label>
-              <input type="text" id="reportTeachSubject" placeholder="담당과목">
-            </div>
-            <div class="report-field">
-              <label for="reportRole">직위</label>
-              <select id="reportRole">
-                <option value="">선택하세요</option>
-                <option value="교사">교사</option>
-                <option value="학생">학생</option>
-              </select>
-            </div>
-          </div>
+      <div class="report-section-label">제보자 정보 (선택)</div>
+      <div class="report-row">
+        <div class="report-field">
+          <label for="reportName">이름</label>
+          <input type="text" id="reportName" placeholder="이름">
         </div>
-      </details>
+        <div class="report-field">
+          <label for="reportSchool">소속</label>
+          <input type="text" id="reportSchool" placeholder="소속">
+        </div>
+      </div>
+      <div class="report-row">
+        <div class="report-field">
+          <label for="reportTeachSubject">담당과목</label>
+          <input type="text" id="reportTeachSubject" placeholder="담당과목">
+        </div>
+        <div class="report-field">
+          <label for="reportRole">직위</label>
+          <select id="reportRole">
+            <option value="">선택하세요</option>
+            <option value="교사">교사</option>
+            <option value="학생">학생</option>
+            <option value="__custom__">기타(직접작성)</option>
+          </select>
+          <input type="text" id="reportRoleCustom" placeholder="직위를 입력하세요" style="display:none">
+        </div>
+      </div>
       <button type="submit" class="btn btn-primary report-submit">제보하기</button>
       <div id="reportMsg" class="report-msg"></div>
     </form>
   `;
+
+  document.getElementById('reportRole').addEventListener('change', e => {
+    const custom = document.getElementById('reportRoleCustom');
+    if (e.target.value === '__custom__') {
+      custom.style.display = '';
+      custom.focus();
+    } else {
+      custom.style.display = 'none';
+      custom.value = '';
+    }
+  });
 
   document.getElementById('reportForm').addEventListener('submit', async e => {
     e.preventDefault();
@@ -144,7 +153,9 @@ function renderFormTab() {
       이름: document.getElementById('reportName').value,
       소속: document.getElementById('reportSchool').value,
       담당과목: document.getElementById('reportTeachSubject').value,
-      직위: document.getElementById('reportRole').value
+      직위: document.getElementById('reportRole').value === '__custom__'
+        ? document.getElementById('reportRoleCustom').value
+        : document.getElementById('reportRole').value
     };
 
     try {

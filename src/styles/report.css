@@ -153,39 +153,12 @@
   gap: 12px;
 }
 
-/* Details (접기/펼치기) */
-.report-details {
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  padding: 0;
-}
-
-.report-details summary {
-  padding: 10px 14px;
+/* Section label */
+.report-section-label {
   font-size: 0.85em;
   font-weight: 600;
   color: #6e6e73;
-  cursor: pointer;
-  list-style: none;
-}
-
-.report-details summary::-webkit-details-marker {
-  display: none;
-}
-
-.report-details summary::before {
-  content: '▸ ';
-}
-
-.report-details[open] summary::before {
-  content: '▾ ';
-}
-
-.report-details-inner {
-  padding: 0 14px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  padding-top: 4px;
 }
 
 .report-submit {
