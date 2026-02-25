@@ -5,11 +5,18 @@ import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage, setNavList } from './ImageModal.js';
 import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
-import { renderLinkerModal, bindLinkerEvents, openLinker } from './LinkerModal.js';
+import { renderLinkerModal, bindLinkerEvents, openLinker, openLinkerForItem } from './LinkerModal.js';
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
 import { FilterManager } from '../core/FilterManager.js';
 import { LinkerStore } from '../core/LinkerStore.js';
+import { EditStore } from '../core/EditStore.js';
+import { renderDevToolbar, bindDevToolbarEvents, updateDevEditCount } from './DevToolbar.js';
+
+function escapeHtmlForTextarea(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 export class App {
   constructor(root) {
@@ -18,16 +25,31 @@ export class App {
     this.fm = new FilterManager();
     this.pagination = new Pagination();
     this.linkerStore = new LinkerStore();
+    this.editStore = new EditStore();
     this.currentSubject = '한국지리';
     this.allData = [];
     this.filteredData = [];
+    this.devMode = false;
   }
 
   async init() {
+    this._checkDevMode();
     this.render();
     this.bindEvents();
     await this.linkerStore.loadDefaults();
     await this.loadSubject(this.currentSubject);
+  }
+
+  _checkDevMode() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'dev') {
+      const pw = prompt('개발자 모드 비밀번호를 입력하세요');
+      if (pw === 'rs21') {
+        this.devMode = true;
+      } else if (pw !== null) {
+        alert('비밀번호가 틀렸습니다.');
+      }
+    }
   }
 
   render() {
@@ -39,6 +61,7 @@ export class App {
         <div class="main-card">
           ${renderSubjectNav(subjects, this.currentSubject)}
           <div class="content">
+            ${this.devMode ? renderDevToolbar() : ''}
             ${renderFilterPanel()}
             <div class="table-container">
               ${renderStatsBar()}
@@ -76,13 +99,24 @@ export class App {
     });
 
     document.getElementById('btnLinker').addEventListener('click', () => {
-      const pw = prompt('비밀번호를 입력하세요');
-      if (pw === 'rs21') {
+      if (this.devMode) {
         openLinker(this.currentSubject);
-      } else if (pw !== null) {
-        alert('비밀번호가 틀렸습니다.');
+      } else {
+        const pw = prompt('비밀번호를 입력하세요');
+        if (pw === 'rs21') {
+          openLinker(this.currentSubject);
+        } else if (pw !== null) {
+          alert('비밀번호가 틀렸습니다.');
+        }
       }
     });
+
+    if (this.devMode) {
+      bindDevToolbarEvents(this.editStore, this.linkerStore, () => {
+        this.onLinkerClose();
+        updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
+      }, () => this.currentSubject);
+    }
   }
 
   bindTableDelegation() {
@@ -92,8 +126,63 @@ export class App {
         const sorted = this.fm.applySorting(this.filteredData);
         setNavList(this.currentSubject, sorted);
         showImage(this.currentSubject, y, c, n);
-      }
+      },
+      onEditField: this.devMode ? (year, cat, num, field) => {
+        this._handleEditField(year, cat, num, field);
+      } : null,
+      onEditStandard: this.devMode ? (year, cat, num) => {
+        openLinkerForItem(this.currentSubject, year, cat, num);
+      } : null,
+      onResetField: this.devMode ? (year, cat, num, field) => {
+        this._handleResetField(year, cat, num, field);
+      } : null
     });
+  }
+
+  _handleEditField(year, cat, num, field) {
+    const item = this.allData.find(
+      i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
+    );
+    if (!item) return;
+
+    const key = `${year}_${cat}_${num}`;
+    const td = document.querySelector(`[data-edit-key="${key}_${field}"]`);
+    if (!td || td.querySelector('.dev-edit-area')) return;
+
+    const currentValue = this.editStore.getFieldValue(this.currentSubject, item, field);
+
+    td.innerHTML = `
+      <div class="dev-edit-area">
+        <textarea class="dev-edit-textarea">${escapeHtmlForTextarea(currentValue)}</textarea>
+        <div class="dev-edit-actions">
+          <button class="dev-edit-save">저장</button>
+          <button class="dev-edit-cancel">취소</button>
+        </div>
+      </div>
+    `;
+
+    const textarea = td.querySelector('.dev-edit-textarea');
+    textarea.focus();
+
+    td.querySelector('.dev-edit-save').addEventListener('click', () => {
+      const newValue = textarea.value;
+      this.editStore.setEdit(this.currentSubject, item, field, newValue);
+      this.renderData();
+      updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
+    });
+
+    td.querySelector('.dev-edit-cancel').addEventListener('click', () => {
+      this.renderData();
+    });
+  }
+
+  _handleResetField(year, cat, num, field) {
+    const item = this.allData.find(
+      i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
+    );
+    if (!item) return;
+    this.editStore.removeEdit(this.currentSubject, item, field);
+    this.renderData();
   }
 
   async switchSubject(subject) {
@@ -177,8 +266,12 @@ export class App {
     const sorted = this.fm.applySorting(this.filteredData);
     const pageData = this.pagination.getPageData(sorted);
 
-    renderTableRows(pageData, this.currentSubject, this.linkerStore);
+    renderTableRows(pageData, this.currentSubject, this.linkerStore, this.devMode, this.editStore);
     updateResultCount(this.filteredData.length);
+
+    if (this.devMode) {
+      updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
+    }
 
     // Pagination
     const pagContainer = document.getElementById('paginationContainer');

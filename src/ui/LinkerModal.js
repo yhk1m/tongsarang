@@ -106,6 +106,23 @@ export async function openLinker(subject) {
   await loadLinkerSubject();
 }
 
+/** 특정 문항으로 바로 LinkerModal 열기 (개발자 모드용) */
+export async function openLinkerForItem(subject, year, cat, num) {
+  await openLinker(subject);
+
+  // filtered에서 해당 문항 찾기
+  const idx = lState.filtered.findIndex(
+    i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
+  );
+
+  if (idx >= 0) {
+    lState.currentIdx = idx;
+    highlightCurrentItem();
+    renderRightPanel();
+    renderFooter();
+  }
+}
+
 function closeLinker() {
   document.getElementById('linkerModal').classList.remove('open');
   document.body.style.overflow = '';

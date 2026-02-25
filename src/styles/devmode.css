@@ -1,0 +1,227 @@
+/* Dev Toolbar */
+.dev-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1a2e;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.dev-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dev-badge {
+  background: #e94560;
+  color: #fff;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.dev-label {
+  font-weight: 600;
+}
+
+.dev-edit-count {
+  color: #a0a0b0;
+  font-size: 12px;
+}
+
+.dev-toolbar-right {
+  display: flex;
+  gap: 8px;
+}
+
+.dev-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dev-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dev-btn-danger {
+  background: rgba(233, 69, 96, 0.3);
+  border-color: rgba(233, 69, 96, 0.5);
+}
+
+.dev-btn-danger:hover {
+  background: rgba(233, 69, 96, 0.5);
+}
+
+/* Edit buttons in table cells */
+.btn-edit-field {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-edit-field:hover {
+  background: #e0e0e0;
+}
+
+.btn-edit-std {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #e8f4fd;
+  border: 1px solid #b3d9f2;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-edit-std:hover {
+  background: #d0ecfa;
+}
+
+/* Reset button in edited cells */
+.btn-reset-field {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-reset-field:hover {
+  background: #ffe0b2;
+}
+
+/* Edited cell highlight */
+.cell-edited {
+  background-color: #fffde7 !important;
+}
+
+/* Cell wrapper for edit mode */
+.dev-cell-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.dev-cell-wrapper .cell-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Inline edit textarea */
+.dev-edit-area {
+  width: 100%;
+}
+
+.dev-edit-area textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 6px 8px;
+  border: 2px solid #0071e3;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.dev-edit-area textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+}
+
+.dev-edit-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dev-edit-save,
+.dev-edit-cancel {
+  padding: 3px 10px;
+  border: none;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dev-edit-save {
+  background: #0071e3;
+  color: #fff;
+}
+
+.dev-edit-save:hover {
+  background: #0060c0;
+}
+
+.dev-edit-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.dev-edit-cancel:hover {
+  background: #d0d0d0;
+}
+
+/* Standard cell edit indicator */
+.std-edit-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.std-edit-wrapper > span:first-child {
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dev-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
