@@ -248,9 +248,9 @@
   padding: 8px 18px;
   font-size: 0.85em;
   font-weight: 600;
-  background: transparent;
-  color: #1d1d1f;
-  border: 1px solid #d1d1d1;
+  background: #a80000;
+  color: #fff;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
@@ -258,7 +258,7 @@
 }
 
 .btn-report:hover {
-  background: #f5f5f5;
+  background: #8a0000;
 }
 
 /* Responsive */
