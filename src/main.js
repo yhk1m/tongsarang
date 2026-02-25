@@ -6,6 +6,7 @@ import './styles/modal.css';
 import './styles/mockexam.css';
 import './styles/linker.css';
 import './styles/devmode.css';
+import './styles/report.css';
 import { App } from './ui/App.js';
 
 const app = new App(document.getElementById('app'));

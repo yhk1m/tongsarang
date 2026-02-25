@@ -5,7 +5,8 @@ import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage, setNavList } from './ImageModal.js';
 import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
-import { renderLinkerModal, bindLinkerEvents, openLinker, openLinkerForItem } from './LinkerModal.js';
+import { renderLinkerModal, bindLinkerEvents, openLinkerForItem } from './LinkerModal.js';
+import { renderReportModal, bindReportEvents, openReport } from './ReportModal.js';
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
 import { FilterManager } from '../core/FilterManager.js';
@@ -29,23 +30,23 @@ export class App {
     this.currentSubject = '한국지리';
     this.allData = [];
     this.filteredData = [];
-    this.devMode = false;
+    this.adminMode = false;
   }
 
   async init() {
-    this._checkDevMode();
+    this._checkAdminMode();
     this.render();
     this.bindEvents();
     await this.linkerStore.loadDefaults();
     await this.loadSubject(this.currentSubject);
   }
 
-  _checkDevMode() {
+  _checkAdminMode() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'dev') {
-      const pw = prompt('개발자 모드 비밀번호를 입력하세요');
+    if (params.get('mode') === 'admin') {
+      const pw = prompt('관리자 모드 비밀번호를 입력하세요');
       if (pw === 'rs21') {
-        this.devMode = true;
+        this.adminMode = true;
       } else if (pw !== null) {
         alert('비밀번호가 틀렸습니다.');
       }
@@ -61,7 +62,7 @@ export class App {
         <div class="main-card">
           ${renderSubjectNav(subjects, this.currentSubject)}
           <div class="content">
-            ${this.devMode ? renderDevToolbar() : ''}
+            ${this.adminMode ? renderDevToolbar() : ''}
             ${renderFilterPanel()}
             <div class="table-container">
               ${renderStatsBar()}
@@ -74,6 +75,7 @@ export class App {
       ${renderModal()}
       ${renderMockExamModal()}
       ${renderLinkerModal()}
+      ${renderReportModal()}
     `;
   }
 
@@ -93,25 +95,17 @@ export class App {
     bindModalEvents();
     bindMockExamEvents();
     bindLinkerEvents(this.linkerStore, this.dm, () => this.onLinkerClose());
+    bindReportEvents(this.adminMode);
 
     document.getElementById('btnMockExam').addEventListener('click', () => {
       openMockExam(this.currentSubject, this.dm);
     });
 
-    document.getElementById('btnLinker').addEventListener('click', () => {
-      if (this.devMode) {
-        openLinker(this.currentSubject);
-      } else {
-        const pw = prompt('비밀번호를 입력하세요');
-        if (pw === 'rs21') {
-          openLinker(this.currentSubject);
-        } else if (pw !== null) {
-          alert('비밀번호가 틀렸습니다.');
-        }
-      }
+    document.getElementById('btnReport').addEventListener('click', () => {
+      openReport();
     });
 
-    if (this.devMode) {
+    if (this.adminMode) {
       bindDevToolbarEvents(this.editStore, this.linkerStore, () => {
         this.onLinkerClose();
         updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
@@ -127,13 +121,13 @@ export class App {
         setNavList(this.currentSubject, sorted);
         showImage(this.currentSubject, y, c, n);
       },
-      onEditField: this.devMode ? (year, cat, num, field) => {
+      onEditField: this.adminMode ? (year, cat, num, field) => {
         this._handleEditField(year, cat, num, field);
       } : null,
-      onEditStandard: this.devMode ? (year, cat, num) => {
+      onEditStandard: this.adminMode ? (year, cat, num) => {
         openLinkerForItem(this.currentSubject, year, cat, num);
       } : null,
-      onResetField: this.devMode ? (year, cat, num, field) => {
+      onResetField: this.adminMode ? (year, cat, num, field) => {
         this._handleResetField(year, cat, num, field);
       } : null
     });
@@ -266,10 +260,10 @@ export class App {
     const sorted = this.fm.applySorting(this.filteredData);
     const pageData = this.pagination.getPageData(sorted);
 
-    renderTableRows(pageData, this.currentSubject, this.linkerStore, this.devMode, this.editStore);
+    renderTableRows(pageData, this.currentSubject, this.linkerStore, this.adminMode, this.editStore);
     updateResultCount(this.filteredData.length);
 
-    if (this.devMode) {
+    if (this.adminMode) {
       updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
     }
 
