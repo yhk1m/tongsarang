@@ -1,4 +1,4 @@
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzebuGHhoXooWn-Zbh4uDIusr_VPlLU82bzmwBTIEI-IPydcncpzeGjMYgUUcDRFeKV/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwTiskDzQAPLnsA_gLalybes7BsjSXovLNhjT8TxRb-_akZfs7XQXejEeDgMI6Xnqk3/exec';
 
 export async function submitReport(data) {
   const res = await fetch(SHEETS_URL, {
