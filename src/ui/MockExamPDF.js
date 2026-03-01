@@ -49,7 +49,7 @@ const SUBJECT_CODE = {
   '생활과윤리': 'leth',
   '윤리와사상': 'ethth',
   '동아시아사': 'eahis',
-  '세계사': 'whis'
+  '세계사': 'worhis'
 };
 
 const CATEGORY_TO_MONTH = {

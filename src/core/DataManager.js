@@ -60,7 +60,10 @@ export class DataManager {
       : [];
     return {
       학년도: [...new Set(data.map(d => d.학년도).filter(Boolean))].sort((a, b) => b - a),
-      분류: [...new Set(data.map(d => d.분류).filter(Boolean))],
+      분류: [...new Set(data.map(d => d.분류).filter(Boolean))].sort((a, b) => {
+        const order = { '수능': 12, '11월': 11, '10월': 10, '10월학평': 10, '9월': 9, '9모': 9, '7월': 7, '7월학평': 7, '6월': 6, '6모': 6, '5월': 5, '5월학평': 5, '4월': 4, '4월학평': 4, '3월': 3, '3월학평': 3 };
+        return (order[b] ?? 0) - (order[a] ?? 0);
+      }),
       대단원: [...new Set(data.map(d => d.대단원).filter(Boolean))].sort(),
       성취기준: [...new Set(linkedStandards)].sort(),
       난이도: [...new Set(data.map(d => d.난이도).filter(Boolean))].sort()
