@@ -43,7 +43,10 @@ export class App {
 
   _checkAdminMode() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'admin') {
+    const isAdmin = params.get('mode') === 'admin' || params.get('p') === 'admin';
+    if (isAdmin) {
+      // Clean URL: remove query params so it looks like /tongsarang/
+      window.history.replaceState({}, '', import.meta.env.BASE_URL);
       const pw = prompt('관리자 모드 비밀번호를 입력하세요');
       if (pw === 'rs21') {
         this.adminMode = true;

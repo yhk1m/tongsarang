@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+<script>
+  // GitHub Pages SPA redirect: /tongsarang/admin → /tongsarang/?p=admin
+  var p = location.pathname;
+  var base = '/tongsarang/';
+  if (p.startsWith(base)) {
+    var sub = p.slice(base.length).replace(/\/+$/, '');
+    if (sub) {
+      location.replace(base + '?' + 'p=' + sub + (location.search ? '&' + location.search.slice(1) : ''));
+    } else {
+      location.replace(base);
+    }
+  } else {
+    location.replace(base);
+  }
+</script>
+</body>
+</html>
