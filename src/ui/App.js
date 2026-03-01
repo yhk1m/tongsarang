@@ -27,7 +27,7 @@ export class App {
     this.pagination = new Pagination();
     this.linkerStore = new LinkerStore();
     this.editStore = new EditStore();
-    this.currentSubject = '한국지리';
+    this.currentSubject = '통합사회';
     this.allData = [];
     this.filteredData = [];
     this.adminMode = false;

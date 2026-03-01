@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'tongsarang_achievement_mappings';
-const DEFAULTS_LOADED_KEY = 'tongsarang_defaults_loaded_v5';
+const DEFAULTS_LOADED_KEY = 'tongsarang_defaults_loaded_v6';
 
 export class LinkerStore {
   constructor() {

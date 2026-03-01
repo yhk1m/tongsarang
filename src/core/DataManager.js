@@ -1,15 +1,15 @@
 // DataManager: JSON 데이터 로드 및 과목별 캐싱
 
 const SUBJECTS = [
+  { id: '통합사회', label: '통합사회', icon: '📚' },
   { id: '한국지리', label: '한국지리', icon: '🇰🇷' },
   { id: '세계지리', label: '세계지리', icon: '🌍' },
-  { id: '통합사회', label: '통합사회', icon: '📚' },
-  { id: '한국사', label: '한국사', icon: '🏯' },
   { id: '정치와법', label: '정치와법', icon: '⚖️' },
   { id: '경제', label: '경제', icon: '💰' },
   { id: '사회문화', label: '사회문화', icon: '👥' },
   { id: '생활과윤리', label: '생활과윤리', icon: '🤝' },
   { id: '윤리와사상', label: '윤리와사상', icon: '💡' },
+  { id: '한국사', label: '한국사', icon: '🏯' },
   { id: '동아시아사', label: '동아시아사', icon: '🏮' },
   { id: '세계사', label: '세계사', icon: '🌐' }
 ];

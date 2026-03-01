@@ -207,20 +207,15 @@
   accent-color: #1d1d1f;
 }
 
-/* Step 2: Chapter tree */
-.me-chapter-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.me-chapter-group {
+/* Step 2: Accordion (대단원 + 문항 통합) */
+.me-accordion-group {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 4px;
 }
 
-.me-chapter-major {
+.me-accordion-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -233,49 +228,79 @@
   user-select: none;
 }
 
-.me-chapter-major input[type="checkbox"] {
+.me-accordion-header input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #1d1d1f;
+  flex-shrink: 0;
 }
 
-.me-chapter-major .me-count {
+.me-accordion-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.me-accordion-header .me-count {
   font-weight: 400;
   color: #86868b;
   font-size: 0.85em;
-  margin-left: auto;
+  white-space: nowrap;
 }
 
-.me-chapter-minors {
-  display: flex;
-  flex-direction: column;
+.me-accordion-arrow {
+  font-size: 0.75em;
+  color: #86868b;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  transition: color 0.15s;
 }
 
-.me-chapter-minor {
+.me-accordion-header:hover .me-accordion-arrow {
+  color: #1d1d1f;
+}
+
+.me-accordion-body {
+  display: none;
+  border-top: 1px solid #e5e5e5;
+}
+
+.me-accordion-body.open {
+  display: block;
+}
+
+.me-accordion-body .me-question-table {
+  border-collapse: collapse;
+}
+
+.me-accordion-body .me-question-table tbody td {
+  padding: 6px 8px;
+}
+
+/* 중단원 소그룹 헤더 (한국지리 등) */
+.me-minor-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px 8px 36px;
-  font-size: 0.85em;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f5f5f7;
+  font-weight: 600;
+  font-size: 0.82em;
   color: #424245;
-  cursor: pointer;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #e5e5e5;
 }
 
-.me-chapter-minor:hover {
-  background: #f5f5f5;
+.me-minor-header:first-child {
+  border-top: none;
 }
 
-.me-chapter-minor input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  accent-color: #1d1d1f;
-}
-
-.me-chapter-minor .me-count {
+.me-minor-header .me-count {
+  font-weight: 400;
   color: #aeaeb2;
-  font-size: 0.85em;
-  margin-left: auto;
+  font-size: 0.9em;
 }
 
 /* Subject separator in chapter tree (multi-subject) */

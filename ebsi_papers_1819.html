@@ -1,0 +1,2138 @@
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/common.css" />
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/layout.css" />
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/board.css" />
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/librarys.css" />
+
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/past_question.css" />
+<link type="text/css" rel="stylesheet" href="/ebs/public_hsp/css/circle.css" />
+
+<form action="/ebs/xip/xipc/previousPaperListAjax.ebs" name="pagingForm" id="pagingForm" method="post">
+	<input type="hidden" name="beginYear" value="2018"/>
+	<input type="hidden" name="endYear" value="2019"/>
+	<input type="hidden" name="targetCd"  value="D100"/>
+	<input type="hidden" name="monthList"  value="03,06,09,10,11"/>
+	<input type="hidden" name="subjList"  value="1,2,3,4,5,6,7,8"/>
+	<input type="hidden" name="sort" id="sort"  value="recent"/>
+	<input type="hidden" name="currentPage" id="currentPage"  value="1"/>
+
+<!-- board_head -->
+	<div class="board_head" style="margin-top: 3rem;">
+		<div class="count_area">
+			<p>검색결과 <em class="tot">48개</em></p>
+		</div>
+		<div class="order_area">
+			<div class="btn_wrap">
+				<button type="button" class="btn_order on" onclick="pagingForm.sort.value = 'recent'; goPage('1');"><span>최근등록순</span></button>
+				<button type="button" class="btn_order " onclick="pagingForm.sort.value = 'answerCount'; goPage('1');"><span>응시수</span></button>
+			</div>
+			<select name="pageSize" onchange="goPage('1');">
+				<option value="15"  >15개씩 보기</option>
+				<option value="30" >30개씩 보기</option>
+				<option value="50" selected>50개씩 보기</option>
+			</select>		
+		</div>
+	</div>
+	<!-- //board_head -->
+	
+	<!-- board_list -->
+	<div class="board_qusesion">
+		<ul>
+		<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4769명 응시</li>
+							<li>원점수 평균 53.44/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976694">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976694', '20007864', 'und');"><p style="width:40.31531531531532%;">쉬워요!</p></a>
+								</dt>
+								<dd>358명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976694', '20007864', 'up');""><p style="width:59.68468468468468%;">어려워요!</p></a>
+								</dt>
+								<dd>530명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/kor_mun_DU162D11_11.pdf', '/fullserv_down/201911201/kor_mun', '201911201', '316', '1', '17012', '0', '/20191120/go1/kor_mun_DU162D11_11', '12976694');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_kor_hsj_X244M7EW.jpg', '/fullserv_down/201911201/kor_mun', '201911201', '316', '1', '17012', '0', 'http://wdown', '2019년고1 11월 학평(경기)국어', '12976694');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/kor_hsj_786CP15O_11.pdf', '/fullserv_down/201911201/kor_mun', '201911201', '316', '1', '17012', '0', '/20191120/go1/kor_hsj_786CP15O_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976694', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976694', '고1 11월 학평(경기)국어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>4156명 응시</li>
+							<li>원점수 평균 47.56/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976695">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976695', '20007865', 'und');"><p style="width:42.4%;">쉬워요!</p></a>
+								</dt>
+								<dd>318명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976695', '20007865', 'up');""><p style="width:57.599999999999994%;">어려워요!</p></a>
+								</dt>
+								<dd>432명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/matha_mun_6IV1U91L_11.pdf', '/fullserv_down/201911201/matha_mun', '201911201', '317', '1', '110001', '0', '/20191120/go1/matha_mun_6IV1U91L_11', '12976695');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_matha_hsj_8FKI6PF3.jpg', '/fullserv_down/201911201/matha_mun', '201911201', '317', '1', '110001', '0', 'http://wdown', '2019년고1 11월 학평(경기)수학', '12976695');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/matha_hsj_YGJ9W256_11.pdf', '/fullserv_down/201911201/matha_mun', '201911201', '317', '1', '110001', '0', '/20191120/go1/matha_hsj_YGJ9W256_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976695', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976695', '고1 11월 학평(경기)수학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>5353명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976696">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976696', '20007866', 'und');"><p style="width:39.06542056074767%;">쉬워요!</p></a>
+								</dt>
+								<dd>418명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976696', '20007866', 'up');""><p style="width:60.93457943925233%;">어려워요!</p></a>
+								</dt>
+								<dd>652명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/eng_mun_1F79K178_11.pdf', '/fullserv_down/201911201/eng_mun', '201911201', '318', '1', '17014', '0', '/20191120/go1/eng_mun_1F79K178_11', '12976696');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20191120/go1/eng_mp3_8WB17AY2_1.mp3', '/fullserv_down/201911201/eng_mun', '201911201', '318', '1', '17014', '0', '/20191120/go1/eng_mp3_8WB17AY2_1');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20191120/go1/eng_scr_72QR662K.pdf', '/fullserv_down/201911201/eng_mun', '201911201', '318', '1', '17014', '0', '/20191120/go1/eng_scr_72QR662K');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_eng_hsj_954NA7I8.jpg', '/fullserv_down/201911201/eng_mun', '201911201', '318', '1', '17014', '0', 'http://wdown', '2019년고1 11월 학평(경기)영어', '12976696');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/eng_hsj_2J3929K3_11.pdf', '/fullserv_down/201911201/eng_mun', '201911201', '318', '1', '17014', '0', '/20191120/go1/eng_hsj_2J3929K3_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976696', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976696', '고1 11월 학평(경기)영어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4317명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976697">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976697', '20007867', 'und');"><p style="width:52.65017667844523%;">쉬워요!</p></a>
+								</dt>
+								<dd>149명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976697', '20007867', 'up');""><p style="width:47.349823321554766%;">어려워요!</p></a>
+								</dt>
+								<dd>134명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/s_his_mun_16V4WQN2_11.pdf', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '17020', '0', '/20191120/go1/s_his_mun_16V4WQN2_11', '12976697');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_s_his_hsj_5DT8R3U7.jpg', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '17020', '0', 'http://wdown', '2019년고1 11월 학평(경기)한국사', '12976697');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/s_his_hsj_94I2F24T_11.pdf', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '17020', '0', '/20191120/go1/s_his_hsj_94I2F24T_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976697', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976697', '고1 11월 학평(경기)한국사', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>3251명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976698">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976698', '20007868', 'und');"><p style="width:57.52212389380531%;">쉬워요!</p></a>
+								</dt>
+								<dd>130명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976698', '20007868', 'up');""><p style="width:42.47787610619469%;">어려워요!</p></a>
+								</dt>
+								<dd>96명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/s_soc_mun_188Q1C3K_11.pdf', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '140072', '0', '/20191120/go1/s_soc_mun_188Q1C3K_11', '12976698');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_s_soc_hsj_FCPY58A8.jpg', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '140072', '0', 'http://wdown', '2019년고1 11월 학평(경기)통합사회', '12976698');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/s_soc_hsj_B3994L71_11.pdf', '/fullserv_down/201911201/sat_mun', '201911201', '319', '1', '140072', '0', '/20191120/go1/s_soc_hsj_B3994L71_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976698', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976698', '고1 11월 학평(경기)통합사회', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 11월 학평(경기)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>3634명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12976699">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12976699', '20007869', 'und');"><p style="width:50.54945054945055%;">쉬워요!</p></a>
+								</dt>
+								<dd>138명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12976699', '20007869', 'up');""><p style="width:49.45054945054945%;">어려워요!</p></a>
+								</dt>
+								<dd>135명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20191120/go1/g_sci_mun_33974OD8_11.pdf', '/fullserv_down/201911201/gat_mun', '201911201', '320', '1', '140073', '0', '/20191120/go1/g_sci_mun_33974OD8_11', '12976699');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20191120/mobile/h1_m_g_sci_hsj_AA4I9W54.jpg', '/fullserv_down/201911201/gat_mun', '201911201', '320', '1', '140073', '0', 'http://wdown', '2019년고1 11월 학평(경기)통합과학', '12976699');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20191120/go1/g_sci_hsj_98BX553I_11.pdf', '/fullserv_down/201911201/gat_mun', '201911201', '320', '1', '140073', '0', '/20191120/go1/g_sci_hsj_98BX553I_11');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12976699', '201911201', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12976699', '고1 11월 학평(경기)통합과학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4756명 응시</li>
+							<li>원점수 평균 62.11/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701086">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701086', '20007743', 'und');"><p style="width:52.8942115768463%;">쉬워요!</p></a>
+								</dt>
+								<dd>530명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701086', '20007743', 'up');""><p style="width:47.1057884231537%;">어려워요!</p></a>
+								</dt>
+								<dd>472명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/kor_mun_DU162D11_10.pdf', '/fullserv_down/201909041/kor_mun', '201909041', '316', '1', '17012', '0', '/20190904/go1/kor_mun_DU162D11_10', '12701086');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_kor_hsj_LE9812IS.jpg', '/fullserv_down/201909041/kor_mun', '201909041', '316', '1', '17012', '0', 'http://wdown', '2019년고1 9월 학평(인천)국어', '12701086');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/kor_hsj_8YW3DW89_10.pdf', '/fullserv_down/201909041/kor_mun', '201909041', '316', '1', '17012', '0', '/20190904/go1/kor_hsj_8YW3DW89_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701086', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701086', '고1 9월 학평(인천)국어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>4153명 응시</li>
+							<li>원점수 평균 45.81/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701087">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701087', '20007744', 'und');"><p style="width:34.4149459193707%;">쉬워요!</p></a>
+								</dt>
+								<dd>350명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701087', '20007744', 'up');""><p style="width:65.5850540806293%;">어려워요!</p></a>
+								</dt>
+								<dd>667명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/matha_mun_6IV1U91L_10.pdf', '/fullserv_down/201909041/matha_mun', '201909041', '317', '1', '110001', '0', '/20190904/go1/matha_mun_6IV1U91L_10', '12701087');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_matha_hsj_M1WMI1W2.jpg', '/fullserv_down/201909041/matha_mun', '201909041', '317', '1', '110001', '0', 'http://wdown', '2019년고1 9월 학평(인천)수학', '12701087');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/matha_hsj_XP281JF9_10.pdf', '/fullserv_down/201909041/matha_mun', '201909041', '317', '1', '110001', '0', '/20190904/go1/matha_hsj_XP281JF9_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701087', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701087', '고1 9월 학평(인천)수학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>5497명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701088">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701088', '20007745', 'und');"><p style="width:41.41821112006446%;">쉬워요!</p></a>
+								</dt>
+								<dd>514명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701088', '20007745', 'up');""><p style="width:58.58178887993554%;">어려워요!</p></a>
+								</dt>
+								<dd>727명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/eng_mun_1F79K178_10.pdf', '/fullserv_down/201909041/eng_mun', '201909041', '318', '1', '17014', '0', '/20190904/go1/eng_mun_1F79K178_10', '12701088');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20190904/go1/eng_mp3_4X4G8B7Z.mp3', '/fullserv_down/201909041/eng_mun', '201909041', '318', '1', '17014', '0', '/20190904/go1/eng_mp3_4X4G8B7Z');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20190904/go1/eng_scr_WZ1I3L8A.pdf', '/fullserv_down/201909041/eng_mun', '201909041', '318', '1', '17014', '0', '/20190904/go1/eng_scr_WZ1I3L8A');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_eng_hsj_OOOM7O17.jpg', '/fullserv_down/201909041/eng_mun', '201909041', '318', '1', '17014', '0', 'http://wdown', '2019년고1 9월 학평(인천)영어', '12701088');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/eng_hsj_2J3929K3_10.pdf', '/fullserv_down/201909041/eng_mun', '201909041', '318', '1', '17014', '0', '/20190904/go1/eng_hsj_2J3929K3_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701088', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701088', '고1 9월 학평(인천)영어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4542명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701089">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701089', '20007746', 'und');"><p style="width:55.00000000000001%;">쉬워요!</p></a>
+								</dt>
+								<dd>220명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701089', '20007746', 'up');""><p style="width:45.0%;">어려워요!</p></a>
+								</dt>
+								<dd>180명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/s_his_mun_16V4WQN2_11.pdf', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '17020', '0', '/20190904/go1/s_his_mun_16V4WQN2_11', '12701089');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_s_his_hsj_2HA4ZY5T.jpg', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '17020', '0', 'http://wdown', '2019년고1 9월 학평(인천)한국사', '12701089');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/s_his_hsj_F8J8918L_10.pdf', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '17020', '0', '/20190904/go1/s_his_hsj_F8J8918L_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701089', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701089', '고1 9월 학평(인천)한국사', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>3627명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701090">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701090', '20007747', 'und');"><p style="width:77.14285714285715%;">쉬워요!</p></a>
+								</dt>
+								<dd>324명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701090', '20007747', 'up');""><p style="width:22.857142857142858%;">어려워요!</p></a>
+								</dt>
+								<dd>96명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/s_soc_mun_188Q1C3K_11.pdf', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '140072', '0', '/20190904/go1/s_soc_mun_188Q1C3K_11', '12701090');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_s_soc_hsj_A51A81O3.jpg', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '140072', '0', 'http://wdown', '2019년고1 9월 학평(인천)통합사회', '12701090');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/s_soc_hsj_P34N3LF8_10.pdf', '/fullserv_down/201909041/sat_mun', '201909041', '319', '1', '140072', '0', '/20190904/go1/s_soc_hsj_P34N3LF8_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701090', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701090', '고1 9월 학평(인천)통합사회', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 9월 학평(인천)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4080명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12701091">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12701091', '20007748', 'und');"><p style="width:56.11510791366906%;">쉬워요!</p></a>
+								</dt>
+								<dd>234명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12701091', '20007748', 'up');""><p style="width:43.884892086330936%;">어려워요!</p></a>
+								</dt>
+								<dd>183명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190904/go1/g_sci_mun_33974OD8_11.pdf', '/fullserv_down/201909041/gat_mun', '201909041', '320', '1', '140073', '0', '/20190904/go1/g_sci_mun_33974OD8_11', '12701091');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190904/mobile/h1_m_g_sci_hsj_852MH1MQ.jpg', '/fullserv_down/201909041/gat_mun', '201909041', '320', '1', '140073', '0', 'http://wdown', '2019년고1 9월 학평(인천)통합과학', '12701091');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190904/go1/g_sci_hsj_UQQ91PL5_10.pdf', '/fullserv_down/201909041/gat_mun', '201909041', '320', '1', '140073', '0', '/20190904/go1/g_sci_hsj_UQQ91PL5_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12701091', '201909041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12701091', '고1 9월 학평(인천)통합과학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>6350명 응시</li>
+							<li>원점수 평균 49.66/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523186">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523186', '20007656', 'und');"><p style="width:33.441295546558706%;">쉬워요!</p></a>
+								</dt>
+								<dd>413명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523186', '20007656', 'up');""><p style="width:66.5587044534413%;">어려워요!</p></a>
+								</dt>
+								<dd>822명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/kor_mun_SFsxf4yp_10.pdf', '/fullserv_down/201906041/kor_mun', '201906041', '316', '1', '17012', '0', '/20190604/go1/kor_mun_SFsxf4yp_10', '12523186');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_kor_hsj_Mum03yMJ.jpg', '/fullserv_down/201906041/kor_mun', '201906041', '316', '1', '17012', '0', 'http://wdown', '2019년고1 6월 학평(부산)국어', '12523186');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/kor_hsj_6UnHAaaz_10.pdf', '/fullserv_down/201906041/kor_mun', '201906041', '316', '1', '17012', '0', '/20190604/go1/kor_hsj_6UnHAaaz_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523186', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523186', '고1 6월 학평(부산)국어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>6774명 응시</li>
+							<li>원점수 평균 55.25/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523187">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523187', '20007657', 'und');"><p style="width:50.82872928176796%;">쉬워요!</p></a>
+								</dt>
+								<dd>736명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523187', '20007657', 'up');""><p style="width:49.171270718232044%;">어려워요!</p></a>
+								</dt>
+								<dd>712명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/matha_mun_8ARf3sll_10.pdf', '/fullserv_down/201906041/matha_mun', '201906041', '317', '1', '110001', '0', '/20190604/go1/matha_mun_8ARf3sll_10', '12523187');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_matha_hsj_iQTyfPef.jpg', '/fullserv_down/201906041/matha_mun', '201906041', '317', '1', '110001', '0', 'http://wdown', '2019년고1 6월 학평(부산)수학', '12523187');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/matha_hsj_7EjQxzmW_10.pdf', '/fullserv_down/201906041/matha_mun', '201906041', '317', '1', '110001', '0', '/20190604/go1/matha_hsj_7EjQxzmW_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523187', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523187', '고1 6월 학평(부산)수학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>7102명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523188">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523188', '20007658', 'und');"><p style="width:47.842884739214426%;">쉬워요!</p></a>
+								</dt>
+								<dd>743명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523188', '20007658', 'up');""><p style="width:52.15711526078558%;">어려워요!</p></a>
+								</dt>
+								<dd>810명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/eng_mun_NY30kkZI_1_10.pdf', '/fullserv_down/201906041/eng_mun', '201906041', '318', '1', '17014', '0', '/20190604/go1/eng_mun_NY30kkZI_1_10', '12523188');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20190604/go1/eng_mp3_MJJQ873T.mp3', '/fullserv_down/201906041/eng_mun', '201906041', '318', '1', '17014', '0', '/20190604/go1/eng_mp3_MJJQ873T');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20190604/go1/eng_scr_NzW3l1GM.pdf', '/fullserv_down/201906041/eng_mun', '201906041', '318', '1', '17014', '0', '/20190604/go1/eng_scr_NzW3l1GM');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_eng_hsj_LJGWSa1a.jpg', '/fullserv_down/201906041/eng_mun', '201906041', '318', '1', '17014', '0', 'http://wdown', '2019년고1 6월 학평(부산)영어', '12523188');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/eng_hsj_ecm9t0CI_10.pdf', '/fullserv_down/201906041/eng_mun', '201906041', '318', '1', '17014', '0', '/20190604/go1/eng_hsj_ecm9t0CI_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523188', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523188', '고1 6월 학평(부산)영어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>5646명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523189">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523189', '20007659', 'und');"><p style="width:46.30467571644042%;">쉬워요!</p></a>
+								</dt>
+								<dd>307명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523189', '20007659', 'up');""><p style="width:53.69532428355958%;">어려워요!</p></a>
+								</dt>
+								<dd>356명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/s_his_mun_hTrBoe2U_10.pdf', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '17020', '0', '/20190604/go1/s_his_mun_hTrBoe2U_10', '12523189');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_s_his_hsj_NEVJpjc0.jpg', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '17020', '0', 'http://wdown', '2019년고1 6월 학평(부산)한국사', '12523189');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/s_his_hsj_76rOJhKP_10.pdf', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '17020', '0', '/20190604/go1/s_his_hsj_76rOJhKP_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523189', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523189', '고1 6월 학평(부산)한국사', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4539명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523190">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523190', '20007660', 'und');"><p style="width:67.94171220400729%;">쉬워요!</p></a>
+								</dt>
+								<dd>373명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523190', '20007660', 'up');""><p style="width:32.05828779599271%;">어려워요!</p></a>
+								</dt>
+								<dd>176명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/s_soc_mun_8QVjp3b6_10.pdf', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '140072', '0', '/20190604/go1/s_soc_mun_8QVjp3b6_10', '12523190');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_s_soc_hsj_D543Tuyl.jpg', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '140072', '0', 'http://wdown', '2019년고1 6월 학평(부산)통합사회', '12523190');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/s_soc_hsj_c99ir3wS_10.pdf', '/fullserv_down/201906041/sat_mun', '201906041', '319', '1', '140072', '0', '/20190604/go1/s_soc_hsj_c99ir3wS_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523190', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523190', '고1 6월 학평(부산)통합사회', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 6월 학평(부산)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>5325명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12523191">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12523191', '20007661', 'und');"><p style="width:46.29324546952224%;">쉬워요!</p></a>
+								</dt>
+								<dd>281명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12523191', '20007661', 'up');""><p style="width:53.70675453047776%;">어려워요!</p></a>
+								</dt>
+								<dd>326명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190604/go1/g_sci_mun_uIU1Gj03_10.pdf', '/fullserv_down/201906041/gat_mun', '201906041', '320', '1', '140073', '0', '/20190604/go1/g_sci_mun_uIU1Gj03_10', '12523191');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190604/mobile/h1_m_g_sci_hsj_Jc0xvlUQ.jpg', '/fullserv_down/201906041/gat_mun', '201906041', '320', '1', '140073', '0', 'http://wdown', '2019년고1 6월 학평(부산)통합과학', '12523191');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190604/go1/g_sci_hsj_imD3JkUw_10.pdf', '/fullserv_down/201906041/gat_mun', '201906041', '320', '1', '140073', '0', '/20190604/go1/g_sci_hsj_imD3JkUw_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12523191', '201906041', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12523191', '고1 6월 학평(부산)통합과학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>13820명 응시</li>
+							<li>원점수 평균 57.00/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360728">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360728', '20007569', 'und');"><p style="width:34.66472303206997%;">쉬워요!</p></a>
+								</dt>
+								<dd>1189명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360728', '20007569', 'up');""><p style="width:65.33527696793003%;">어려워요!</p></a>
+								</dt>
+								<dd>2241명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/kor_mun_4PPRE3Iv_2_10.pdf', '/fullserv_down/201903071/kor_mun', '201903071', '316', '1', '17012', '0', '/20190307/go1/kor_mun_4PPRE3Iv_2_10', '12360728');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_k_kor_u62pELBU.jpg', '/fullserv_down/201903071/kor_mun', '201903071', '316', '1', '17012', '0', 'http://wdown', '2019년고1 3월 학평(서울)국어', '12360728');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/kor_hsj_hXJ4dErc_12_1.pdf', '/fullserv_down/201903071/kor_mun', '201903071', '316', '1', '17012', '0', '/20190307/go1/kor_hsj_hXJ4dErc_12_1');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360728', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360728', '고1 3월 학평(서울)국어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>11030명 응시</li>
+							<li>원점수 평균 51.94/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360729">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360729', '20007570', 'und');"><p style="width:31.518430842069666%;">쉬워요!</p></a>
+								</dt>
+								<dd>932명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360729', '20007570', 'up');""><p style="width:68.48156915793034%;">어려워요!</p></a>
+								</dt>
+								<dd>2025명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/matha_mun_D9YNrPXp_2_10.pdf', '/fullserv_down/201903071/matha_mun', '201903071', '317', '1', '110001', '0', '/20190307/go1/matha_mun_D9YNrPXp_2_10', '12360729');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_m_math_oisLfm3Y.jpg', '/fullserv_down/201903071/matha_mun', '201903071', '317', '1', '110001', '0', 'http://wdown', '2019년고1 3월 학평(서울)수학', '12360729');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/matha_hsj_dt7q0pQg_12.pdf', '/fullserv_down/201903071/matha_mun', '201903071', '317', '1', '110001', '0', '/20190307/go1/matha_hsj_dt7q0pQg_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360729', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360729', '고1 3월 학평(서울)수학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>13872명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360730">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360730', '20007571', 'und');"><p style="width:39.14759273875296%;">쉬워요!</p></a>
+								</dt>
+								<dd>1488명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360730', '20007571', 'up');""><p style="width:60.852407261247045%;">어려워요!</p></a>
+								</dt>
+								<dd>2313명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/eng_mun_kL7TCTRN_2_10.pdf', '/fullserv_down/201903071/eng_mun', '201903071', '318', '1', '17014', '0', '/20190307/go1/eng_mun_kL7TCTRN_2_10', '12360730');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20190307/go1/eng_mp3_hznOxbkK.mp3', '/fullserv_down/201903071/eng_mun', '201903071', '318', '1', '17014', '0', '/20190307/go1/eng_mp3_hznOxbkK');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20190307/go1/eng_scr_0rGmjpFr_2.pdf', '/fullserv_down/201903071/eng_mun', '201903071', '318', '1', '17014', '0', '/20190307/go1/eng_scr_0rGmjpFr_2');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_e_eng_tpdusZcI.jpg', '/fullserv_down/201903071/eng_mun', '201903071', '318', '1', '17014', '0', 'http://wdown', '2019년고1 3월 학평(서울)영어', '12360730');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/eng_hsj_9WBYShdm_12_2.pdf', '/fullserv_down/201903071/eng_mun', '201903071', '318', '1', '17014', '0', '/20190307/go1/eng_hsj_9WBYShdm_12_2');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360730', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360730', '고1 3월 학평(서울)영어', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>11965명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360731">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360731', '20007572', 'und');"><p style="width:63.88706500328299%;">쉬워요!</p></a>
+								</dt>
+								<dd>973명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360731', '20007572', 'up');""><p style="width:36.11293499671701%;">어려워요!</p></a>
+								</dt>
+								<dd>550명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/s_his_mun_Y7W0kyO5_2_10.pdf', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '17020', '0', '/20190307/go1/s_his_mun_Y7W0kyO5_2_10', '12360731');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_h_his_VMm0LzED.jpg', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '17020', '0', 'http://wdown', '2019년고1 3월 학평(서울)한국사', '12360731');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/s_his_hsj_3F8G3jbh_12.pdf', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '17020', '0', '/20190307/go1/s_his_hsj_3F8G3jbh_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360731', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360731', '고1 3월 학평(서울)한국사', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>8251명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360732">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360732', '20007573', 'und');"><p style="width:43.455497382198956%;">쉬워요!</p></a>
+								</dt>
+								<dd>498명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360732', '20007573', 'up');""><p style="width:56.54450261780105%;">어려워요!</p></a>
+								</dt>
+								<dd>648명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/s_soc_mun_FU8wO9Wa_2_10.pdf', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '140072', '0', '/20190307/go1/s_soc_mun_FU8wO9Wa_2_10', '12360732');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_t_soc_YZqB2xyP.jpg', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '140072', '0', 'http://wdown', '2019년고1 3월 학평(서울)통합사회', '12360732');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/s_soc_hsj_naHJveIn_12.pdf', '/fullserv_down/201903071/sat_mun', '201903071', '319', '1', '140072', '0', '/20190307/go1/s_soc_hsj_naHJveIn_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360732', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360732', '고1 3월 학평(서울)통합사회', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2019년&nbsp;고1 3월 학평(서울)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>9025명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12360733">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12360733', '20007574', 'und');"><p style="width:35.662063363119415%;">쉬워요!</p></a>
+								</dt>
+								<dd>439명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12360733', '20007574', 'up');""><p style="width:64.33793663688058%;">어려워요!</p></a>
+								</dt>
+								<dd>792명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20190307/go1/g_sci_mun_rRfZKpn7_2_10.pdf', '/fullserv_down/201903071/gat_mun', '201903071', '320', '1', '140073', '0', '/20190307/go1/g_sci_mun_rRfZKpn7_2_10', '12360733');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20190307/mobile/h1_t_sci_aZI758Nq.jpg', '/fullserv_down/201903071/gat_mun', '201903071', '320', '1', '140073', '0', 'http://wdown', '2019년고1 3월 학평(서울)통합과학', '12360733');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20190307/go1/g_sci_hsj_7J3vOLYe_12.pdf', '/fullserv_down/201903071/gat_mun', '201903071', '320', '1', '140073', '0', '/20190307/go1/g_sci_hsj_7J3vOLYe_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12360733', '201903071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12360733', '고1 3월 학평(서울)통합과학', '0', '2019');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4628명 응시</li>
+							<li>원점수 평균 49.99/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260396">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260396', '20007522', 'und');"><p style="width:34.87738419618528%;">쉬워요!</p></a>
+								</dt>
+								<dd>256명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260396', '20007522', 'up');""><p style="width:65.12261580381471%;">어려워요!</p></a>
+								</dt>
+								<dd>478명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/kor_mun_TyE9hOr2_01_10.pdf', '/fullserv_down/201811211/kor_mun', '201811211', '316', '1', '17012', '0', '/20181121/go1/kor_mun_TyE9hOr2_01_10', '12260396');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_k_kor_r81nn9RQ.jpg', '/fullserv_down/201811211/kor_mun', '201811211', '316', '1', '17012', '0', 'http://wdown', '2018년고1 11월 학평(경기)국어', '12260396');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/kor_hsj_7Uc0zSwH_01_10.pdf', '/fullserv_down/201811211/kor_mun', '201811211', '316', '1', '17012', '0', '/20181121/go1/kor_hsj_7Uc0zSwH_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260396', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260396', '고1 11월 학평(경기)국어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>4199명 응시</li>
+							<li>원점수 평균 47.16/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260397">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260397', '20007523', 'und');"><p style="width:41.004862236628846%;">쉬워요!</p></a>
+								</dt>
+								<dd>253명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260397', '20007523', 'up');""><p style="width:58.995137763371154%;">어려워요!</p></a>
+								</dt>
+								<dd>364명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/math_mun_UAwqJbLM_01_10.pdf', '/fullserv_down/201811211/matha_mun', '201811211', '317', '1', '110001', '0', '/20181121/go1/math_mun_UAwqJbLM_01_10', '12260397');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_m_math_AOCop3wy.jpg', '/fullserv_down/201811211/matha_mun', '201811211', '317', '1', '110001', '0', 'http://wdown', '2018년고1 11월 학평(경기)수학', '12260397');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/math_hsj_HOp6FB3V_01_10.pdf', '/fullserv_down/201811211/matha_mun', '201811211', '317', '1', '110001', '0', '/20181121/go1/math_hsj_HOp6FB3V_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260397', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260397', '고1 11월 학평(경기)수학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4797명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260398">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260398', '20007524', 'und');"><p style="width:36.93251533742331%;">쉬워요!</p></a>
+								</dt>
+								<dd>301명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260398', '20007524', 'up');""><p style="width:63.06748466257669%;">어려워요!</p></a>
+								</dt>
+								<dd>514명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/eng_mun_9qpcQION_01_10.pdf', '/fullserv_down/201811211/eng_mun', '201811211', '318', '1', '17014', '0', '/20181121/go1/eng_mun_9qpcQION_01_10', '12260398');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20181121/go1/eng_mp3_G4XnhYUm.mp3', '/fullserv_down/201811211/eng_mun', '201811211', '318', '1', '17014', '0', '/20181121/go1/eng_mp3_G4XnhYUm');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20181121/go1/eng_scr_E8mGbGxM_01_10.pdf', '/fullserv_down/201811211/eng_mun', '201811211', '318', '1', '17014', '0', '/20181121/go1/eng_scr_E8mGbGxM_01_10');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_e_eng_v9kI3Wfk.jpg', '/fullserv_down/201811211/eng_mun', '201811211', '318', '1', '17014', '0', 'http://wdown', '2018년고1 11월 학평(경기)영어', '12260398');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/eng_hsj_zADZBjgE_01_10.pdf', '/fullserv_down/201811211/eng_mun', '201811211', '318', '1', '17014', '0', '/20181121/go1/eng_hsj_zADZBjgE_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260398', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260398', '고1 11월 학평(경기)영어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4796명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260399">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260399', '20007525', 'und');"><p style="width:60.526315789473685%;">쉬워요!</p></a>
+								</dt>
+								<dd>138명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260399', '20007525', 'up');""><p style="width:39.473684210526315%;">어려워요!</p></a>
+								</dt>
+								<dd>90명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/s_his_mun_oZolmRBa_01_10.pdf', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '17020', '0', '/20181121/go1/s_his_mun_oZolmRBa_01_10', '12260399');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_h_his_xERL3kxs.jpg', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '17020', '0', 'http://wdown', '2018년고1 11월 학평(경기)한국사', '12260399');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/s_his_hsj_YFkuutSg_01_10.pdf', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '17020', '0', '/20181121/go1/s_his_hsj_YFkuutSg_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260399', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260399', '고1 11월 학평(경기)한국사', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>3740명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260400">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260400', '20007526', 'und');"><p style="width:71.69811320754717%;">쉬워요!</p></a>
+								</dt>
+								<dd>152명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260400', '20007526', 'up');""><p style="width:28.30188679245283%;">어려워요!</p></a>
+								</dt>
+								<dd>60명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/s_soc_mun_cOrBLSAQ_01_10.pdf', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '140072', '0', '/20181121/go1/s_soc_mun_cOrBLSAQ_01_10', '12260400');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_s_ssnyr_4rxwVlmF.jpg', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '140072', '0', 'http://wdown', '2018년고1 11월 학평(경기)통합사회', '12260400');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/s_soc_hsj_V6uPDVni_01_10.pdf', '/fullserv_down/201811211/sat_mun', '201811211', '319', '1', '140072', '0', '/20181121/go1/s_soc_hsj_V6uPDVni_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260400', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260400', '고1 11월 학평(경기)통합사회', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 11월 학평(경기)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4304명 응시</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12260401">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12260401', '20007527', 'und');"><p style="width:58.55855855855856%;">쉬워요!</p></a>
+								</dt>
+								<dd>130명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12260401', '20007527', 'up');""><p style="width:41.44144144144144%;">어려워요!</p></a>
+								</dt>
+								<dd>92명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20181121/go1/g_sci_mun_SnRMWuLn_01_10.pdf', '/fullserv_down/201811211/gat_mun', '201811211', '320', '1', '140073', '0', '/20181121/go1/g_sci_mun_SnRMWuLn_01_10', '12260401');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20181121/mobile/h1_g_phy_OrQuDhO2.jpg', '/fullserv_down/201811211/gat_mun', '201811211', '320', '1', '140073', '0', 'http://wdown', '2018년고1 11월 학평(경기)통합과학', '12260401');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20181121/go1/g_sci_hsj_5U9T3TGJ_01_10.pdf', '/fullserv_down/201811211/gat_mun', '201811211', '320', '1', '140073', '0', '/20181121/go1/g_sci_hsj_5U9T3TGJ_01_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12260401', '201811211', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12260401', '고1 11월 학평(경기)통합과학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4029명 응시</li>
+							<li>원점수 평균 62.40/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137542">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137542', '20007401', 'und');"><p style="width:52.49621785173979%;">쉬워요!</p></a>
+								</dt>
+								<dd>347명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137542', '20007401', 'up');""><p style="width:47.50378214826021%;">어려워요!</p></a>
+								</dt>
+								<dd>314명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/kor_mun_25s5rQdH_01_2.pdf', '/fullserv_down/201809051/kor_mun', '201809051', '316', '1', '17012', '0', '/20180905/go1/kor_mun_25s5rQdH_01_2', '12137542');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_k_kor_10wiO9zQ.jpg', '/fullserv_down/201809051/kor_mun', '201809051', '316', '1', '17012', '0', 'http://wdown', '2018년고1 9월 학평(인천)국어', '12137542');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/kor_hsj_vl5D4ZI0_12_1.pdf', '/fullserv_down/201809051/kor_mun', '201809051', '316', '1', '17012', '0', '/20180905/go1/kor_hsj_vl5D4ZI0_12_1');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137542', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137542', '고1 9월 학평(인천)국어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>3599명 응시</li>
+							<li>원점수 평균 43.36/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137543">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137543', '20007402', 'und');"><p style="width:36.157337367624805%;">쉬워요!</p></a>
+								</dt>
+								<dd>239명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137543', '20007402', 'up');""><p style="width:63.842662632375195%;">어려워요!</p></a>
+								</dt>
+								<dd>422명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/matha_mun_6wfpElnP_01_10.pdf', '/fullserv_down/201809051/matha_mun', '201809051', '317', '1', '110001', '0', '/20180905/go1/matha_mun_6wfpElnP_01_10', '12137543');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_m_math_F1moKv0C.jpg', '/fullserv_down/201809051/matha_mun', '201809051', '317', '1', '110001', '0', 'http://wdown', '2018년고1 9월 학평(인천)수학', '12137543');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/matha_hsj_UbRwaD0U_12.pdf', '/fullserv_down/201809051/matha_mun', '201809051', '317', '1', '110001', '0', '/20180905/go1/matha_hsj_UbRwaD0U_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137543', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137543', '고1 9월 학평(인천)수학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>4375명 응시</li>
+							<li>원점수 평균 57.36/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137544">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137544', '20007403', 'und');"><p style="width:42.97423887587822%;">쉬워요!</p></a>
+								</dt>
+								<dd>367명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137544', '20007403', 'up');""><p style="width:57.02576112412178%;">어려워요!</p></a>
+								</dt>
+								<dd>487명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/eng_mun_UuNYoO1V_01_10.pdf', '/fullserv_down/201809051/eng_mun', '201809051', '318', '1', '17014', '0', '/20180905/go1/eng_mun_UuNYoO1V_01_10', '12137544');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20180905/go1/eng_mp3_sglY8wXx.mp3', '/fullserv_down/201809051/eng_mun', '201809051', '318', '1', '17014', '0', '/20180905/go1/eng_mp3_sglY8wXx');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20180905/go1/eng_scr_Z9daEn8k_01.pdf', '/fullserv_down/201809051/eng_mun', '201809051', '318', '1', '17014', '0', '/20180905/go1/eng_scr_Z9daEn8k_01');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_e_eng_RrDcDd07.jpg', '/fullserv_down/201809051/eng_mun', '201809051', '318', '1', '17014', '0', 'http://wdown', '2018년고1 9월 학평(인천)영어', '12137544');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/eng_hsj_Q1DuTrNk_12_1.pdf', '/fullserv_down/201809051/eng_mun', '201809051', '318', '1', '17014', '0', '/20180905/go1/eng_hsj_Q1DuTrNk_12_1');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137544', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137544', '고1 9월 학평(인천)영어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4509명 응시</li>
+							<li>원점수 평균 27.61/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137545">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137545', '20007404', 'und');"><p style="width:53.64238410596026%;">쉬워요!</p></a>
+								</dt>
+								<dd>162명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137545', '20007404', 'up');""><p style="width:46.35761589403973%;">어려워요!</p></a>
+								</dt>
+								<dd>140명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/s_his_mun_RZ5SaauB_01_2.pdf', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '17020', '0', '/20180905/go1/s_his_mun_RZ5SaauB_01_2', '12137545');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_h_his_ZcS4A6Ql.jpg', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '17020', '0', 'http://wdown', '2018년고1 9월 학평(인천)한국사', '12137545');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/s_his_hsj_vSYPyXAp_12.pdf', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '17020', '0', '/20180905/go1/s_his_hsj_vSYPyXAp_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137545', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137545', '고1 9월 학평(인천)한국사', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>3381명 응시</li>
+							<li>원점수 평균 32.12/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137546">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137546', '20007405', 'und');"><p style="width:54.929577464788736%;">쉬워요!</p></a>
+								</dt>
+								<dd>117명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137546', '20007405', 'up');""><p style="width:45.07042253521127%;">어려워요!</p></a>
+								</dt>
+								<dd>96명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/s_soc_mun_29ToukzU_01_10.pdf', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '140072', '0', '/20180905/go1/s_soc_mun_29ToukzU_01_10', '12137546');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_t_soc_CWie55VI.jpg', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '140072', '0', 'http://wdown', '2018년고1 9월 학평(인천)통합사회', '12137546');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/s_soc_hsj_MObBWu5t_12.pdf', '/fullserv_down/201809051/sat_mun', '201809051', '319', '1', '140072', '0', '/20180905/go1/s_soc_hsj_MObBWu5t_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137546', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137546', '고1 9월 학평(인천)통합사회', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 9월 학평(인천)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4122명 응시</li>
+							<li>원점수 평균 23.90/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_12137547">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('12137547', '20007406', 'und');"><p style="width:55.95667870036101%;">쉬워요!</p></a>
+								</dt>
+								<dd>155명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('12137547', '20007406', 'up');""><p style="width:44.04332129963899%;">어려워요!</p></a>
+								</dt>
+								<dd>122명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180905/go1/g_sci_mun_5X2QgGwy_01_2.pdf', '/fullserv_down/201809051/gat_mun', '201809051', '320', '1', '140073', '0', '/20180905/go1/g_sci_mun_5X2QgGwy_01_2', '12137547');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180905/mobile/h1_t_sci_7odnpBaL.jpg', '/fullserv_down/201809051/gat_mun', '201809051', '320', '1', '140073', '0', 'http://wdown', '2018년고1 9월 학평(인천)통합과학', '12137547');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180905/go1/g_sci_hsj_53pVrt1t_12.pdf', '/fullserv_down/201809051/gat_mun', '201809051', '320', '1', '140073', '0', '/20180905/go1/g_sci_hsj_53pVrt1t_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('12137547', '201809051', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('12137547', '고1 9월 학평(인천)통합과학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>5863명 응시</li>
+							<li>원점수 평균 54.10/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909824">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909824', '20007314', 'und');"><p style="width:37.34939759036144%;">쉬워요!</p></a>
+								</dt>
+								<dd>310명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909824', '20007314', 'up');""><p style="width:62.65060240963856%;">어려워요!</p></a>
+								</dt>
+								<dd>520명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/kor_mun_3Ih7jtrS_02_10.pdf', '/fullserv_down/201806071/kor_mun', '201806071', '316', '1', '17012', '0', '/20180607/go1/kor_mun_3Ih7jtrS_02_10', '5909824');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_k_kor_c6pT0giS_01.jpg', '/fullserv_down/201806071/kor_mun', '201806071', '316', '1', '17012', '0', 'http://wdown', '2018년고1 6월 학평(부산)국어', '5909824');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/kor_hsj_Byh133tY_02_10.pdf', '/fullserv_down/201806071/kor_mun', '201806071', '316', '1', '17012', '0', '/20180607/go1/kor_hsj_Byh133tY_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909824', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909824', '고1 6월 학평(부산)국어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>5490명 응시</li>
+							<li>원점수 평균 46.70/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909825">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909825', '20007315', 'und');"><p style="width:42.88659793814433%;">쉬워요!</p></a>
+								</dt>
+								<dd>416명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909825', '20007315', 'up');""><p style="width:57.113402061855666%;">어려워요!</p></a>
+								</dt>
+								<dd>554명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/matha_mun_wlib4g3S_02_10.pdf', '/fullserv_down/201806071/matha_mun', '201806071', '317', '1', '110001', '0', '/20180607/go1/matha_mun_wlib4g3S_02_10', '5909825');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_m_math_ftNtzsG0.jpg', '/fullserv_down/201806071/matha_mun', '201806071', '317', '1', '110001', '0', 'http://wdown', '2018년고1 6월 학평(부산)수학', '5909825');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/matha_hsj_v0YKpDS7_02_10.pdf', '/fullserv_down/201806071/matha_mun', '201806071', '317', '1', '110001', '0', '/20180607/go1/matha_hsj_v0YKpDS7_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909825', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909825', '고1 6월 학평(부산)수학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>5607명 응시</li>
+							<li>원점수 평균 55.40/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909826">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909826', '20007316', 'und');"><p style="width:38.13640730067243%;">쉬워요!</p></a>
+								</dt>
+								<dd>397명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909826', '20007316', 'up');""><p style="width:61.863592699327576%;">어려워요!</p></a>
+								</dt>
+								<dd>644명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/eng_mun_hx27kBnc_02_10.pdf', '/fullserv_down/201806071/eng_mun', '201806071', '318', '1', '17014', '0', '/20180607/go1/eng_mun_hx27kBnc_02_10', '5909826');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20180607/go1/eng_mp3_6xfPTeip.mp3', '/fullserv_down/201806071/eng_mun', '201806071', '318', '1', '17014', '0', '/20180607/go1/eng_mp3_6xfPTeip');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20180607/go1/eng_scr_68V8zDv6_02_10.pdf', '/fullserv_down/201806071/eng_mun', '201806071', '318', '1', '17014', '0', '/20180607/go1/eng_scr_68V8zDv6_02_10');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_e_eng_6vdGg1fD.jpg', '/fullserv_down/201806071/eng_mun', '201806071', '318', '1', '17014', '0', 'http://wdown', '2018년고1 6월 학평(부산)영어', '5909826');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/eng_hsj_cYTjr8cU_02_10.pdf', '/fullserv_down/201806071/eng_mun', '201806071', '318', '1', '17014', '0', '/20180607/go1/eng_hsj_cYTjr8cU_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909826', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909826', '고1 6월 학평(부산)영어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>6103명 응시</li>
+							<li>원점수 평균 24.91/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909827">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909827', '20007317', 'und');"><p style="width:47.26840855106889%;">쉬워요!</p></a>
+								</dt>
+								<dd>199명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909827', '20007317', 'up');""><p style="width:52.73159144893111%;">어려워요!</p></a>
+								</dt>
+								<dd>222명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/s_his_mun_0gxapzha_02_10.pdf', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '17020', '0', '/20180607/go1/s_his_mun_0gxapzha_02_10', '5909827');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_h_his_c5DYge2Q.jpg', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '17020', '0', 'http://wdown', '2018년고1 6월 학평(부산)한국사', '5909827');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/s_his_hsj_d2VqKwRP_02_10.pdf', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '17020', '0', '/20180607/go1/s_his_hsj_d2VqKwRP_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909827', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909827', '고1 6월 학평(부산)한국사', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>4907명 응시</li>
+							<li>원점수 평균 35.75/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909828">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909828', '20007318', 'und');"><p style="width:71.70263788968825%;">쉬워요!</p></a>
+								</dt>
+								<dd>299명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909828', '20007318', 'up');""><p style="width:28.297362110311752%;">어려워요!</p></a>
+								</dt>
+								<dd>118명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/s_soc_mun_QIWDO3hR_02_10.pdf', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '140072', '0', '/20180607/go1/s_soc_mun_QIWDO3hR_02_10', '5909828');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_t_soc_w4hVJbrz.jpg', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '140072', '0', 'http://wdown', '2018년고1 6월 학평(부산)통합사회', '5909828');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/s_soc_hsj_DT6Z3Lst_02_10.pdf', '/fullserv_down/201806071/sat_mun', '201806071', '319', '1', '140072', '0', '/20180607/go1/s_soc_hsj_DT6Z3Lst_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909828', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909828', '고1 6월 학평(부산)통합사회', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 6월 학평(부산)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>5798명 응시</li>
+							<li>원점수 평균 24.74/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5909829">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5909829', '20007319', 'und');"><p style="width:50.672645739910315%;">쉬워요!</p></a>
+								</dt>
+								<dd>226명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5909829', '20007319', 'up');""><p style="width:49.327354260089685%;">어려워요!</p></a>
+								</dt>
+								<dd>220명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180607/go1/g_sci_mun_a8d9Ee4z_02_10.pdf', '/fullserv_down/201806071/gat_mun', '201806071', '320', '1', '140073', '0', '/20180607/go1/g_sci_mun_a8d9Ee4z_02_10', '5909829');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180607/mobile/h1_t_sci_vsTDWWcu.jpg', '/fullserv_down/201806071/gat_mun', '201806071', '320', '1', '140073', '0', 'http://wdown', '2018년고1 6월 학평(부산)통합과학', '5909829');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180607/go1/g_sci_hsj_adTMVwVn_02_10.pdf', '/fullserv_down/201806071/gat_mun', '201806071', '320', '1', '140073', '0', '/20180607/go1/g_sci_hsj_adTMVwVn_02_10');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5909829', '201806071', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5909829', '고1 6월 학평(부산)통합과학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_korean.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;국어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>9865명 응시</li>
+							<li>원점수 평균 57.39/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854867">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854867', '20007227', 'und');"><p style="width:39.015728056823946%;">쉬워요!</p></a>
+								</dt>
+								<dd>769명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854867', '20007227', 'up');""><p style="width:60.98427194317605%;">어려워요!</p></a>
+								</dt>
+								<dd>1202명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/kor_mun_VWDKpzxD_02_10.pdf', '/fullserv_down/201803081/kor_mun', '201803081', '316', '1', '17012', '0', '/20180308/go1/kor_mun_VWDKpzxD_02_10', '5854867');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_k_kor_JZjUqPsV_04.jpg', '/fullserv_down/201803081/kor_mun', '201803081', '316', '1', '17012', '0', 'http://wdown', '2018년고1 3월 학평(서울)국어', '5854867');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/kor_hsj_PHprp5yL_03.pdf', '/fullserv_down/201803081/kor_mun', '201803081', '316', '1', '17012', '0', '/20180308/go1/kor_hsj_PHprp5yL_03');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854867', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854867', '고1 3월 학평(서울)국어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_math.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;수학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>30문항</li>
+							<li>8092명 응시</li>
+							<li>원점수 평균 47.56/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854868">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854868', '20007228', 'und');"><p style="width:33.66058906030855%;">쉬워요!</p></a>
+								</dt>
+								<dd>720명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854868', '20007228', 'up');""><p style="width:66.33941093969145%;">어려워요!</p></a>
+								</dt>
+								<dd>1419명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/matha_mun_Z86BSqEM_01_10.pdf', '/fullserv_down/201803081/matha_mun', '201803081', '317', '1', '110001', '0', '/20180308/go1/matha_mun_Z86BSqEM_01_10', '5854868');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_m_math_9LvuKebm.jpg', '/fullserv_down/201803081/matha_mun', '201803081', '317', '1', '110001', '0', 'http://wdown', '2018년고1 3월 학평(서울)수학', '5854868');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/matha_hsj_DpCnJ711_12.pdf', '/fullserv_down/201803081/matha_mun', '201803081', '317', '1', '110001', '0', '/20180308/go1/matha_hsj_DpCnJ711_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854868', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854868', '고1 3월 학평(서울)수학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_english.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;영어
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>45문항</li>
+							<li>9569명 응시</li>
+							<li>원점수 평균 54.30/100<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854869">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854869', '20007229', 'und');"><p style="width:38.42364532019704%;">쉬워요!</p></a>
+								</dt>
+								<dd>858명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854869', '20007229', 'up');""><p style="width:61.57635467980296%;">어려워요!</p></a>
+								</dt>
+								<dd>1375명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/eng_mun_HZv7FDwf_01_10.pdf', '/fullserv_down/201803081/eng_mun', '201803081', '318', '1', '17014', '0', '/20180308/go1/eng_mun_HZv7FDwf_01_10', '5854869');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadR('/20180308/go1/eng_mp3_dbWKEVqr_1.mp3', '/fullserv_down/201803081/eng_mun', '201803081', '318', '1', '17014', '0', '/20180308/go1/eng_mp3_dbWKEVqr_1');"><span>듣기</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadD('/20180308/go1/eng_scr_4YFM8De4_01_10.pdf', '/fullserv_down/201803081/eng_mun', '201803081', '318', '1', '17014', '0', '/20180308/go1/eng_scr_4YFM8De4_01_10');"><span>대본</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_e_eng_4M2S0gUF.jpg', '/fullserv_down/201803081/eng_mun', '201803081', '318', '1', '17014', '0', 'http://wdown', '2018년고1 3월 학평(서울)영어', '5854869');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/eng_hsj_CrbreLDw_12_1.pdf', '/fullserv_down/201803081/eng_mun', '201803081', '318', '1', '17014', '0', '/20180308/go1/eng_hsj_CrbreLDw_12_1');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854869', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854869', '고1 3월 학평(서울)영어', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_history.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;한국사
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>9932명 응시</li>
+							<li>원점수 평균 30.86/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854870">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854870', '20007230', 'und');"><p style="width:62.56463288521199%;">쉬워요!</p></a>
+								</dt>
+								<dd>605명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854870', '20007230', 'up');""><p style="width:37.435367114788%;">어려워요!</p></a>
+								</dt>
+								<dd>362명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/s_his_mun_wk2UfxhU_01_10.pdf', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '17020', '0', '/20180308/go1/s_his_mun_wk2UfxhU_01_10', '5854870');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_h_his_DKPGzGqi_01.jpg', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '17020', '0', 'http://wdown', '2018년고1 3월 학평(서울)한국사', '5854870');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/s_his_hsj_IBSIeSOm_12.pdf', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '17020', '0', '/20180308/go1/s_his_hsj_IBSIeSOm_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854870', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854870', '고1 3월 학평(서울)한국사', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_social.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;통합사회
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>7151명 응시</li>
+							<li>원점수 평균 31.39/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854871">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854871', '20007231', 'und');"><p style="width:50.0%;">쉬워요!</p></a>
+								</dt>
+								<dd>371명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854871', '20007231', 'up');""><p style="width:50.0%;">어려워요!</p></a>
+								</dt>
+								<dd>371명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/s_soc_mun_5i5Qy2Lf_01_10.pdf', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '140072', '0', '/20180308/go1/s_soc_mun_5i5Qy2Lf_01_10', '5854871');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_t_soc_uLeHTgzW_01.jpg', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '140072', '0', 'http://wdown', '2018년고1 3월 학평(서울)통합사회', '5854871');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/s_soc_hsj_HxwgxSc6_12.pdf', '/fullserv_down/201803081/sat_mun', '201803081', '319', '1', '140072', '0', '/20180308/go1/s_soc_hsj_HxwgxSc6_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854871', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854871', '고1 3월 학평(서울)통합사회', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			<li>
+			<div class="img"><img src="/ebs/public_hsp/images/temp/thumb_book_science.png" alt=""></div>
+				<div class="txt_wrap">
+					<div class="txt_group">
+						<p class="tit">2018년&nbsp;고1 3월 학평(서울)&nbsp;통합과학
+						&nbsp;</p>
+						<ul class="txt_info">
+							<li>20문항</li>
+							<li>7376명 응시</li>
+							<li>원점수 평균 20.03/50<div class="tooltip type1">
+									<button type="button" class="btn_tooltip btn_question"><span class="blind">자세히보기</span></button>
+									<div class="tooltip_body">
+										<h3 class="tooltip_tit">원점수 평균</h3>
+										<p>풀서비스의 확정 등급컷을 기준으로 한 평균 점수입니다.</p>
+										<button type="button" class="btn_close"><span>닫기</span></button>
+									</div>
+								</div>
+							</li>
+							</ul>
+					</div>
+						<div class="survey_wrap" id="survey_wrap_5854872">
+							<dl class="survey_result answer01">
+								<dt>
+								<a href="#none" onclick="userLvlCho('5854872', '20007232', 'und');"><p style="width:28.883774453394707%;">쉬워요!</p></a>
+								</dt>
+								<dd>251명</dd>
+							</dl>
+							<dl class="survey_result answer02">
+								<dt>
+									<a href="#none" onclick="userLvlCho('5854872', '20007232', 'up');""><p style="width:71.11622554660529%;">어려워요!</p></a>
+								</dt>
+								<dd>618명</dd>
+							</dl>
+						</div>
+					</div>
+				<div class="btn_wrap">
+					<div class="btn_row btn_down_row">
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadP('/20180308/go1/g_sci_mun_GwM0OOJr_01_10.pdf', '/fullserv_down/201803081/gat_mun', '201803081', '320', '1', '140073', '0', '/20180308/go1/g_sci_mun_GwM0OOJr_01_10', '5854872');"><span>문제</span></button>
+					<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadJ('http://wdown.ebsi.co.kr/W61001/01exam/20180308/mobile/h1_t_sci_2hSsKAfH_01.jpg', '/fullserv_down/201803081/gat_mun', '201803081', '320', '1', '140073', '0', 'http://wdown', '2018년고1 3월 학평(서울)통합과학', '5854872');"><span>정답</span></button>
+						<button type="button" class="btn_L_col2 has_down" onclick="goDownLoadH('/20180308/go1/g_sci_hsj_zF5ldfZW_12.pdf', '/fullserv_down/201803081/gat_mun', '201803081', '320', '1', '140073', '0', '/20180308/go1/g_sci_hsj_zF5ldfZW_12');"><span>해설</span></button>
+					</div>
+					<div class="btn_row btn_popup_row">
+						<button type="button" class="btn_popup_class" onclick="explainMoveChk('5854872', '201803081', '0');"><span>해설강의</span></button>
+						<button type="button" class="btn_popup_test" onclick="paperOn('5854872', '고1 3월 학평(서울)통합과학', '0', '2018');"><span>응시하기</span></button>
+					</div>
+				</div>
+			</li>
+			</ul>
+	</div>
+	<!-- pagination -->
+</form>
+<div class="pagination heat"><div class="count"><a href='javascript:goPage(1)' class="active"> 1 </a></div></div><!-- //board_list -->
+				
+			

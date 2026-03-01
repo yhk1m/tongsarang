@@ -23,7 +23,6 @@ let state = {
   type: null, // 'single' | 'multi'
   subjects: [],
   subjectData: {},
-  selectedChapters: new Set(),
   selectedQuestions: [],
   dm: null,
   currentSubject: null
@@ -47,7 +46,6 @@ export async function openMockExam(currentSubject, dm) {
     type: null,
     subjects: [],
     subjectData: {},
-    selectedChapters: new Set(),
     selectedQuestions: [],
     dm,
     currentSubject
@@ -72,12 +70,11 @@ function closeMockExam() {
 function renderStep() {
   renderStepIndicator();
   if (state.step === 1) renderStep1();
-  else if (state.step === 2) renderStep2();
-  else if (state.step === 3) renderStep3();
+  else if (state.step === 2) renderStep2Combined();
 }
 
 function renderStepIndicator() {
-  const steps = ['유형 선택', '성취기준', '문항 선택'];
+  const steps = ['유형 선택', '문항 선택'];
   document.getElementById('meStepIndicator').innerHTML = steps.map((label, i) => {
     const num = i + 1;
     let cls = 'me-step';
@@ -102,7 +99,7 @@ function renderStep1() {
     <div class="me-type-cards">
       <div class="me-type-card" id="meTypeSingle">
         <h3>과목별 모의고사</h3>
-        <p>과목을 선택하여<br>성취기준별로 문항을 선택합니다</p>
+        <p>과목을 선택하여<br>문항을 선택합니다</p>
       </div>
       <div class="me-type-card" id="meTypeMulti">
         <h3>통합 모의고사</h3>
@@ -148,10 +145,9 @@ function showSubjectPicker() {
   });
 }
 
-// ── Step 2: Chapter tree ──
+// ── Step 2: Combined accordion (대단원 아코디언 + 문항 테이블) ──
 async function goStep2() {
   state.step = 2;
-  state.selectedChapters.clear();
   renderStepIndicator();
 
   const body = document.getElementById('meBody');
@@ -165,96 +161,152 @@ async function goStep2() {
     }
   }
 
-  renderStep2();
+  renderStep2Combined();
 }
 
-function renderStep2() {
+function renderStep2Combined() {
   const body = document.getElementById('meBody');
+  const allQuestions = [];
   let html = '';
+  let accordionCount = 0;
+  const showSubject = state.subjects.length > 1;
 
   for (const subj of state.subjects) {
     const data = state.subjectData[subj];
     const tree = buildChapterTree(data, subj);
+    const hasMinorData = tree.some(t => t.hasMinor);
 
-    if (state.subjects.length > 1) {
+    if (showSubject) {
       html += `<div class="me-subject-separator">${escHtml(subj)}</div>`;
     }
 
     if (tree.length === 0) {
-      html += '<div class="me-no-data">성취기준 데이터가 없습니다</div>';
+      html += '<div class="me-no-data">데이터가 없습니다</div>';
       continue;
     }
 
-    const hasMinorData = tree.some(t => t.hasMinor);
-    html += '<div class="me-chapter-tree">';
     for (const major of tree) {
-      const majorId = `me_maj_${subj}_${major.name}`;
+      const majorQuestions = data.filter(item => item.대단원 === major.name);
+      const startIdx = allQuestions.length;
+      const questionIndexMap = new Map();
+      majorQuestions.forEach((q, i) => {
+        allQuestions.push({ ...q, _subject: subj });
+        questionIndexMap.set(q, startIdx + i);
+      });
+
+      const accId = `me_acc_${accordionCount++}`;
+
+      // Accordion header
+      html += `<div class="me-accordion-group">`;
+      html += `<div class="me-accordion-header" data-target="${accId}">`;
+      html += `<input type="checkbox" class="me-major-check">`;
+      html += `<span class="me-accordion-title">${escHtml(major.name)}</span>`;
+      html += `<span class="me-count">(${major.count}문항)</span>`;
+      html += `<span class="me-accordion-arrow">▶</span>`;
+      html += `</div>`;
+
+      // Accordion body
+      html += `<div class="me-accordion-body" id="${accId}">`;
 
       if (hasMinorData) {
-        // 중단원이 있는 과목: 대단원 > 중단원 트리
-        const minorHtml = major.minors.map(m => {
-          const minorId = `me_min_${subj}_${m.name}`;
-          return `
-            <label class="me-chapter-minor">
-              <input type="checkbox" data-subject="${escHtml(subj)}" data-minor="${escHtml(m.name)}" id="${escHtml(minorId)}">
-              ${escHtml(m.name)}
-              <span class="me-count">(${m.count})</span>
-            </label>
-          `;
-        }).join('');
+        for (const minor of major.minors) {
+          const minorQuestions = majorQuestions.filter(q => (q.중단원 || '(미분류)') === minor.name);
+          if (minorQuestions.length === 0) continue;
 
-        html += `
-          <div class="me-chapter-group">
-            <label class="me-chapter-major">
-              <input type="checkbox" data-subject="${escHtml(subj)}" data-major="${escHtml(major.name)}" id="${escHtml(majorId)}">
-              ${escHtml(major.name)}
-              <span class="me-count">(${major.count})</span>
-            </label>
-            <div class="me-chapter-minors">${minorHtml}</div>
-          </div>
-        `;
+          html += `<div class="me-minor-header">${escHtml(minor.name)} <span class="me-count">(${minor.count})</span></div>`;
+          html += `<table class="me-question-table"><tbody>`;
+          for (const q of minorQuestions) {
+            const idx = questionIndexMap.get(q);
+            const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
+            html += `<tr>
+              <td><input type="checkbox" class="me-q-check" data-idx="${idx}"></td>
+              ${showSubject ? `<td>${escHtml(subj)}</td>` : ''}
+              <td>${escHtml(String(q.학년도 || ''))}</td>
+              <td>${escHtml(q.분류 || '')}</td>
+              <td>${escHtml(String(q.번호 || ''))}</td>
+              <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
+              <td>${escHtml(String(q.배점 || ''))}</td>
+              <td>${escHtml(String(q.답 || ''))}</td>
+            </tr>`;
+          }
+          html += `</tbody></table>`;
+        }
       } else {
-        // 중단원이 없는 과목: 대단원만 바로 선택
-        html += `
-          <div class="me-chapter-group">
-            <label class="me-chapter-major">
-              <input type="checkbox" data-subject="${escHtml(subj)}" data-major="${escHtml(major.name)}" data-minor="(미분류)" id="${escHtml(majorId)}">
-              ${escHtml(major.name)}
-              <span class="me-count">(${major.count})</span>
-            </label>
-          </div>
-        `;
+        html += `<table class="me-question-table"><tbody>`;
+        for (let i = 0; i < majorQuestions.length; i++) {
+          const q = majorQuestions[i];
+          const idx = startIdx + i;
+          const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
+          html += `<tr>
+            <td><input type="checkbox" class="me-q-check" data-idx="${idx}"></td>
+            ${showSubject ? `<td>${escHtml(subj)}</td>` : ''}
+            <td>${escHtml(String(q.학년도 || ''))}</td>
+            <td>${escHtml(q.분류 || '')}</td>
+            <td>${escHtml(String(q.번호 || ''))}</td>
+            <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
+            <td>${escHtml(String(q.배점 || ''))}</td>
+            <td>${escHtml(String(q.답 || ''))}</td>
+          </tr>`;
+        }
+        html += `</tbody></table>`;
       }
+
+      html += `</div>`; // accordion-body
+      html += `</div>`; // accordion-group
     }
-    html += '</div>';
+  }
+
+  if (allQuestions.length === 0) {
+    html = '<div class="me-no-data">문항 데이터가 없습니다</div>';
   }
 
   body.innerHTML = html;
-  renderFooter('', `
-    <button class="btn btn-secondary" id="meBackTo1">이전</button>
-    <button class="btn btn-primary" id="meNextTo3">다음</button>
-  `);
+  state.selectedQuestions = allQuestions;
 
-  // Major checkbox toggles all minors
-  body.querySelectorAll('input[data-major]').forEach(maj => {
-    maj.addEventListener('change', () => {
-      const group = maj.closest('.me-chapter-group');
-      group.querySelectorAll('input[data-minor]').forEach(min => {
-        min.checked = maj.checked;
-      });
+  const updateCount = () => {
+    const checked = body.querySelectorAll('.me-q-check:checked').length;
+    const el = document.getElementById('meSelCount');
+    if (el) el.innerHTML = `선택: <strong>${checked}</strong> / ${allQuestions.length}문항`;
+  };
+
+  renderFooter(
+    `<span class="me-select-count" id="meSelCount">선택: <strong>0</strong> / ${allQuestions.length}문항</span>`,
+    `<button class="btn btn-secondary" id="meBackTo1">이전</button>
+     <button class="btn btn-primary" id="meGenPDF">PDF 생성</button>`
+  );
+
+  // Accordion toggle (click header, but not the checkbox)
+  body.querySelectorAll('.me-accordion-header').forEach(header => {
+    header.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+      const targetId = header.dataset.target;
+      const bodyEl = document.getElementById(targetId);
+      const arrow = header.querySelector('.me-accordion-arrow');
+      bodyEl.classList.toggle('open');
+      arrow.textContent = bodyEl.classList.contains('open') ? '▼' : '▶';
     });
   });
 
-  // Minor checkbox updates major state
-  body.querySelectorAll('input[data-minor]').forEach(min => {
-    min.addEventListener('change', () => {
-      const group = min.closest('.me-chapter-group');
-      const majCb = group.querySelector('input[data-major]');
-      const minors = group.querySelectorAll('input[data-minor]');
-      const allChecked = Array.from(minors).every(m => m.checked);
-      const someChecked = Array.from(minors).some(m => m.checked);
+  // Major checkbox → select/deselect all questions in this chapter
+  body.querySelectorAll('.me-major-check').forEach(majCb => {
+    majCb.addEventListener('change', () => {
+      const group = majCb.closest('.me-accordion-group');
+      group.querySelectorAll('.me-q-check').forEach(cb => cb.checked = majCb.checked);
+      updateCount();
+    });
+  });
+
+  // Individual question checkbox → update major checkbox state
+  body.querySelectorAll('.me-q-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const group = cb.closest('.me-accordion-group');
+      const majCb = group.querySelector('.me-major-check');
+      const qChecks = group.querySelectorAll('.me-q-check');
+      const allChecked = Array.from(qChecks).every(c => c.checked);
+      const someChecked = Array.from(qChecks).some(c => c.checked);
       majCb.checked = allChecked;
       majCb.indeterminate = !allChecked && someChecked;
+      updateCount();
     });
   });
 
@@ -263,11 +315,11 @@ function renderStep2() {
     renderStep();
   });
 
-  document.getElementById('meNextTo3').addEventListener('click', () => {
-    collectSelectedChapters();
-    if (state.selectedChapters.size === 0) return;
-    state.step = 3;
-    renderStep();
+  document.getElementById('meGenPDF').addEventListener('click', () => {
+    const checkedIdxs = Array.from(body.querySelectorAll('.me-q-check:checked')).map(cb => parseInt(cb.dataset.idx));
+    if (checkedIdxs.length === 0) return;
+    const selected = checkedIdxs.map(i => state.selectedQuestions[i]);
+    startPDFGeneration(selected);
   });
 }
 
@@ -291,118 +343,6 @@ function buildChapterTree(data, subj) {
   }));
 }
 
-function collectSelectedChapters() {
-  state.selectedChapters.clear();
-  document.querySelectorAll('#meBody input[data-minor]:checked').forEach(cb => {
-    state.selectedChapters.add(`${cb.dataset.subject}||${cb.dataset.minor}`);
-  });
-}
-
-// ── Step 3: Question selection ──
-function renderStep3() {
-  const body = document.getElementById('meBody');
-  const questions = [];
-
-  for (const subj of state.subjects) {
-    const data = state.subjectData[subj];
-    for (const item of data) {
-      const minorKey = item.중단원 || '(미분류)';
-      const key = `${subj}||${minorKey}`;
-      if (state.selectedChapters.has(key)) {
-        questions.push({ ...item, _subject: subj });
-      }
-    }
-  }
-
-  if (questions.length === 0) {
-    body.innerHTML = '<div class="me-no-data">선택한 성취기준에 해당하는 문항이 없습니다</div>';
-    renderFooter('', '<button class="btn btn-secondary" id="meBackTo2">이전</button>');
-    document.getElementById('meBackTo2').addEventListener('click', () => {
-      state.step = 2;
-      renderStep();
-    });
-    return;
-  }
-
-  const showSubject = state.subjects.length > 1;
-
-  let tableHtml = `
-    <table class="me-question-table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="meSelectAll" checked></th>
-          ${showSubject ? '<th>과목</th>' : ''}
-          <th>학년도</th>
-          <th>분류</th>
-          <th>번호</th>
-          <th>발문</th>
-          <th>배점</th>
-          <th>정답</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  questions.forEach((q, idx) => {
-    const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
-    tableHtml += `
-      <tr>
-        <td><input type="checkbox" class="me-q-check" data-idx="${idx}" checked></td>
-        ${showSubject ? `<td>${escHtml(q._subject)}</td>` : ''}
-        <td>${escHtml(String(q.학년도))}</td>
-        <td>${escHtml(q.분류)}</td>
-        <td>${escHtml(String(q.번호))}</td>
-        <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
-        <td>${escHtml(String(q.배점))}</td>
-        <td>${escHtml(String(q.답))}</td>
-      </tr>
-    `;
-  });
-
-  tableHtml += '</tbody></table>';
-  body.innerHTML = tableHtml;
-
-  state.selectedQuestions = questions;
-
-  const updateCount = () => {
-    const checked = body.querySelectorAll('.me-q-check:checked').length;
-    document.getElementById('meSelCount').innerHTML = `선택: <strong>${checked}</strong> / ${questions.length}문항`;
-  };
-
-  renderFooter(
-    `<span class="me-select-count" id="meSelCount">선택: <strong>${questions.length}</strong> / ${questions.length}문항</span>`,
-    `<button class="btn btn-secondary" id="meBackTo2">이전</button>
-     <button class="btn btn-primary" id="meGenPDF">PDF 생성</button>`
-  );
-
-  // Select all
-  document.getElementById('meSelectAll').addEventListener('change', e => {
-    body.querySelectorAll('.me-q-check').forEach(cb => cb.checked = e.target.checked);
-    updateCount();
-  });
-
-  body.querySelectorAll('.me-q-check').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const allCbs = body.querySelectorAll('.me-q-check');
-      const allChecked = Array.from(allCbs).every(c => c.checked);
-      document.getElementById('meSelectAll').checked = allChecked;
-      updateCount();
-    });
-  });
-
-  document.getElementById('meBackTo2').addEventListener('click', () => {
-    state.step = 2;
-    renderStep();
-  });
-
-  document.getElementById('meGenPDF').addEventListener('click', () => {
-    const checkedIdxs = Array.from(body.querySelectorAll('.me-q-check:checked')).map(cb => parseInt(cb.dataset.idx));
-    if (checkedIdxs.length === 0) return;
-    const selected = checkedIdxs.map(i => state.selectedQuestions[i]);
-    startPDFGeneration(selected);
-  });
-}
-
 async function startPDFGeneration(questions) {
   const body = document.getElementById('meBody');
   body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text" id="mePdfProgress">PDF 생성 중... (0/' + questions.length + ')</div></div>';
@@ -416,9 +356,9 @@ async function startPDFGeneration(questions) {
     closeMockExam();
   } catch (err) {
     body.innerHTML = `<div class="me-no-data">PDF 생성 실패: ${escHtml(err.message)}</div>`;
-    renderFooter('', '<button class="btn btn-secondary" id="meBackTo3">이전</button>');
-    document.getElementById('meBackTo3').addEventListener('click', () => {
-      state.step = 3;
+    renderFooter('', '<button class="btn btn-secondary" id="meBackToQuestions">이전</button>');
+    document.getElementById('meBackToQuestions').addEventListener('click', () => {
+      state.step = 2;
       renderStep();
     });
   }
