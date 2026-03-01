@@ -185,30 +185,46 @@ function renderStep2() {
       continue;
     }
 
+    const hasMinorData = tree.some(t => t.hasMinor);
     html += '<div class="me-chapter-tree">';
     for (const major of tree) {
       const majorId = `me_maj_${subj}_${major.name}`;
-      const minorHtml = major.minors.map(m => {
-        const minorId = `me_min_${subj}_${m.name}`;
-        return `
-          <label class="me-chapter-minor">
-            <input type="checkbox" data-subject="${escHtml(subj)}" data-minor="${escHtml(m.name)}" id="${escHtml(minorId)}">
-            ${escHtml(m.name)}
-            <span class="me-count">(${m.count})</span>
-          </label>
-        `;
-      }).join('');
 
-      html += `
-        <div class="me-chapter-group">
-          <label class="me-chapter-major">
-            <input type="checkbox" data-subject="${escHtml(subj)}" data-major="${escHtml(major.name)}" id="${escHtml(majorId)}">
-            ${escHtml(major.name)}
-            <span class="me-count">(${major.count})</span>
-          </label>
-          <div class="me-chapter-minors">${minorHtml}</div>
-        </div>
-      `;
+      if (hasMinorData) {
+        // 중단원이 있는 과목: 대단원 > 중단원 트리
+        const minorHtml = major.minors.map(m => {
+          const minorId = `me_min_${subj}_${m.name}`;
+          return `
+            <label class="me-chapter-minor">
+              <input type="checkbox" data-subject="${escHtml(subj)}" data-minor="${escHtml(m.name)}" id="${escHtml(minorId)}">
+              ${escHtml(m.name)}
+              <span class="me-count">(${m.count})</span>
+            </label>
+          `;
+        }).join('');
+
+        html += `
+          <div class="me-chapter-group">
+            <label class="me-chapter-major">
+              <input type="checkbox" data-subject="${escHtml(subj)}" data-major="${escHtml(major.name)}" id="${escHtml(majorId)}">
+              ${escHtml(major.name)}
+              <span class="me-count">(${major.count})</span>
+            </label>
+            <div class="me-chapter-minors">${minorHtml}</div>
+          </div>
+        `;
+      } else {
+        // 중단원이 없는 과목: 대단원만 바로 선택
+        html += `
+          <div class="me-chapter-group">
+            <label class="me-chapter-major">
+              <input type="checkbox" data-subject="${escHtml(subj)}" data-major="${escHtml(major.name)}" data-minor="(미분류)" id="${escHtml(majorId)}">
+              ${escHtml(major.name)}
+              <span class="me-count">(${major.count})</span>
+            </label>
+          </div>
+        `;
+      }
     }
     html += '</div>';
   }
@@ -257,18 +273,21 @@ function renderStep2() {
 
 function buildChapterTree(data, subj) {
   const tree = new Map();
+  let hasMinor = false;
   for (const item of data) {
     if (!item.대단원) continue;
     if (!tree.has(item.대단원)) tree.set(item.대단원, new Map());
     const minors = tree.get(item.대단원);
-    const minorKey = item.중단원 || '(미분류)';
-    minors.set(minorKey, (minors.get(minorKey) || 0) + 1);
+    const minorKey = item.중단원 || '';
+    if (minorKey) hasMinor = true;
+    minors.set(minorKey || '(미분류)', (minors.get(minorKey || '(미분류)') || 0) + 1);
   }
 
   return Array.from(tree.entries()).map(([major, minors]) => ({
     name: major,
     count: Array.from(minors.values()).reduce((a, b) => a + b, 0),
-    minors: Array.from(minors.entries()).map(([name, count]) => ({ name, count }))
+    minors: Array.from(minors.entries()).map(([name, count]) => ({ name, count })),
+    hasMinor // 중단원 데이터가 있는 과목인지
   }));
 }
 
