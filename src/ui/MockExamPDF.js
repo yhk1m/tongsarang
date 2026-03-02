@@ -89,15 +89,33 @@ function subjectLabel(questions) {
 export async function generateMockExamPDF(questions, onProgress) {
   const total = questions.length;
 
-  // Load Korean font data (cached after first load)
-  const fontData = await loadFontData();
+  // Load Korean font data and common passage config
+  const [fontData, commonPassages] = await Promise.all([
+    loadFontData(),
+    loadCommonPassages()
+  ]);
+
+  // Build set of common passage question keys
+  const cpSet = new Set();
+  for (const [subject, exams] of Object.entries(commonPassages)) {
+    for (const [examKey, groups] of Object.entries(exams)) {
+      for (const range of groups) {
+        const [start, end] = range.split('-').map(Number);
+        for (let n = start; n <= end; n++) {
+          cpSet.add(`${subject}_${examKey}_${n}`);
+        }
+      }
+    }
+  }
 
   // Load and process all images
   const imageDataList = [];
   for (let i = 0; i < total; i++) {
     const q = questions[i];
-    const imgData = await loadAndProcessImage(q, i + 1);
-    imageDataList.push(imgData);
+    const qKey = `${q._subject}_${q.학년도}_${q.분류}_${q.번호}`;
+    const skipNumber = cpSet.has(qKey);
+    const imgData = await loadAndProcessImage(q, i + 1, skipNumber);
+    imageDataList.push({ ...imgData, skipNumber });
     if (onProgress) onProgress(i + 1, total);
   }
 
@@ -111,10 +129,22 @@ export async function generateMockExamPDF(questions, onProgress) {
   generateAnswerPDF(questions, `${ts}_${label}_정답표.pdf`, fontData);
 }
 
+let _commonPassagesCache = null;
+async function loadCommonPassages() {
+  if (_commonPassagesCache) return _commonPassagesCache;
+  try {
+    const resp = await fetch(`${import.meta.env.BASE_URL}data/common_passages.json`);
+    _commonPassagesCache = resp.ok ? await resp.json() : {};
+  } catch {
+    _commonPassagesCache = {};
+  }
+  return _commonPassagesCache;
+}
+
 /**
  * Load image, replace number overlay, return { dataUrl, width, height }
  */
-function loadAndProcessImage(question, newNumber) {
+function loadAndProcessImage(question, newNumber, skipNumber = false) {
   return new Promise((resolve) => {
     const subject = question._subject;
     const code = SUBJECT_CODE[subject] || subject;
@@ -135,19 +165,14 @@ function loadAndProcessImage(question, newNumber) {
       // Draw original image
       ctx.drawImage(loadedImg, 0, 0);
 
-      // Cover original number area with white rectangle
-      // Narrower width to avoid covering question text, taller to fully hide number
-      const coverW = Math.round(canvas.width * 0.055);
-      const coverH = Math.round(canvas.height * 0.06);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, coverW, coverH);
-
-      // Draw new number
-      const fontSize = Math.round(coverH * 0.55);
-      ctx.fillStyle = '#000000';
-      ctx.font = `bold ${fontSize}px sans-serif`;
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${newNumber}.`, 4, coverH * 0.4);
+      // Cover original number area (skip for common passage questions)
+      if (!skipNumber) {
+        const scale = COL_W / canvas.width; // mm per px
+        const coverW = Math.round(5.5 / scale);
+        const coverH = Math.round(4.5 / scale);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, coverW, coverH);
+      }
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       resolve({
@@ -242,6 +267,15 @@ function generateQuestionPDF(imageDataList, questions, fileName, fontData) {
     const finalW = finalH === imgH ? imgW : imgW * (finalH / imgH);
 
     doc.addImage(img.dataUrl, 'JPEG', x, y, finalW, finalH);
+
+    // Draw question number on PDF (skip for common passage questions)
+    if (!img.skipNumber) {
+      doc.setFont('NanumGothic', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${i + 1}.`, x + 0.5, y + 3.2);
+    }
+
     yPos += finalH + 3.5; // ~4px gap between images
   }
 
