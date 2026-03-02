@@ -9,13 +9,13 @@ export function renderHeader() {
         </div>
       </div>
       <div class="header-right">
-        <div class="visitor-counter" id="visitorCounter">
-          <div class="vc-item">Today <strong id="vcToday">-</strong></div>
-          <div class="vc-item">Total <strong id="vcTotal">-</strong></div>
-        </div>
         <div class="header-copyright">
           &copy; 2026 양정고등학교 지리교사 김용현<br>
           <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
+        </div>
+        <div class="visitor-counter" id="visitorCounter">
+          <div class="vc-item">Today <strong id="vcToday">-</strong></div>
+          <div class="vc-item">Total <strong id="vcTotal">-</strong></div>
         </div>
       </div>
     </div>
