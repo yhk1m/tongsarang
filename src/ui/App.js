@@ -13,6 +13,7 @@ import { FilterManager } from '../core/FilterManager.js';
 import { LinkerStore } from '../core/LinkerStore.js';
 import { EditStore } from '../core/EditStore.js';
 import { renderDevToolbar, bindDevToolbarEvents, updateDevEditCount } from './DevToolbar.js';
+import { trackVisit } from '../core/VisitorCounter.js';
 
 function escapeHtmlForTextarea(str) {
   if (!str) return '';
@@ -39,6 +40,7 @@ export class App {
     this.bindEvents();
     await this.linkerStore.loadDefaults();
     await this.loadSubject(this.currentSubject);
+    trackVisit();
   }
 
   _checkAdminMode() {
