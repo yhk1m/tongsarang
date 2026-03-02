@@ -242,7 +242,7 @@ function generateQuestionPDF(imageDataList, questions, fileName, fontData) {
     const finalW = finalH === imgH ? imgW : imgW * (finalH / imgH);
 
     doc.addImage(img.dataUrl, 'JPEG', x, y, finalW, finalH);
-    yPos += finalH + 2; // 2mm gap between images
+    yPos += finalH + 3.5; // ~4px gap between images
   }
 
   // Draw column divider on all pages
