@@ -13,7 +13,7 @@ export function renderHeader() {
           <span class="vc-item">Today <strong id="vcToday">-</strong></span>
           <span class="vc-divider">|</span>
           <span class="vc-item">Total <strong id="vcTotal">-</strong></span>
-        </div>
+        </div><br>
         &copy; 2026 양정고등학교 지리교사 김용현<br>
         <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
       </div>
