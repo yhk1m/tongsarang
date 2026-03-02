@@ -9,7 +9,7 @@ export function renderHeader() {
         </div>
       </div>
       <div class="header-right">
-        &copy; 2026 양정고등학교 김용현T<br>
+        &copy; 2026 양정고등학교 지리교사 김용현<br>
         <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
       </div>
     </div>

@@ -325,25 +325,6 @@ body {
   cursor: pointer;
 }
 
-/* Footer */
-.site-footer {
-  text-align: center;
-  padding: 30px 20px;
-  color: #86868b;
-  font-size: 0.85em;
-  line-height: 1.6;
-}
-
-.site-footer a {
-  color: #86868b;
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  color: #1d1d1f;
-  text-decoration: underline;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .header {
