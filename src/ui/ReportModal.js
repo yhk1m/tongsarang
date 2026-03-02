@@ -103,10 +103,14 @@ function renderFormTab() {
           <input type="text" id="reportSchool" placeholder="소속">
         </div>
       </div>
+      <div class="report-field">
+        <label for="reportContact">연락처</label>
+        <input type="text" id="reportContact" placeholder="전화번호 또는 이메일 주소">
+      </div>
       <div class="report-row">
         <div class="report-field">
           <label for="reportTeachSubject">담당과목</label>
-          <input type="text" id="reportTeachSubject" placeholder="담당과목">
+          <input type="text" id="reportTeachSubject" placeholder="담당과목이 없는 경우 비워주세요.">
         </div>
         <div class="report-field">
           <label for="reportRole">직위</label>
@@ -152,6 +156,7 @@ function renderFormTab() {
       오류내용: document.getElementById('reportContent').value,
       이름: document.getElementById('reportName').value,
       소속: document.getElementById('reportSchool').value,
+      연락처: document.getElementById('reportContact').value,
       담당과목: document.getElementById('reportTeachSubject').value,
       직위: document.getElementById('reportRole').value === '__custom__'
         ? document.getElementById('reportRoleCustom').value
@@ -202,17 +207,21 @@ function renderListTab() {
               <th>분류</th>
               <th>번호</th>
               <th>오류내용</th>
+              <th>처리상태</th>
+              <th>상세설명</th>
             </tr>
           </thead>
           <tbody>
             ${sorted.map(r => `
               <tr>
-                <td class="report-td-date">${esc(r.timestamp || '')}</td>
+                <td class="report-td-date">${formatDate(r.timestamp)}</td>
                 <td>${esc(r.과목 || '')}</td>
                 <td>${esc(r.학년도 || '')}</td>
                 <td>${esc(r.분류 || '')}</td>
                 <td>${esc(r.번호 || '')}</td>
-                <td class="report-td-content">${esc(r.오류내용 || '')}</td>
+                <td class="report-td-desc">${r.오류내용 ? `<div class="report-desc-clamp">${esc(r.오류내용)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
+                <td>${renderStatus(r.처리상태)}</td>
+                <td class="report-td-desc">${r.상세설명 ? `<div class="report-desc-clamp">${esc(r.상세설명)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -220,6 +229,14 @@ function renderListTab() {
       </div>
     `;
     body.innerHTML = html;
+
+    body.querySelectorAll('.report-desc-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const clamp = btn.previousElementSibling;
+        const expanded = clamp.classList.toggle('expanded');
+        btn.textContent = expanded ? '접기' : '더보기';
+      });
+    });
 
     if (adminMode) {
       document.getElementById('reportCsvDownload')?.addEventListener('click', () => {
@@ -246,6 +263,21 @@ function downloadCSV(rows) {
   a.download = `tongsarang_reports_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function formatDate(raw) {
+  if (!raw) return '';
+  const d = new Date(raw);
+  if (isNaN(d)) return esc(raw);
+  const ymd = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}.`;
+  const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return `${ymd}<br>${hm}`;
+}
+
+function renderStatus(value) {
+  if (!value) return '';
+  const cls = { '수정완료': 'report-status-done', '미확인': 'report-status-pending', '비고': 'report-status-note' }[value];
+  return cls ? `<span class="report-status ${cls}">${esc(value)}</span>` : esc(value);
 }
 
 function esc(str) {
