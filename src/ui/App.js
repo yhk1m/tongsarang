@@ -72,6 +72,10 @@ export class App {
             </div>
           </div>
         </div>
+        <footer class="site-footer">
+          <p>&copy; 2026 양정고등학교 지리교사 김용현</p>
+          <p><a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a></p>
+        </footer>
       </div>
       ${renderModal()}
       ${renderMockExamModal()}
