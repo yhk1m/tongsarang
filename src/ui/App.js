@@ -99,7 +99,7 @@ export class App {
     bindReportEvents(this.adminMode);
 
     document.getElementById('btnMockExam').addEventListener('click', () => {
-      openMockExam(this.currentSubject, this.dm);
+      openMockExam(this.currentSubject, this.dm, this.linkerStore);
     });
 
     document.getElementById('btnReport').addEventListener('click', () => {

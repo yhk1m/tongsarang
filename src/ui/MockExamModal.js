@@ -47,7 +47,7 @@ export function bindMockExamEvents() {
   document.querySelector('.mockexam-wizard').addEventListener('click', e => e.stopPropagation());
 }
 
-export async function openMockExam(currentSubject, dm) {
+export async function openMockExam(currentSubject, dm, linkerStore) {
   state = {
     step: 1,
     type: null,
@@ -55,6 +55,7 @@ export async function openMockExam(currentSubject, dm) {
     subjectData: {},
     selectedQuestions: [],
     dm,
+    linkerStore,
     currentSubject,
     checkedSet: new Set(),
     meFilters: {},
@@ -80,7 +81,11 @@ function closeMockExam() {
 
 function renderStep() {
   renderStepIndicator();
-  if (state.step === 1) renderStep1();
+  if (state.step === 1) {
+    const preview = document.getElementById('mePreview');
+    if (preview) preview.innerHTML = '';
+    renderStep1();
+  }
   else if (state.step === 2) renderStep2Combined();
 }
 
@@ -244,10 +249,21 @@ function renderStep2Combined() {
     <tbody id="meTbody"></tbody>
   </table>`;
 
-  // Pagination + footer
+  // Pagination
   let paginationHtml = `<div class="me-pagination" id="mePagination"></div>`;
 
   body.innerHTML = filterHtml + theadHtml + paginationHtml;
+
+  // Preview panel (fixed at bottom, outside body scroll)
+  let preview = document.getElementById('mePreview');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.id = 'mePreview';
+    preview.className = 'me-preview';
+    // Insert before footer inside the wizard
+    const footer = document.getElementById('meFooter');
+    footer.parentNode.insertBefore(preview, footer);
+  }
 
   // Apply initial filters and render
   applyMeFilters();
@@ -283,13 +299,17 @@ function buildMeFilterOptions(questions) {
   const chapters = new Set();
   const standards = new Set();
   const difficulties = new Set();
+  const { linkerStore } = state;
 
   for (const q of questions) {
     if (q.학년도) years.add(String(q.학년도));
     if (q._subject) subjects.add(q._subject);
     if (q.분류) categories.add(q.분류);
     if (q.대단원) chapters.add(q.대단원);
-    if (q.성취기준) standards.add(q.성취기준);
+    if (linkerStore) {
+      const std = linkerStore.getMapping(q._subject, q);
+      if (std) standards.add(std);
+    }
     if (q.난이도) difficulties.add(String(q.난이도));
   }
 
@@ -324,7 +344,10 @@ function applyMeFilters() {
     if (filters.subject && q._subject !== filters.subject) continue;
     if (filters.category && (q.분류 || '') !== filters.category) continue;
     if (filters.chapter && (q.대단원 || '') !== filters.chapter) continue;
-    if (filters.standard && (q.성취기준 || '') !== filters.standard) continue;
+    if (filters.standard) {
+      const std = state.linkerStore ? state.linkerStore.getMapping(q._subject, q) : null;
+      if ((std || '') !== filters.standard) continue;
+    }
     if (filters.difficulty && String(q.난이도 || '') !== filters.difficulty) continue;
     if (filters.accuracy) {
       const rate = parseFloat(q.정답률);
@@ -343,6 +366,56 @@ function applyMeFilters() {
   state.meFilteredQuestions = result;
   state.mePage = 1;
   renderMeTablePage();
+  updateMeFilterOptions();
+}
+
+function updateMeFilterOptions() {
+  const filtered = state.meFilteredQuestions;
+  const { linkerStore } = state;
+
+  const years = new Set();
+  const subjects = new Set();
+  const categories = new Set();
+  const chapters = new Set();
+  const standards = new Set();
+  const difficulties = new Set();
+
+  for (const q of filtered) {
+    if (q.학년도) years.add(String(q.학년도));
+    if (q._subject) subjects.add(q._subject);
+    if (q.분류) categories.add(q.분류);
+    if (q.대단원) chapters.add(q.대단원);
+    if (linkerStore) {
+      const std = linkerStore.getMapping(q._subject, q);
+      if (std) standards.add(std);
+    }
+    if (q.난이도) difficulties.add(String(q.난이도));
+  }
+
+  const map = {
+    meFilterYear: { opts: years, label: '학년도', key: 'year' },
+    meFilterSubject: { opts: subjects, label: '과목', key: 'subject' },
+    meFilterCategory: { opts: categories, label: '분류', key: 'category' },
+    meFilterChapter: { opts: chapters, label: '대단원', key: 'chapter' },
+    meFilterStandard: { opts: standards, label: '성취기준', key: 'standard' },
+    meFilterDifficulty: { opts: difficulties, label: '난이도', key: 'difficulty' },
+  };
+
+  for (const [id, { opts, label, key }] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const current = state.meFilters[key] || '';
+    const sorted = Array.from(opts).sort();
+    let html = `<option value="">${escHtml(label)}</option>`;
+    for (const o of sorted) {
+      html += `<option value="${escHtml(o)}"${o === current ? ' selected' : ''}>${escHtml(o)}</option>`;
+    }
+    // 현재 선택값이 목록에 없으면 유지 (자기 자신 필터이므로)
+    if (current && !opts.has(current)) {
+      html += `<option value="${escHtml(current)}" selected>${escHtml(current)}</option>`;
+    }
+    el.innerHTML = html;
+  }
 }
 
 function renderMeTablePage() {
@@ -538,6 +611,67 @@ function updateMeCount() {
   if (el) {
     el.innerHTML = `선택: <strong>${state.checkedSet.size}</strong> / ${state.selectedQuestions.length}문항`;
   }
+  renderMePreview();
+}
+
+const ME_SUBJECT_CODE = {
+  '한국지리': 'korgeo', '세계지리': 'wgeo', '통합사회': 'iss',
+  '한국사': 'korhis', '정치와법': 'pollaw', '경제': 'econ',
+  '사회문화': 'socul', '생활과윤리': 'leth', '윤리와사상': 'ethth',
+  '동아시아사': 'eahis', '세계사': 'worhis'
+};
+const ME_CAT_MONTH = {
+  '수능': '11', '9모': '09', '6모': '06',
+  '10월학평': '10', '7월학평': '07', '5월학평': '05', '4월학평': '04', '3월학평': '03',
+  '11월': '11', '10월': '10', '9월': '09', '7월': '07',
+  '6월': '06', '5월': '05', '4월': '04', '3월': '03'
+};
+
+function getQuestionImageUrl(q) {
+  const code = ME_SUBJECT_CODE[q._subject] || q._subject;
+  const month = ME_CAT_MONTH[q.분류] || '00';
+  const num = String(q.번호).padStart(2, '0');
+  return `${import.meta.env.BASE_URL}images/${encodeURIComponent(q._subject)}/${q.학년도}_${month}_${code}_${num}.jpg`;
+}
+
+function renderMePreview() {
+  const container = document.getElementById('mePreview');
+  if (!container) return;
+
+  if (state.checkedSet.size === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const sorted = Array.from(state.checkedSet).sort((a, b) => a - b);
+  const showSubject = state.subjects.length > 1;
+
+  container.innerHTML = `
+    <div class="me-preview-header">선택한 문항 미리보기 (${sorted.length}문항)</div>
+    <div class="me-preview-list">
+      ${sorted.map(idx => {
+        const q = state.selectedQuestions[idx];
+        const label = showSubject
+          ? `${q._subject} ${q.학년도} ${q.분류} ${q.번호}번`
+          : `${q.학년도} ${q.분류} ${q.번호}번`;
+        return `<div class="me-preview-item" data-idx="${idx}">
+          <div class="me-preview-item-header">
+            <span class="me-preview-label">${escHtml(label)}</span>
+            <button class="me-preview-remove" data-idx="${idx}" title="선택 해제">&times;</button>
+          </div>
+          <img src="${getQuestionImageUrl(q)}" alt="${escHtml(label)}" loading="lazy">
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  container.querySelectorAll('.me-preview-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      state.checkedSet.delete(idx);
+      renderMeTablePage();
+    });
+  });
 }
 
 function buildChapterTree(data, subj) {

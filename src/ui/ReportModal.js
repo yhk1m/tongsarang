@@ -267,8 +267,20 @@ function downloadCSV(rows) {
 
 function formatDate(raw) {
   if (!raw) return '';
-  const d = new Date(raw);
-  if (isNaN(d)) return esc(raw);
+  const str = String(raw).trim();
+  // 한국어 로케일: "2026. 3. 3. 오후 2:30:00"
+  const koMatch = str.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(오전|오후)?\s*(\d{1,2}):(\d{2})/);
+  if (koMatch) {
+    const [, y, m, day, ampm, h, min] = koMatch;
+    let hour = parseInt(h);
+    if (ampm === '오후' && hour < 12) hour += 12;
+    if (ampm === '오전' && hour === 12) hour = 0;
+    const ymd = `${y}.${m.padStart(2, '0')}.${day.padStart(2, '0')}.`;
+    const hm = `${String(hour).padStart(2, '0')}:${min}`;
+    return `${ymd}<br>${hm}`;
+  }
+  const d = new Date(str);
+  if (isNaN(d)) return esc(str);
   const ymd = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}.`;
   const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   return `${ymd}<br>${hm}`;
