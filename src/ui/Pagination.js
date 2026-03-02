@@ -1,13 +1,17 @@
-const PAGE_SIZE = 100;
-
 export class Pagination {
-  constructor() {
+  constructor(defaultSize = 100) {
     this.currentPage = 1;
     this.totalItems = 0;
+    this.pageSize = defaultSize;
   }
 
   get totalPages() {
-    return Math.max(1, Math.ceil(this.totalItems / PAGE_SIZE));
+    return Math.max(1, Math.ceil(this.totalItems / this.pageSize));
+  }
+
+  setPageSize(size) {
+    this.pageSize = size;
+    this.currentPage = 1;
   }
 
   reset(totalItems) {
@@ -17,13 +21,22 @@ export class Pagination {
 
   getPageData(data) {
     this.totalItems = data.length;
-    if (data.length <= PAGE_SIZE) return data;
-    const start = (this.currentPage - 1) * PAGE_SIZE;
-    return data.slice(start, start + PAGE_SIZE);
+    if (data.length <= this.pageSize) return data;
+    const start = (this.currentPage - 1) * this.pageSize;
+    return data.slice(start, start + this.pageSize);
   }
 
   render() {
-    if (this.totalItems <= PAGE_SIZE) return '';
+    const sizes = [10, 20, 50, 100];
+    let sizeSelect = `<select class="page-size-select">`;
+    for (const s of sizes) {
+      sizeSelect += `<option value="${s}" ${s === this.pageSize ? 'selected' : ''}>${s}개씩</option>`;
+    }
+    sizeSelect += `</select>`;
+
+    if (this.totalItems <= this.pageSize) {
+      return `<div class="pagination">${sizeSelect}</div>`;
+    }
 
     const pages = this.totalPages;
     let buttons = '';
@@ -53,12 +66,20 @@ export class Pagination {
     // Next
     buttons += `<button class="page-btn" data-page="next" ${this.currentPage === pages ? 'disabled' : ''}>&raquo;</button>`;
 
-    return `<div class="pagination">${buttons}</div>`;
+    return `<div class="pagination">${sizeSelect}${buttons}</div>`;
   }
 
   bind(container, onPageChange) {
     const pag = container.querySelector('.pagination');
     if (!pag) return;
+
+    const sizeSelect = pag.querySelector('.page-size-select');
+    if (sizeSelect) {
+      sizeSelect.addEventListener('change', () => {
+        this.setPageSize(parseInt(sizeSelect.value));
+        onPageChange();
+      });
+    }
 
     pag.addEventListener('click', e => {
       const btn = e.target.closest('.page-btn');

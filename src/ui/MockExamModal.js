@@ -2,6 +2,8 @@ import { generateMockExamPDF } from './MockExamPDF.js';
 
 let SUBJECTS_WITH_DATA = [];
 
+const ME_PAGE_SIZE = 20;
+
 export function renderMockExamModal() {
   return `
     <div id="mockExamModal" class="mockexam-modal">
@@ -25,7 +27,12 @@ let state = {
   subjectData: {},
   selectedQuestions: [],
   dm: null,
-  currentSubject: null
+  currentSubject: null,
+  // Step 2 filter/pagination state
+  checkedSet: new Set(),
+  meFilters: {},
+  mePage: 1,
+  meFilteredQuestions: []
 };
 
 export function bindMockExamEvents() {
@@ -48,7 +55,11 @@ export async function openMockExam(currentSubject, dm) {
     subjectData: {},
     selectedQuestions: [],
     dm,
-    currentSubject
+    currentSubject,
+    checkedSet: new Set(),
+    meFilters: {},
+    mePage: 1,
+    meFilteredQuestions: []
   };
   document.getElementById('mockExamModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -145,7 +156,7 @@ function showSubjectPicker() {
   });
 }
 
-// ── Step 2: Combined accordion (대단원 아코디언 + 문항 테이블) ──
+// ── Step 2: Filter bar + flat table + pagination ──
 async function goStep2() {
   state.step = 2;
   renderStepIndicator();
@@ -161,166 +172,372 @@ async function goStep2() {
     }
   }
 
+  // Build allQuestions
+  const allQuestions = [];
+  for (const subj of state.subjects) {
+    const data = state.subjectData[subj];
+    for (const q of data) {
+      allQuestions.push({ ...q, _subject: subj });
+    }
+  }
+  state.selectedQuestions = allQuestions;
+  state.checkedSet = new Set();
+  state.meFilters = {};
+  state.mePage = 1;
+  state.meFilteredQuestions = [...allQuestions];
+
   renderStep2Combined();
 }
 
 function renderStep2Combined() {
   const body = document.getElementById('meBody');
-  const allQuestions = [];
-  let html = '';
-  let accordionCount = 0;
+  const allQuestions = state.selectedQuestions;
   const showSubject = state.subjects.length > 1;
 
-  for (const subj of state.subjects) {
-    const data = state.subjectData[subj];
-    const tree = buildChapterTree(data, subj);
-    const hasMinorData = tree.some(t => t.hasMinor);
-
-    if (showSubject) {
-      html += `<div class="me-subject-separator">${escHtml(subj)}</div>`;
-    }
-
-    if (tree.length === 0) {
-      html += '<div class="me-no-data">데이터가 없습니다</div>';
-      continue;
-    }
-
-    for (const major of tree) {
-      const majorQuestions = data.filter(item => item.대단원 === major.name);
-      const startIdx = allQuestions.length;
-      const questionIndexMap = new Map();
-      majorQuestions.forEach((q, i) => {
-        allQuestions.push({ ...q, _subject: subj });
-        questionIndexMap.set(q, startIdx + i);
-      });
-
-      const accId = `me_acc_${accordionCount++}`;
-
-      // Accordion header
-      html += `<div class="me-accordion-group">`;
-      html += `<div class="me-accordion-header" data-target="${accId}">`;
-      html += `<input type="checkbox" class="me-major-check">`;
-      html += `<span class="me-accordion-title">${escHtml(major.name)}</span>`;
-      html += `<span class="me-count">(${major.count}문항)</span>`;
-      html += `<span class="me-accordion-arrow">▶</span>`;
-      html += `</div>`;
-
-      // Accordion body
-      html += `<div class="me-accordion-body" id="${accId}">`;
-
-      if (hasMinorData) {
-        for (const minor of major.minors) {
-          const minorQuestions = majorQuestions.filter(q => (q.중단원 || '(미분류)') === minor.name);
-          if (minorQuestions.length === 0) continue;
-
-          html += `<div class="me-minor-header">${escHtml(minor.name)} <span class="me-count">(${minor.count})</span></div>`;
-          html += `<table class="me-question-table"><tbody>`;
-          for (const q of minorQuestions) {
-            const idx = questionIndexMap.get(q);
-            const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
-            html += `<tr>
-              <td><input type="checkbox" class="me-q-check" data-idx="${idx}"></td>
-              ${showSubject ? `<td>${escHtml(subj)}</td>` : ''}
-              <td>${escHtml(String(q.학년도 || ''))}</td>
-              <td>${escHtml(q.분류 || '')}</td>
-              <td>${escHtml(String(q.번호 || ''))}</td>
-              <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
-              <td>${escHtml(String(q.배점 || ''))}</td>
-              <td>${escHtml(String(q.답 || ''))}</td>
-            </tr>`;
-          }
-          html += `</tbody></table>`;
-        }
-      } else {
-        html += `<table class="me-question-table"><tbody>`;
-        for (let i = 0; i < majorQuestions.length; i++) {
-          const q = majorQuestions[i];
-          const idx = startIdx + i;
-          const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
-          html += `<tr>
-            <td><input type="checkbox" class="me-q-check" data-idx="${idx}"></td>
-            ${showSubject ? `<td>${escHtml(subj)}</td>` : ''}
-            <td>${escHtml(String(q.학년도 || ''))}</td>
-            <td>${escHtml(q.분류 || '')}</td>
-            <td>${escHtml(String(q.번호 || ''))}</td>
-            <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
-            <td>${escHtml(String(q.배점 || ''))}</td>
-            <td>${escHtml(String(q.답 || ''))}</td>
-          </tr>`;
-        }
-        html += `</tbody></table>`;
-      }
-
-      html += `</div>`; // accordion-body
-      html += `</div>`; // accordion-group
-    }
-  }
-
   if (allQuestions.length === 0) {
-    html = '<div class="me-no-data">문항 데이터가 없습니다</div>';
+    body.innerHTML = '<div class="me-no-data">문항 데이터가 없습니다</div>';
+    renderFooter('', '<button class="btn btn-secondary" id="meBackTo1">이전</button>');
+    document.getElementById('meBackTo1').addEventListener('click', () => {
+      state.step = 1;
+      renderStep();
+    });
+    return;
   }
 
-  body.innerHTML = html;
-  state.selectedQuestions = allQuestions;
+  // Build filter options
+  const filterOpts = buildMeFilterOptions(allQuestions);
 
-  const updateCount = () => {
-    const checked = body.querySelectorAll('.me-q-check:checked').length;
-    const el = document.getElementById('meSelCount');
-    if (el) el.innerHTML = `선택: <strong>${checked}</strong> / ${allQuestions.length}문항`;
-  };
+  // Filter bar HTML
+  let filterHtml = `<div class="me-filter-bar">`;
+  filterHtml += buildSelectHtml('meFilterYear', '학년도', filterOpts.years);
+  if (showSubject) {
+    filterHtml += buildSelectHtml('meFilterSubject', '과목', filterOpts.subjects);
+  }
+  filterHtml += buildSelectHtml('meFilterCategory', '분류', filterOpts.categories);
+  filterHtml += buildSelectHtml('meFilterChapter', '대단원', filterOpts.chapters);
+  filterHtml += buildSelectHtml('meFilterStandard', '성취기준', filterOpts.standards);
+  filterHtml += buildSelectHtml('meFilterDifficulty', '난이도', filterOpts.difficulties);
+  filterHtml += `<select id="meFilterAccuracy">
+    <option value="">정답률</option>
+    <option value="0-30">~30%</option>
+    <option value="31-50">31~50%</option>
+    <option value="51-70">51~70%</option>
+    <option value="71-100">71~100%</option>
+  </select>`;
+  filterHtml += `<input id="meFilterKeyword" type="text" placeholder="키워드 검색">`;
+  filterHtml += `<button id="meFilterReset">초기화</button>`;
+  filterHtml += `</div>`;
 
+  // Table header
+  let theadHtml = `<table class="me-question-table me-flat-table">
+    <thead><tr>
+      <th><input type="checkbox" id="meSelectAll"></th>
+      ${showSubject ? '<th>과목</th>' : ''}
+      <th>학년도</th>
+      <th>분류</th>
+      <th>대단원</th>
+      <th>번호</th>
+      <th>발문</th>
+      <th>배점</th>
+      <th>답</th>
+    </tr></thead>
+    <tbody id="meTbody"></tbody>
+  </table>`;
+
+  // Pagination + footer
+  let paginationHtml = `<div class="me-pagination" id="mePagination"></div>`;
+
+  body.innerHTML = filterHtml + theadHtml + paginationHtml;
+
+  // Apply initial filters and render
+  applyMeFilters();
+
+  // Footer
   renderFooter(
-    `<span class="me-select-count" id="meSelCount">선택: <strong>0</strong> / ${allQuestions.length}문항</span>`,
+    `<span class="me-select-count" id="meSelCount">선택: <strong>${state.checkedSet.size}</strong> / ${allQuestions.length}문항</span>`,
     `<button class="btn btn-secondary" id="meBackTo1">이전</button>
      <button class="btn btn-primary" id="meGenPDF">PDF 생성</button>`
   );
 
-  // Accordion toggle (click header, but not the checkbox)
-  body.querySelectorAll('.me-accordion-header').forEach(header => {
-    header.addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT') return;
-      const targetId = header.dataset.target;
-      const bodyEl = document.getElementById(targetId);
-      const arrow = header.querySelector('.me-accordion-arrow');
-      bodyEl.classList.toggle('open');
-      arrow.textContent = bodyEl.classList.contains('open') ? '▼' : '▶';
-    });
-  });
+  // Bind filter events
+  bindMeFilterEvents(showSubject);
 
-  // Major checkbox → select/deselect all questions in this chapter
-  body.querySelectorAll('.me-major-check').forEach(majCb => {
-    majCb.addEventListener('change', () => {
-      const group = majCb.closest('.me-accordion-group');
-      group.querySelectorAll('.me-q-check').forEach(cb => cb.checked = majCb.checked);
-      updateCount();
-    });
-  });
-
-  // Individual question checkbox → update major checkbox state
-  body.querySelectorAll('.me-q-check').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const group = cb.closest('.me-accordion-group');
-      const majCb = group.querySelector('.me-major-check');
-      const qChecks = group.querySelectorAll('.me-q-check');
-      const allChecked = Array.from(qChecks).every(c => c.checked);
-      const someChecked = Array.from(qChecks).some(c => c.checked);
-      majCb.checked = allChecked;
-      majCb.indeterminate = !allChecked && someChecked;
-      updateCount();
-    });
-  });
-
+  // Back button
   document.getElementById('meBackTo1').addEventListener('click', () => {
     state.step = 1;
     renderStep();
   });
 
+  // PDF generation
   document.getElementById('meGenPDF').addEventListener('click', () => {
-    const checkedIdxs = Array.from(body.querySelectorAll('.me-q-check:checked')).map(cb => parseInt(cb.dataset.idx));
-    if (checkedIdxs.length === 0) return;
-    const selected = checkedIdxs.map(i => state.selectedQuestions[i]);
+    if (state.checkedSet.size === 0) return;
+    const selected = Array.from(state.checkedSet).sort((a, b) => a - b).map(i => state.selectedQuestions[i]);
     startPDFGeneration(selected);
   });
+}
+
+function buildMeFilterOptions(questions) {
+  const years = new Set();
+  const subjects = new Set();
+  const categories = new Set();
+  const chapters = new Set();
+  const standards = new Set();
+  const difficulties = new Set();
+
+  for (const q of questions) {
+    if (q.학년도) years.add(String(q.학년도));
+    if (q._subject) subjects.add(q._subject);
+    if (q.분류) categories.add(q.분류);
+    if (q.대단원) chapters.add(q.대단원);
+    if (q.성취기준) standards.add(q.성취기준);
+    if (q.난이도) difficulties.add(String(q.난이도));
+  }
+
+  const sortSet = s => Array.from(s).sort();
+  return {
+    years: sortSet(years),
+    subjects: sortSet(subjects),
+    categories: sortSet(categories),
+    chapters: sortSet(chapters),
+    standards: sortSet(standards),
+    difficulties: sortSet(difficulties)
+  };
+}
+
+function buildSelectHtml(id, label, options) {
+  let html = `<select id="${id}"><option value="">${escHtml(label)}</option>`;
+  for (const opt of options) {
+    html += `<option value="${escHtml(opt)}">${escHtml(opt)}</option>`;
+  }
+  html += `</select>`;
+  return html;
+}
+
+function applyMeFilters() {
+  const filters = state.meFilters;
+  const allQuestions = state.selectedQuestions;
+  const result = [];
+
+  for (let idx = 0; idx < allQuestions.length; idx++) {
+    const q = allQuestions[idx];
+    if (filters.year && String(q.학년도) !== filters.year) continue;
+    if (filters.subject && q._subject !== filters.subject) continue;
+    if (filters.category && (q.분류 || '') !== filters.category) continue;
+    if (filters.chapter && (q.대단원 || '') !== filters.chapter) continue;
+    if (filters.standard && (q.성취기준 || '') !== filters.standard) continue;
+    if (filters.difficulty && String(q.난이도 || '') !== filters.difficulty) continue;
+    if (filters.accuracy) {
+      const rate = parseFloat(q.정답률);
+      if (isNaN(rate)) continue;
+      const [lo, hi] = filters.accuracy.split('-').map(Number);
+      if (rate < lo || rate > hi) continue;
+    }
+    if (filters.keyword) {
+      const kw = filters.keyword.toLowerCase();
+      const text = ((q.발문 || '') + ' ' + (q.문항내용 || '')).toLowerCase();
+      if (!text.includes(kw)) continue;
+    }
+    result.push({ ...q, _origIdx: idx });
+  }
+
+  state.meFilteredQuestions = result;
+  state.mePage = 1;
+  renderMeTablePage();
+}
+
+function renderMeTablePage() {
+  const filtered = state.meFilteredQuestions;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ME_PAGE_SIZE));
+  if (state.mePage > totalPages) state.mePage = totalPages;
+
+  const start = (state.mePage - 1) * ME_PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + ME_PAGE_SIZE);
+  const showSubject = state.subjects.length > 1;
+
+  // Render tbody
+  const tbody = document.getElementById('meTbody');
+  if (pageItems.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${showSubject ? 9 : 8}" style="text-align:center;padding:20px;color:#86868b;">조건에 맞는 문항이 없습니다</td></tr>`;
+  } else {
+    tbody.innerHTML = pageItems.map(q => {
+      const idx = q._origIdx;
+      const checked = state.checkedSet.has(idx) ? 'checked' : '';
+      const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
+      return `<tr>
+        <td><input type="checkbox" class="me-q-check" data-idx="${idx}" ${checked}></td>
+        ${showSubject ? `<td>${escHtml(q._subject)}</td>` : ''}
+        <td>${escHtml(String(q.학년도 || ''))}</td>
+        <td>${escHtml(q.분류 || '')}</td>
+        <td>${escHtml(q.대단원 || '')}</td>
+        <td>${escHtml(String(q.번호 || ''))}</td>
+        <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
+        <td>${escHtml(String(q.배점 || ''))}</td>
+        <td>${escHtml(String(q.답 || ''))}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Update select-all checkbox state
+  const selectAll = document.getElementById('meSelectAll');
+  if (selectAll) {
+    const pageIdxs = pageItems.map(q => q._origIdx);
+    const allChecked = pageIdxs.length > 0 && pageIdxs.every(i => state.checkedSet.has(i));
+    const someChecked = pageIdxs.some(i => state.checkedSet.has(i));
+    selectAll.checked = allChecked;
+    selectAll.indeterminate = !allChecked && someChecked;
+  }
+
+  // Render pagination
+  renderMePagination(totalPages);
+
+  // Bind checkbox events on this page
+  bindMeCheckboxEvents();
+
+  // Update count
+  updateMeCount();
+}
+
+function renderMePagination(totalPages) {
+  const container = document.getElementById('mePagination');
+  if (totalPages <= 1) {
+    container.innerHTML = `<span class="me-page-info">${state.meFilteredQuestions.length}문항</span>`;
+    return;
+  }
+
+  let html = '';
+  html += `<button class="me-page-btn" data-mepage="prev" ${state.mePage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+
+  const start = Math.max(1, state.mePage - 3);
+  const end = Math.min(totalPages, state.mePage + 3);
+
+  if (start > 1) {
+    html += `<button class="me-page-btn" data-mepage="1">1</button>`;
+    if (start > 2) html += `<span class="me-page-dots">...</span>`;
+  }
+
+  for (let i = start; i <= end; i++) {
+    const active = i === state.mePage ? ' active' : '';
+    html += `<button class="me-page-btn${active}" data-mepage="${i}">${i}</button>`;
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) html += `<span class="me-page-dots">...</span>`;
+    html += `<button class="me-page-btn" data-mepage="${totalPages}">${totalPages}</button>`;
+  }
+
+  html += `<button class="me-page-btn" data-mepage="next" ${state.mePage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
+  html += `<span class="me-page-info">${state.meFilteredQuestions.length}문항</span>`;
+
+  container.innerHTML = html;
+
+  // Bind page click events
+  container.addEventListener('click', handleMePageClick);
+}
+
+function handleMePageClick(e) {
+  const btn = e.target.closest('.me-page-btn');
+  if (!btn || btn.disabled) return;
+
+  const totalPages = Math.max(1, Math.ceil(state.meFilteredQuestions.length / ME_PAGE_SIZE));
+  const page = btn.dataset.mepage;
+
+  if (page === 'prev') {
+    state.mePage = Math.max(1, state.mePage - 1);
+  } else if (page === 'next') {
+    state.mePage = Math.min(totalPages, state.mePage + 1);
+  } else {
+    state.mePage = parseInt(page);
+  }
+  renderMeTablePage();
+}
+
+function bindMeCheckboxEvents() {
+  const tbody = document.getElementById('meTbody');
+  tbody.querySelectorAll('.me-q-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const idx = parseInt(cb.dataset.idx);
+      if (cb.checked) {
+        state.checkedSet.add(idx);
+      } else {
+        state.checkedSet.delete(idx);
+      }
+      // Update select-all state
+      const selectAll = document.getElementById('meSelectAll');
+      if (selectAll) {
+        const pageCbs = tbody.querySelectorAll('.me-q-check');
+        const allChecked = pageCbs.length > 0 && Array.from(pageCbs).every(c => c.checked);
+        const someChecked = Array.from(pageCbs).some(c => c.checked);
+        selectAll.checked = allChecked;
+        selectAll.indeterminate = !allChecked && someChecked;
+      }
+      updateMeCount();
+    });
+  });
+}
+
+function bindMeFilterEvents(showSubject) {
+  const ids = ['meFilterYear', 'meFilterCategory', 'meFilterChapter', 'meFilterStandard', 'meFilterDifficulty', 'meFilterAccuracy'];
+  const keys = ['year', 'category', 'chapter', 'standard', 'difficulty', 'accuracy'];
+  if (showSubject) {
+    ids.splice(1, 0, 'meFilterSubject');
+    keys.splice(1, 0, 'subject');
+  }
+
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', () => {
+        state.meFilters[keys[i]] = el.value || undefined;
+        applyMeFilters();
+      });
+    }
+  });
+
+  // Keyword input with debounce
+  const keywordInput = document.getElementById('meFilterKeyword');
+  let keywordTimer = null;
+  keywordInput.addEventListener('input', () => {
+    clearTimeout(keywordTimer);
+    keywordTimer = setTimeout(() => {
+      state.meFilters.keyword = keywordInput.value.trim() || undefined;
+      applyMeFilters();
+    }, 300);
+  });
+
+  // Reset button
+  document.getElementById('meFilterReset').addEventListener('click', () => {
+    state.meFilters = {};
+    // Reset all select/input values
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    keywordInput.value = '';
+    applyMeFilters();
+  });
+
+  // Select-all checkbox: toggles ALL filtered questions (not just current page)
+  document.getElementById('meSelectAll').addEventListener('change', (e) => {
+    const checked = e.target.checked;
+    if (checked) {
+      for (const q of state.meFilteredQuestions) {
+        state.checkedSet.add(q._origIdx);
+      }
+    } else {
+      for (const q of state.meFilteredQuestions) {
+        state.checkedSet.delete(q._origIdx);
+      }
+    }
+    // Re-render current page to update checkboxes
+    renderMeTablePage();
+  });
+}
+
+function updateMeCount() {
+  const el = document.getElementById('meSelCount');
+  if (el) {
+    el.innerHTML = `선택: <strong>${state.checkedSet.size}</strong> / ${state.selectedQuestions.length}문항`;
+  }
 }
 
 function buildChapterTree(data, subj) {
@@ -339,7 +556,7 @@ function buildChapterTree(data, subj) {
     name: major,
     count: Array.from(minors.values()).reduce((a, b) => a + b, 0),
     minors: Array.from(minors.entries()).map(([name, count]) => ({ name, count })),
-    hasMinor // 중단원 데이터가 있는 과목인지
+    hasMinor
   }));
 }
 
