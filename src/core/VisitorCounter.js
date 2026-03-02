@@ -1,4 +1,4 @@
-const COUNTER_URL = 'https://script.google.com/macros/s/APPS_SCRIPT_ID_HERE/exec';
+const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzOjTEaAT2WeDN8NWwpOUp7JyYdcbMTcgYPx0kO2F-ohfjksP-vop78firT1wi_e2k5/exec';
 
 export async function trackVisit() {
   try {
