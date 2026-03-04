@@ -2,7 +2,10 @@ const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzOjTEaAT2WeDN8NWwp
 
 export async function trackVisit() {
   try {
-    const res = await fetch(COUNTER_URL);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(COUNTER_URL, { signal: controller.signal });
+    clearTimeout(timer);
     if (!res.ok) return;
     const data = await res.json();
     const todayEl = document.getElementById('vcToday');
