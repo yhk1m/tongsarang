@@ -55,9 +55,9 @@ export class DataManager {
   }
 
   getFilterOptions(data, linkerStore, subject) {
-    const linkedStandards = linkerStore && subject
-      ? data.map(d => linkerStore.getMapping(subject, d)).filter(Boolean)
-      : [];
+    const linkedStandards = data.map(d => {
+      return (linkerStore && subject ? linkerStore.getMapping(subject, d) : null) || d.성취기준 || null;
+    }).filter(Boolean);
     return {
       학년도: [...new Set(data.map(d => d.학년도).filter(Boolean))].sort((a, b) => b - a),
       분류: [...new Set(data.map(d => d.분류).filter(Boolean))].sort((a, b) => {

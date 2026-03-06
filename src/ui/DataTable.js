@@ -63,7 +63,7 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const balmEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '발문');
     const contentEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '문항내용');
 
-    const standardId = linkerStore ? linkerStore.getMapping(currentSubject, item) : null;
+    const standardId = (linkerStore ? linkerStore.getMapping(currentSubject, item) : null) || item.성취기준 || null;
     const standardText = standardId ? lookupStandardText(currentSubject, standardId) : '';
     const standardDisplay = standardId || '미연결';
 

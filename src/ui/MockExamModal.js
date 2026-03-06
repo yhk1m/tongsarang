@@ -306,10 +306,8 @@ function buildMeFilterOptions(questions) {
     if (q._subject) subjects.add(q._subject);
     if (q.분류) categories.add(q.분류);
     if (q.대단원) chapters.add(q.대단원);
-    if (linkerStore) {
-      const std = linkerStore.getMapping(q._subject, q);
-      if (std) standards.add(std);
-    }
+    const std = (linkerStore ? linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
+    if (std) standards.add(std);
     if (q.난이도) difficulties.add(String(q.난이도));
   }
 
@@ -345,7 +343,7 @@ function applyMeFilters() {
     if (filters.category && (q.분류 || '') !== filters.category) continue;
     if (filters.chapter && (q.대단원 || '') !== filters.chapter) continue;
     if (filters.standard) {
-      const std = state.linkerStore ? state.linkerStore.getMapping(q._subject, q) : null;
+      const std = (state.linkerStore ? state.linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
       if ((std || '') !== filters.standard) continue;
     }
     if (filters.difficulty && String(q.난이도 || '') !== filters.difficulty) continue;
@@ -385,10 +383,8 @@ function updateMeFilterOptions() {
     if (q._subject) subjects.add(q._subject);
     if (q.분류) categories.add(q.분류);
     if (q.대단원) chapters.add(q.대단원);
-    if (linkerStore) {
-      const std = linkerStore.getMapping(q._subject, q);
-      if (std) standards.add(std);
-    }
+    const std = (linkerStore ? linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
+    if (std) standards.add(std);
     if (q.난이도) difficulties.add(String(q.난이도));
   }
 

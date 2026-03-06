@@ -21,7 +21,7 @@ export class FilterManager {
 
       // 성취기준 (LinkerStore 매핑 기반)
       if (filters.성취기준) {
-        const linked = linkerStore ? linkerStore.getMapping(subject, item) : null;
+        const linked = (linkerStore ? linkerStore.getMapping(subject, item) : null) || item.성취기준 || null;
         if (linked !== filters.성취기준) return false;
       }
 
