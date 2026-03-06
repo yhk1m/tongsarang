@@ -36,7 +36,7 @@ let lState = {
   filterCategory: '',
   filterStatus: '',  // '' | 'mapped' | 'unmapped'
   expandedAreas: new Set(),
-  curriculumVersion: null  // 교육과정 버전 (versions가 있는 과목만 사용)
+  curriculumVersion: null
 };
 
 export function renderLinkerModal() {
@@ -264,55 +264,23 @@ function highlightCurrentItem() {
 }
 
 function getActiveStandards() {
-  const standards = ACHIEVEMENT_STANDARDS[lState.subject];
-  if (!standards) return null;
-  if (standards.versions) {
-    if (!lState.curriculumVersion) {
-      lState.curriculumVersion = Object.keys(standards.versions)[0];
-    }
-    return standards.versions[lState.curriculumVersion];
-  }
-  return standards;
+  return ACHIEVEMENT_STANDARDS[lState.subject] || null;
 }
 
 function renderRightPanel() {
   const right = document.getElementById('linkerRight');
   const item = lState.filtered[lState.currentIdx];
 
-  const standards = ACHIEVEMENT_STANDARDS[lState.subject];
   const activeStandards = getActiveStandards();
   const currentMapping = item ? store.getMapping(lState.subject, item) : null;
-
-  // 교육과정 버전 드롭다운 (versions가 있는 과목만)
-  let versionDropdown = '';
-  if (standards?.versions) {
-    const versionKeys = Object.keys(standards.versions);
-    versionDropdown = `
-      <div class="linker-version-select">
-        <select id="linkerVersionSelect" class="linker-select linker-filter-select">
-          ${versionKeys.map(v => `<option value="${esc(v)}" ${lState.curriculumVersion === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}
-        </select>
-      </div>
-    `;
-  }
 
   if (!item) {
     // 문항이 없어도 성취기준 트리는 표시
     right.innerHTML = `
       <div class="linker-standards-area" id="linkerStandardsArea" style="flex:1;">
-        ${versionDropdown}
         ${renderStandardsTree(activeStandards, null)}
       </div>
     `;
-
-    const versionSel = document.getElementById('linkerVersionSelect');
-    if (versionSel) {
-      versionSel.addEventListener('change', e => {
-        lState.curriculumVersion = e.target.value;
-        lState.expandedAreas = new Set();
-        renderRightPanel();
-      });
-    }
 
     // 영역 토글 바인딩
     bindStandardsAreaToggle();
@@ -324,20 +292,9 @@ function renderRightPanel() {
       <div class="me-progress-overlay"><div class="spinner"></div></div>
     </div>
     <div class="linker-standards-area" id="linkerStandardsArea">
-      ${versionDropdown}
       ${renderStandardsTree(activeStandards, currentMapping)}
     </div>
   `;
-
-  // 버전 드롭다운 이벤트
-  const versionSel = document.getElementById('linkerVersionSelect');
-  if (versionSel) {
-    versionSel.addEventListener('change', e => {
-      lState.curriculumVersion = e.target.value;
-      lState.expandedAreas = new Set();
-      renderRightPanel();
-    });
-  }
 
   loadItemImage(item);
   bindStandardsEvents(item);

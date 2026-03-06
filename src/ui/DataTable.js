@@ -195,15 +195,6 @@ function lookupStandardText(subject, standardId) {
       if (s.id === standardId) return s.text;
     }
   }
-  if (subjectData.versions) {
-    for (const version of Object.values(subjectData.versions)) {
-      for (const area of version.areas) {
-        for (const s of area.standards) {
-          if (s.id === standardId) return s.text;
-        }
-      }
-    }
-  }
   return '';
 }
 
