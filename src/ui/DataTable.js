@@ -54,9 +54,9 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const safeNum = escapeHtml(String(item.번호));
     const editKey = `${safeYear}_${safeCat}_${safeNum}`;
 
-    // dev mode: use edited values if available
-    const balmValue = devMode && editStore ? editStore.getFieldValue(currentSubject, item, '발문') : item.발문;
-    const contentValue = devMode && editStore ? editStore.getFieldValue(currentSubject, item, '문항내용') : item.문항내용;
+    // use edited values if available (both admin and regular mode)
+    const balmValue = editStore ? editStore.getFieldValue(currentSubject, item, '발문') : item.발문;
+    const contentValue = editStore ? editStore.getFieldValue(currentSubject, item, '문항내용') : item.문항내용;
     const safeBalm = escapeHtml(balmValue);
     const safeContent = escapeHtml(contentValue);
 
