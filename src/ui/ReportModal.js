@@ -1,4 +1,4 @@
-import { submitReport, fetchReports } from '../core/ReportAPI.js';
+import { submitReport, fetchReports, updateReport } from '../core/ReportAPI.js';
 
 const SUBJECTS = [
   '한국지리', '세계지리', '통합사회', '정치와법', '사회문화',
@@ -188,8 +188,8 @@ function renderListTab() {
       return;
     }
 
-    // Sort newest first
-    const sorted = [...rows].reverse();
+    // Tag each row with its original index (for spreadsheet row mapping)
+    const sorted = rows.map((r, i) => ({ ...r, _rowIndex: i })).reverse();
 
     let html = '';
     if (adminMode) {
@@ -213,15 +213,15 @@ function renderListTab() {
           </thead>
           <tbody>
             ${sorted.map(r => `
-              <tr>
+              <tr data-row-index="${r._rowIndex}">
                 <td class="report-td-date">${formatDate(r.timestamp)}</td>
                 <td>${esc(r.과목 || '')}</td>
                 <td>${esc(r.학년도 || '')}</td>
                 <td>${esc(r.분류 || '')}</td>
                 <td>${esc(r.번호 || '')}</td>
                 <td class="report-td-desc">${r.오류내용 ? `<div class="report-desc-clamp">${esc(r.오류내용)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
-                <td>${renderStatus(r.처리상태)}</td>
-                <td class="report-td-desc">${r.상세설명 ? `<div class="report-desc-clamp">${esc(r.상세설명)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
+                <td class="report-td-status">${adminMode ? renderStatusEditable(r.처리상태, r._rowIndex) : renderStatus(r.처리상태)}</td>
+                <td class="report-td-desc">${renderDescCell(r.상세설명, r._rowIndex)}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -239,12 +239,116 @@ function renderListTab() {
     });
 
     if (adminMode) {
+      bindAdminEditEvents(body, rows);
       document.getElementById('reportCsvDownload')?.addEventListener('click', () => {
         downloadCSV(rows);
       });
     }
   }).catch(err => {
     body.innerHTML = `<div class="report-empty">조회 실패: ${esc(err.message)}</div>`;
+  });
+}
+
+const STATUS_OPTIONS = ['', '미확인', '수정완료', '비고'];
+
+function renderStatusEditable(value, rowIndex) {
+  return `
+    <select class="report-status-select" data-row="${rowIndex}" data-field="처리상태">
+      ${STATUS_OPTIONS.map(opt =>
+        `<option value="${esc(opt)}" ${(value || '') === opt ? 'selected' : ''}>${opt || '—'}</option>`
+      ).join('')}
+    </select>
+  `;
+}
+
+function renderDescCell(value, rowIndex) {
+  if (adminMode) {
+    return `
+      <div class="report-admin-desc" data-row="${rowIndex}">
+        <div class="report-desc-clamp${value ? '' : ' empty'}">${value ? esc(value) : '<span class="report-desc-placeholder">미입력</span>'}</div>
+        <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+      </div>
+    `;
+  }
+  if (!value) return '';
+  return `<div class="report-desc-clamp">${esc(value)}</div><button class="report-desc-toggle" type="button">더보기</button>`;
+}
+
+function bindAdminEditEvents(body, rows) {
+  // 처리상태 드롭다운 변경
+  body.querySelectorAll('.report-status-select').forEach(select => {
+    select.addEventListener('change', async () => {
+      const rowIndex = parseInt(select.dataset.row);
+      const newValue = select.value;
+      select.disabled = true;
+      try {
+        await updateReport(rowIndex, { 처리상태: newValue });
+        rows[rowIndex].처리상태 = newValue;
+        select.classList.add('report-save-ok');
+        setTimeout(() => select.classList.remove('report-save-ok'), 1500);
+      } catch (err) {
+        alert('처리상태 저장 실패: ' + err.message);
+      } finally {
+        select.disabled = false;
+      }
+    });
+  });
+
+  // 상세설명 편집 버튼
+  body.querySelectorAll('.report-desc-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rowIndex = parseInt(btn.dataset.row);
+      const container = btn.closest('.report-admin-desc');
+      const currentValue = rows[rowIndex].상세설명 || '';
+
+      container.innerHTML = `
+        <div class="report-desc-edit-area">
+          <textarea class="report-desc-textarea">${esc(currentValue)}</textarea>
+          <div class="report-desc-edit-actions">
+            <button class="report-desc-save" type="button">저장</button>
+            <button class="report-desc-cancel" type="button">취소</button>
+          </div>
+        </div>
+      `;
+
+      const textarea = container.querySelector('.report-desc-textarea');
+      textarea.focus();
+
+      container.querySelector('.report-desc-save').addEventListener('click', async () => {
+        const newValue = textarea.value;
+        const saveBtn = container.querySelector('.report-desc-save');
+        saveBtn.disabled = true;
+        saveBtn.textContent = '저장 중...';
+        try {
+          await updateReport(rowIndex, { 상세설명: newValue });
+          rows[rowIndex].상세설명 = newValue;
+          container.innerHTML = `
+            <div class="report-desc-clamp${newValue ? '' : ' empty'}">${newValue ? esc(newValue) : '<span class="report-desc-placeholder">미입력</span>'}</div>
+            <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+          `;
+          // Re-bind the new edit button
+          const newBtn = container.querySelector('.report-desc-edit-btn');
+          newBtn.addEventListener('click', () => {
+            newBtn.dispatchEvent(new Event('click', { bubbles: true }));
+          });
+          bindAdminEditEvents(container, rows);
+          container.classList.add('report-save-ok');
+          setTimeout(() => container.classList.remove('report-save-ok'), 1500);
+        } catch (err) {
+          alert('상세설명 저장 실패: ' + err.message);
+          saveBtn.disabled = false;
+          saveBtn.textContent = '저장';
+        }
+      });
+
+      container.querySelector('.report-desc-cancel').addEventListener('click', () => {
+        container.innerHTML = `
+          <div class="report-desc-clamp${currentValue ? '' : ' empty'}">${currentValue ? esc(currentValue) : '<span class="report-desc-placeholder">미입력</span>'}</div>
+          <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+        `;
+        bindAdminEditEvents(container, rows);
+      });
+    });
   });
 }
 

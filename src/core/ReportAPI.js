@@ -16,6 +16,15 @@ export async function submitReport(data) {
   return res.json();
 }
 
+export async function updateReport(rowIndex, fields) {
+  const res = await fetchWithTimeout(SHEETS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'update', rowIndex, ...fields })
+  }, 15000);
+  if (!res.ok) throw new Error('수정 실패');
+  return res.json();
+}
+
 export async function fetchReports() {
   try {
     const res = await fetchWithTimeout(SHEETS_URL);
