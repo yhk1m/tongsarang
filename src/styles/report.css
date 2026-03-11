@@ -200,6 +200,74 @@
 }
 
 /* List tab */
+.report-list-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.report-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.report-page-info {
+  font-size: 0.85em;
+  color: #6e6e73;
+  white-space: nowrap;
+}
+
+.report-page-size {
+  padding: 4px 8px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-family: inherit;
+  cursor: pointer;
+  background: #fff;
+}
+
+.report-page-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-page-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.report-page-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.report-page-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.report-page-current {
+  font-size: 0.85em;
+  color: #1d1d1f;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .report-list-actions {
   margin-bottom: 12px;
   display: flex;

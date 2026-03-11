@@ -24,6 +24,7 @@ export function renderReportModal() {
 }
 
 let adminMode = false;
+let reportListState = { rows: null, sorted: null, page: 1, pageSize: 10 };
 
 export function bindReportEvents(isAdmin) {
   adminMode = isAdmin;
@@ -188,65 +189,113 @@ function renderListTab() {
       return;
     }
 
-    // Tag each row with its original index (for spreadsheet row mapping)
     const sorted = rows.map((r, i) => ({ ...r, _rowIndex: i })).reverse();
-
-    let html = '';
-    if (adminMode) {
-      html += '<div class="report-list-actions"><button class="btn btn-secondary" id="reportCsvDownload">CSV 다운로드</button></div>';
-    }
-
-    html += `
-      <div class="report-table-wrapper">
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>일시</th>
-              <th>과목</th>
-              <th>학년도</th>
-              <th>분류</th>
-              <th>번호</th>
-              <th>오류내용</th>
-              <th>처리상태</th>
-              <th>상세설명</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sorted.map(r => `
-              <tr data-row-index="${r._rowIndex}">
-                <td class="report-td-date">${formatDate(r.timestamp)}</td>
-                <td>${esc(r.과목 || '')}</td>
-                <td>${esc(r.학년도 || '')}</td>
-                <td>${esc(r.분류 || '')}</td>
-                <td>${esc(r.번호 || '')}</td>
-                <td class="report-td-desc">${r.오류내용 ? `<div class="report-desc-clamp">${esc(r.오류내용)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
-                <td class="report-td-status">${adminMode ? renderStatusEditable(r.처리상태, r._rowIndex) : renderStatus(r.처리상태)}</td>
-                <td class="report-td-desc">${renderDescCell(r.상세설명, r._rowIndex)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-    body.innerHTML = html;
-
-    body.querySelectorAll('.report-desc-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const clamp = btn.previousElementSibling;
-        const expanded = clamp.classList.toggle('expanded');
-        btn.textContent = expanded ? '접기' : '더보기';
-      });
-    });
-
-    if (adminMode) {
-      bindAdminEditEvents(body, rows);
-      document.getElementById('reportCsvDownload')?.addEventListener('click', () => {
-        downloadCSV(rows);
-      });
-    }
+    reportListState.rows = rows;
+    reportListState.sorted = sorted;
+    reportListState.page = 1;
+    renderReportListPage();
   }).catch(err => {
     body.innerHTML = `<div class="report-empty">조회 실패: ${esc(err.message)}</div>`;
   });
+}
+
+function renderReportListPage() {
+  const body = document.getElementById('reportBody');
+  const { rows, sorted, page, pageSize } = reportListState;
+  const totalPages = Math.ceil(sorted.length / pageSize);
+  const start = (page - 1) * pageSize;
+  const pageData = sorted.slice(start, start + pageSize);
+
+  let html = '';
+
+  // Top bar: actions + pagination controls
+  html += `<div class="report-list-topbar">`;
+  if (adminMode) {
+    html += `<button class="btn btn-secondary" id="reportCsvDownload">CSV 다운로드</button>`;
+  }
+  html += `
+    <div class="report-pagination">
+      <span class="report-page-info">총 ${sorted.length}건</span>
+      <select class="report-page-size" id="reportPageSize">
+        ${[10, 20, 50].map(s => `<option value="${s}" ${pageSize === s ? 'selected' : ''}>${s}개</option>`).join('')}
+      </select>
+      <div class="report-page-nav">
+        <button class="report-page-btn" id="reportPagePrev" ${page <= 1 ? 'disabled' : ''}>&laquo;</button>
+        <span class="report-page-current">${page} / ${totalPages}</span>
+        <button class="report-page-btn" id="reportPageNext" ${page >= totalPages ? 'disabled' : ''}>&raquo;</button>
+      </div>
+    </div>
+  </div>`;
+
+  html += `
+    <div class="report-table-wrapper">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>일시</th>
+            <th>과목</th>
+            <th>학년도</th>
+            <th>분류</th>
+            <th>번호</th>
+            <th>오류내용</th>
+            <th>처리상태</th>
+            <th>상세설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pageData.map(r => `
+            <tr data-row-index="${r._rowIndex}">
+              <td class="report-td-date">${formatDate(r.timestamp)}</td>
+              <td>${esc(r.과목 || '')}</td>
+              <td>${esc(r.학년도 || '')}</td>
+              <td>${esc(r.분류 || '')}</td>
+              <td>${esc(r.번호 || '')}</td>
+              <td class="report-td-desc">${r.오류내용 ? `<div class="report-desc-clamp">${esc(r.오류내용)}</div><button class="report-desc-toggle" type="button">더보기</button>` : ''}</td>
+              <td class="report-td-status">${adminMode ? renderStatusEditable(r.처리상태, r._rowIndex) : renderStatus(r.처리상태)}</td>
+              <td class="report-td-desc">${renderDescCell(r.상세설명, r._rowIndex)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  body.innerHTML = html;
+
+  // Bind expand toggles
+  body.querySelectorAll('.report-desc-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const clamp = btn.previousElementSibling;
+      const expanded = clamp.classList.toggle('expanded');
+      btn.textContent = expanded ? '접기' : '더보기';
+    });
+  });
+
+  // Bind pagination controls
+  document.getElementById('reportPageSize').addEventListener('change', e => {
+    reportListState.pageSize = parseInt(e.target.value);
+    reportListState.page = 1;
+    renderReportListPage();
+  });
+  document.getElementById('reportPagePrev').addEventListener('click', () => {
+    if (reportListState.page > 1) {
+      reportListState.page--;
+      renderReportListPage();
+    }
+  });
+  document.getElementById('reportPageNext').addEventListener('click', () => {
+    const totalPages = Math.ceil(reportListState.sorted.length / reportListState.pageSize);
+    if (reportListState.page < totalPages) {
+      reportListState.page++;
+      renderReportListPage();
+    }
+  });
+
+  if (adminMode) {
+    bindAdminEditEvents(body, rows);
+    document.getElementById('reportCsvDownload')?.addEventListener('click', () => {
+      downloadCSV(rows);
+    });
+  }
 }
 
 const STATUS_OPTIONS = ['', '미확인', '수정완료', '비고'];
