@@ -173,10 +173,38 @@
   box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
 }
 
+/* Inline edit for short fields (배점, 답) */
+.dev-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.dev-edit-input {
+  width: 50px;
+  padding: 3px 6px;
+  border: 2px solid #0071e3;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.dev-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+}
+
 .dev-edit-actions {
   display: flex;
   gap: 4px;
   margin-top: 4px;
+}
+
+.dev-edit-inline .dev-edit-actions {
+  margin-top: 0;
 }
 
 .dev-edit-save,

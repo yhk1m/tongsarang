@@ -147,30 +147,67 @@ export class App {
     if (!td || td.querySelector('.dev-edit-area')) return;
 
     const currentValue = this.editStore.getFieldValue(this.currentSubject, item, field);
+    const isShortField = field === '배점' || field === '답';
 
-    td.innerHTML = `
-      <div class="dev-edit-area">
-        <textarea class="dev-edit-textarea">${escapeHtmlForTextarea(currentValue)}</textarea>
-        <div class="dev-edit-actions">
-          <button class="dev-edit-save">저장</button>
-          <button class="dev-edit-cancel">취소</button>
+    if (isShortField) {
+      td.innerHTML = `
+        <div class="dev-edit-area dev-edit-inline">
+          <input type="text" class="dev-edit-input" value="${escapeHtmlForTextarea(String(currentValue))}" />
+          <div class="dev-edit-actions">
+            <button class="dev-edit-save">저장</button>
+            <button class="dev-edit-cancel">취소</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    const textarea = td.querySelector('.dev-edit-textarea');
-    textarea.focus();
+      const input = td.querySelector('.dev-edit-input');
+      input.focus();
+      input.select();
 
-    td.querySelector('.dev-edit-save').addEventListener('click', () => {
-      const newValue = textarea.value;
-      this.editStore.setEdit(this.currentSubject, item, field, newValue);
-      this.renderData();
-      updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
-    });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          td.querySelector('.dev-edit-save').click();
+        } else if (e.key === 'Escape') {
+          td.querySelector('.dev-edit-cancel').click();
+        }
+      });
 
-    td.querySelector('.dev-edit-cancel').addEventListener('click', () => {
-      this.renderData();
-    });
+      td.querySelector('.dev-edit-save').addEventListener('click', () => {
+        const newValue = input.value.trim();
+        this.editStore.setEdit(this.currentSubject, item, field, newValue);
+        this.renderData();
+        updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
+      });
+
+      td.querySelector('.dev-edit-cancel').addEventListener('click', () => {
+        this.renderData();
+      });
+    } else {
+      td.innerHTML = `
+        <div class="dev-edit-area">
+          <textarea class="dev-edit-textarea">${escapeHtmlForTextarea(currentValue)}</textarea>
+          <div class="dev-edit-actions">
+            <button class="dev-edit-save">저장</button>
+            <button class="dev-edit-cancel">취소</button>
+          </div>
+        </div>
+      `;
+
+      const textarea = td.querySelector('.dev-edit-textarea');
+      textarea.focus();
+
+      td.querySelector('.dev-edit-save').addEventListener('click', () => {
+        const newValue = textarea.value;
+        this.editStore.setEdit(this.currentSubject, item, field, newValue);
+        this.renderData();
+        updateDevEditCount(this.editStore, this.linkerStore, this.currentSubject);
+      });
+
+      td.querySelector('.dev-edit-cancel').addEventListener('click', () => {
+        this.renderData();
+      });
+    }
   }
 
   _handleResetField(year, cat, num, field) {

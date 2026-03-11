@@ -57,11 +57,15 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     // use edited values if available (both admin and regular mode)
     const balmValue = editStore ? editStore.getFieldValue(currentSubject, item, '발문') : item.발문;
     const contentValue = editStore ? editStore.getFieldValue(currentSubject, item, '문항내용') : item.문항내용;
+    const scoreValue = editStore ? editStore.getFieldValue(currentSubject, item, '배점') : item.배점;
+    const answerValue = editStore ? editStore.getFieldValue(currentSubject, item, '답') : item.답;
     const safeBalm = escapeHtml(balmValue);
     const safeContent = escapeHtml(contentValue);
 
     const balmEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '발문');
     const contentEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '문항내용');
+    const scoreEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '배점');
+    const answerEdited = devMode && editStore && editStore.hasEdit(currentSubject, item, '답');
 
     const standardId = (linkerStore ? linkerStore.getMapping(currentSubject, item) : null) || item.성취기준 || null;
     const standardText = standardId ? lookupStandardText(currentSubject, standardId) : '';
@@ -70,17 +74,21 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     // dev mode edit buttons
     const balmEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="발문" title="발문 수정">&#9998;</button>` : '';
     const contentEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="문항내용" title="문항내용 수정">&#9998;</button>` : '';
+    const scoreEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="배점" title="배점 수정">&#9998;</button>` : '';
+    const answerEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="답" title="정답 수정">&#9998;</button>` : '';
     const stdEditBtn = devMode ? `<button class="btn-edit-std" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" title="성취기준 수정">&#9998;</button>` : '';
     const balmResetBtn = balmEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="발문" title="원래대로">↩</button>` : '';
     const contentResetBtn = contentEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="문항내용" title="원래대로">↩</button>` : '';
+    const scoreResetBtn = scoreEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="배점" title="원래대로">↩</button>` : '';
+    const answerResetBtn = answerEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="답" title="원래대로">↩</button>` : '';
 
     return `
       <tr data-subject="${escapeHtml(currentSubject)}" data-chapter-num="${chapterNum}">
         <td><strong>${safeYear}</strong></td>
         <td><span class="badge badge-${safeCat}">${safeCat}</span></td>
         <td>${safeNum}</td>
-        <td><strong>${escapeHtml(String(item.배점))}</strong></td>
-        <td><strong>${escapeHtml(String(item.답))}</strong></td>
+        <td class="${scoreEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_배점"><strong>${escapeHtml(String(scoreValue))}</strong>${scoreEditBtn}${scoreResetBtn}</td>
+        <td class="${answerEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_답"><strong>${escapeHtml(String(answerValue))}</strong>${answerEditBtn}${answerResetBtn}</td>
         <td>${escapeHtml(item.대단원)}</td>
         <td class="cell-expandable">${stdEditBtn}${escapeHtml(standardDisplay)}${standardText ? `<div class="std-detail">${escapeHtml(standardText)}</div><button class="btn-expand-std">더보기</button>` : ''}</td>
         <td class="cell-expandable${balmEdited ? ' cell-edited' : ''}" data-edit-key="${editKey}_발문"><div class="cell-text">${safeBalm}</div>${balmEditBtn}${balmResetBtn}<button class="btn-expand">더보기</button></td>
