@@ -126,6 +126,13 @@ export function bindFilterEvents({ onApply, onReset, onChapterChange }) {
   document.getElementById('btnResetFilter').addEventListener('click', onReset);
   document.getElementById('filterChapter').addEventListener('change', onChapterChange);
 
+  document.getElementById('searchKeyword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onApply();
+    }
+  });
+
   // Accuracy dropdown toggle
   document.getElementById('accuracySelector').addEventListener('click', () => {
     document.getElementById('filterAccuracyGroup').classList.toggle('open');
