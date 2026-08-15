@@ -93,20 +93,25 @@ def find_page_number_box(texts, draws, page_h, y0, y1):
     return top
 
 
-def vertical_rules(draws, y0, y1):
-    """밴드를 가로지르는 얇고 긴 세로선 [(x0, x1), ...]."""
-    band_h = y1 - y0
+def vertical_rules(draws, y0, y1, page_h):
+    """컬럼 구분선(얇고 지면 전체 높이로 이어지는 세로선) [(x0, x1), ...].
+
+    높이 기준을 '문항 밴드'가 아니라 '지면'으로 잡는 게 핵심이다. 밴드 기준으로
+    잡으면 문항 안의 **표 테두리**까지 구분선으로 오인해서 표의 좌/우 변을
+    잘라먹는다. 실측상 컬럼 구분선은 지면 높이의 65~76%, 표 테두리는 최대 19%
+    수준이라 0.5 로 깨끗하게 갈린다.
+    """
     return [(a, c) for a, b, c, d in draws
-            if (c - a) <= 3.0 and (d - b) >= band_h * 0.35 and not (d <= y0 or b >= y1)]
+            if (c - a) <= 3.0 and (d - b) >= page_h * 0.5 and not (d <= y0 or b >= y1)]
 
 
-def find_right_rule(draws, x_end, y0, y1):
-    cands = [a for a, _ in vertical_rules(draws, y0, y1) if x_end - 25 <= a <= x_end + 30]
+def find_right_rule(draws, x_end, y0, y1, page_h):
+    cands = [a for a, _ in vertical_rules(draws, y0, y1, page_h) if x_end - 25 <= a <= x_end + 30]
     return min(cands) if cands else None
 
 
-def find_left_rule(draws, x_start, y0, y1):
-    cands = [b for _, b in vertical_rules(draws, y0, y1) if x_start - 6 <= b <= x_start + 25]
+def find_left_rule(draws, x_start, y0, y1, page_h):
+    cands = [b for _, b in vertical_rules(draws, y0, y1, page_h) if x_start - 6 <= b <= x_start + 25]
     return max(cands) if cands else None
 
 
@@ -227,12 +232,12 @@ def main():
                 y1 = box_top - 3
                 acts.append('페이지번호박스 제외')
 
-            left_rule = find_left_rule(draws, x0, y0, y1)
+            left_rule = find_left_rule(draws, x0, y0, y1, ph)
             if left_rule is not None and left_rule + 1 < x1 - 20:
                 x0 = left_rule + 1
                 acts.append('좌측 구분선 제외')
 
-            right_rule = find_right_rule(draws, x1, y0, y1)
+            right_rule = find_right_rule(draws, x1, y0, y1, ph)
             if right_rule is not None and right_rule < x1 - 0.5:
                 x1 = right_rule - 1.0
                 acts.append('우측 구분선 제외')
