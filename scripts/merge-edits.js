@@ -47,10 +47,14 @@ function main() {
       const subjectData = JSON.parse(readFileSync(jsonPath, 'utf-8'));
 
       for (const [key, fields] of Object.entries(items)) {
-        // key = "2026_수능_1"
-        const [year, cat, num] = key.split('_');
+        // key = "2026_수능_1", 통합사회 고2만 "2026_3월_고2_1" (questionKey.js와 같은 규칙)
+        const parts = key.split('_');
+        const isGrade2 = parts.length === 4;
+        const [year, cat] = parts;
+        const num = parts[parts.length - 1];
         const item = subjectData.find(
-          i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
+          i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num &&
+            (i.학년 === '고2') === isGrade2
         );
 
         if (!item) {

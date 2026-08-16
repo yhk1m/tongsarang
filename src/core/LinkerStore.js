@@ -1,3 +1,5 @@
+import { questionKey } from './questionKey.js';
+
 const STORAGE_KEY = 'tongsarang_achievement_mappings';
 const DEFAULTS_LOADED_KEY = 'tongsarang_defaults_loaded_v6';
 
@@ -94,7 +96,7 @@ export class LinkerStore {
 
   /** 문항 → 유니크 키 (과목 내) */
   questionKey(item) {
-    return `${item.학년도}_${item.분류}_${item.번호}`;
+    return questionKey(item);
   }
 
   /** 성취기준 연결 저장 */

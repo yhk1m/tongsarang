@@ -1,8 +1,8 @@
 import { renderHeader } from './Header.js';
 import { renderSubjectNav, bindSubjectNav } from './SubjectNav.js';
-import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions, setGeoTesterFilterVisible } from './FilterPanel.js';
+import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions, setGeoTesterFilterVisible, setGradeFilterVisible } from './FilterPanel.js';
 import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
-import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS } from './DataTable.js';
+import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS, columnCount } from './DataTable.js';
 import { renderModal, bindModalEvents, showImage, setNavList } from './ImageModal.js';
 import { renderMockExamModal, bindMockExamEvents, openMockExam } from './MockExamModal.js';
 import { renderLinkerModal, bindLinkerEvents, openLinkerForItem } from './LinkerModal.js';
@@ -10,6 +10,7 @@ import { renderReportModal, bindReportEvents, openReport } from './ReportModal.j
 import { Pagination } from './Pagination.js';
 import { DataManager } from '../core/DataManager.js';
 import { FilterManager } from '../core/FilterManager.js';
+import { findQuestion, keyOf, GRADED_SUBJECTS } from '../core/questionKey.js';
 import { LinkerStore } from '../core/LinkerStore.js';
 import { EditStore } from '../core/EditStore.js';
 import { renderDevToolbar, bindDevToolbarEvents, updateDevEditCount } from './DevToolbar.js';
@@ -119,30 +120,28 @@ export class App {
   bindTableDelegation() {
     bindTableEvents({
       onSort: col => this.handleSort(col),
-      onViewQuestion: (y, c, n) => {
+      onViewQuestion: ref => {
         const sorted = this.fm.applySorting(this.filteredData);
         setNavList(this.currentSubject, sorted);
-        showImage(this.currentSubject, y, c, n);
+        showImage(this.currentSubject, ref.year, ref.cat, ref.num, ref.grade);
       },
-      onEditField: this.adminMode ? (year, cat, num, field) => {
-        this._handleEditField(year, cat, num, field);
+      onEditField: this.adminMode ? (ref, field) => {
+        this._handleEditField(ref, field);
       } : null,
-      onEditStandard: this.adminMode ? (year, cat, num) => {
-        openLinkerForItem(this.currentSubject, year, cat, num);
+      onEditStandard: this.adminMode ? ref => {
+        openLinkerForItem(this.currentSubject, ref);
       } : null,
-      onResetField: this.adminMode ? (year, cat, num, field) => {
-        this._handleResetField(year, cat, num, field);
+      onResetField: this.adminMode ? (ref, field) => {
+        this._handleResetField(ref, field);
       } : null
     });
   }
 
-  _handleEditField(year, cat, num, field) {
-    const item = this.allData.find(
-      i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
-    );
+  _handleEditField(ref, field) {
+    const item = findQuestion(this.allData, ref.year, ref.cat, ref.num, ref.grade);
     if (!item) return;
 
-    const key = `${year}_${cat}_${num}`;
+    const key = keyOf(ref.year, ref.cat, ref.num, ref.grade);
     const td = document.querySelector(`[data-edit-key="${key}_${field}"]`);
     if (!td || td.querySelector('.dev-edit-area')) return;
 
@@ -210,10 +209,8 @@ export class App {
     }
   }
 
-  _handleResetField(year, cat, num, field) {
-    const item = this.allData.find(
-      i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
-    );
+  _handleResetField(ref, field) {
+    const item = findQuestion(this.allData, ref.year, ref.cat, ref.num, ref.grade);
     if (!item) return;
     this.editStore.removeEdit(this.currentSubject, item, field);
     this.renderData();
@@ -232,9 +229,10 @@ export class App {
     document.getElementById('tableShellContainer').innerHTML = renderTableShell(subject);
     this.bindTableDelegation();
 
-    // Toggle GeoTester filter visibility
+    // Toggle GeoTester / 학년 filter visibility
     const showGeo = GEOTESTER_SUBJECTS.has(subject);
     setGeoTesterFilterVisible(showGeo);
+    setGradeFilterVisible(GRADED_SUBJECTS.has(subject));
 
     resetFilterValues();
     await this.loadSubject(subject);
@@ -244,6 +242,7 @@ export class App {
     showLoading();
     const showGeo = GEOTESTER_SUBJECTS.has(subject);
     setGeoTesterFilterVisible(showGeo);
+    setGradeFilterVisible(GRADED_SUBJECTS.has(subject));
 
     try {
       this.allData = await this.dm.loadSubject(subject);
@@ -258,7 +257,7 @@ export class App {
       this.pagination.reset(this.filteredData.length);
       this.renderData();
     } catch (err) {
-      const cols = showGeo ? 13 : 12;
+      const cols = columnCount(subject);
       document.getElementById('tableBody').innerHTML =
         `<tr><td colspan="${cols}" class="no-data">데이터 로드 실패: ${err.message}</td></tr>`;
     }

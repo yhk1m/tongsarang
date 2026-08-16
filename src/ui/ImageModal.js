@@ -1,38 +1,4 @@
-// 과목 → 이미지 코드 매핑
-const SUBJECT_CODE = {
-  '한국지리': 'korgeo',
-  '세계지리': 'wgeo',
-  '통합사회': 'iss',
-  '한국사': 'korhis',
-  '정치와법': 'pollaw',
-  '경제': 'econ',
-  '사회문화': 'socul',
-  '생활과윤리': 'leth',
-  '윤리와사상': 'ethth',
-  '동아시아사': 'eahis',
-  '세계사': 'worhis'
-};
-
-// 분류 → 월 코드 매핑
-const CATEGORY_TO_MONTH = {
-  '수능': '11',
-  '9모': '09',
-  '6모': '06',
-  '10월학평': '10',
-  '7월학평': '07',
-  '5월학평': '05',
-  '4월학평': '04',
-  '3월학평': '03',
-  // 통합사회 등 월 이름만 쓰는 과목
-  '11월': '11',
-  '10월': '10',
-  '9월': '09',
-  '7월': '07',
-  '6월': '06',
-  '5월': '05',
-  '4월': '04',
-  '3월': '03'
-};
+import { imageFileName } from '../core/questionKey.js';
 
 // 탐색 상태
 let _navSubject = '';
@@ -80,18 +46,19 @@ export function setNavList(subject, list) {
   _navList = list;
 }
 
-export function showImage(currentSubject, year, category, number) {
+export function showImage(currentSubject, year, category, number, grade) {
   // 목록에서 현재 인덱스 찾기
   _navIndex = _navList.findIndex(item =>
     String(item.학년도) === String(year) &&
     String(item.분류) === String(category) &&
-    String(item.번호) === String(number)
+    String(item.번호) === String(number) &&
+    (item.학년 || '') === (grade || '')
   );
 
-  _showCurrent(currentSubject, year, category, number);
+  _showCurrent(currentSubject, year, category, number, grade);
 }
 
-function _showCurrent(subject, year, category, number) {
+function _showCurrent(subject, year, category, number, grade) {
   const modal = document.getElementById('imageModal');
   const body = document.getElementById('modalBody');
 
@@ -104,12 +71,9 @@ function _showCurrent(subject, year, category, number) {
   document.getElementById('modalNext').style.display = _navIndex < _navList.length - 1 ? '' : 'none';
 
   const basePath = `${import.meta.env.BASE_URL}images/${encodeURIComponent(subject)}`;
-  const code = SUBJECT_CODE[subject] || subject;
-  const month = CATEGORY_TO_MONTH[category] || '00';
-  const paddedNum = String(number).padStart(2, '0');
-
-  const fileName = `${year}_${month}_${code}_${paddedNum}`;
-  const label = `${subject} - ${year}학년도 ${category} ${number}번`;
+  const fileName = imageFileName(subject, year, category, number, grade);
+  const gradeLabel = grade ? `${grade} ` : '';
+  const label = `${subject} - ${year}학년도 ${gradeLabel}${category} ${number}번`;
   const counter = _navList.length > 0 ? ` (${_navIndex + 1} / ${_navList.length})` : '';
 
   const img = new Image();
@@ -157,7 +121,7 @@ function navigate(dir) {
   if (newIndex < 0 || newIndex >= _navList.length) return;
   _navIndex = newIndex;
   const item = _navList[_navIndex];
-  _showCurrent(_navSubject, item.학년도, item.분류, item.번호);
+  _showCurrent(_navSubject, item.학년도, item.분류, item.번호, item.학년);
 }
 
 function closeModal() {

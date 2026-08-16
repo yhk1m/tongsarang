@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { imageFileNameOf, keyOf } from '../core/questionKey.js';
 
 // ── 한글 폰트 캐시 ──
 let _fontCache = null;
@@ -38,27 +39,6 @@ function registerFont(doc, fontData) {
 }
 
 // 과목 → 이미지 코드 매핑 (ImageModal과 동일)
-const SUBJECT_CODE = {
-  '한국지리': 'korgeo',
-  '세계지리': 'wgeo',
-  '통합사회': 'iss',
-  '한국사': 'korhis',
-  '정치와법': 'pollaw',
-  '경제': 'econ',
-  '사회문화': 'socul',
-  '생활과윤리': 'leth',
-  '윤리와사상': 'ethth',
-  '동아시아사': 'eahis',
-  '세계사': 'worhis'
-};
-
-const CATEGORY_TO_MONTH = {
-  '수능': '11', '9모': '09', '6모': '06',
-  '10월학평': '10', '7월학평': '07', '5월학평': '05', '4월학평': '04', '3월학평': '03',
-  '11월': '11', '10월': '10', '9월': '09', '7월': '07',
-  '6월': '06', '5월': '05', '4월': '04', '3월': '03'
-};
-
 // A4 layout constants (mm)
 const PAGE_W = 210;
 const PAGE_H = 297;
@@ -112,7 +92,8 @@ export async function generateMockExamPDF(questions, onProgress) {
   const imageDataList = [];
   for (let i = 0; i < total; i++) {
     const q = questions[i];
-    const qKey = `${q._subject}_${q.학년도}_${q.분류}_${q.번호}`;
+    // 공통지문 키: 과목_학년도_분류[_고2]_번호 (common_passages.json의 examKey + 번호)
+    const qKey = `${q._subject}_${keyOf(q.학년도, q.분류, q.번호, q.학년)}`;
     const skipNumber = cpSet.has(qKey);
     const imgData = await loadAndProcessImage(q, i + 1, skipNumber);
     imageDataList.push({ ...imgData, skipNumber });
@@ -147,10 +128,7 @@ async function loadCommonPassages() {
 function loadAndProcessImage(question, newNumber, skipNumber = false) {
   return new Promise((resolve) => {
     const subject = question._subject;
-    const code = SUBJECT_CODE[subject] || subject;
-    const month = CATEGORY_TO_MONTH[question.분류] || '00';
-    const paddedNum = String(question.번호).padStart(2, '0');
-    const fileName = `${question.학년도}_${month}_${code}_${paddedNum}`;
+    const fileName = imageFileNameOf(subject, question);
     const basePath = `${import.meta.env.BASE_URL}images/${encodeURIComponent(subject)}`;
 
     const img = new Image();

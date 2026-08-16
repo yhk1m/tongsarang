@@ -1,3 +1,5 @@
+import { questionKey } from './questionKey.js';
+
 const STORAGE_KEY = 'tongsarang_field_edits';
 
 export class EditStore {
@@ -20,7 +22,7 @@ export class EditStore {
 
   /** 문항 유니크 키 */
   questionKey(item) {
-    return `${item.학년도}_${item.분류}_${item.번호}`;
+    return questionKey(item);
   }
 
   /** 수정값 조회 (없으면 null) */

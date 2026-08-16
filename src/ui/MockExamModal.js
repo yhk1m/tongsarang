@@ -1,4 +1,5 @@
 import { generateMockExamPDF } from './MockExamPDF.js';
+import { imageFileNameOf } from '../core/questionKey.js';
 
 let SUBJECTS_WITH_DATA = [];
 
@@ -218,6 +219,10 @@ function renderStep2Combined() {
   if (showSubject) {
     filterHtml += buildSelectHtml('meFilterSubject', '과목', filterOpts.subjects);
   }
+  const showGrade = filterOpts.grades.length > 0;
+  if (showGrade) {
+    filterHtml += buildSelectHtml('meFilterGrade', '학년', filterOpts.grades);
+  }
   filterHtml += buildSelectHtml('meFilterCategory', '분류', filterOpts.categories);
   filterHtml += buildSelectHtml('meFilterChapter', '대단원', filterOpts.chapters);
   filterHtml += buildSelectHtml('meFilterStandard', '성취기준', filterOpts.standards);
@@ -239,6 +244,7 @@ function renderStep2Combined() {
       <th><input type="checkbox" id="meSelectAll"></th>
       ${showSubject ? '<th>과목</th>' : ''}
       <th>학년도</th>
+      ${showGrade ? '<th>학년</th>' : ''}
       <th>분류</th>
       <th>대단원</th>
       <th>번호</th>
@@ -276,7 +282,7 @@ function renderStep2Combined() {
   );
 
   // Bind filter events
-  bindMeFilterEvents(showSubject);
+  bindMeFilterEvents();
 
   // Back button
   document.getElementById('meBackTo1').addEventListener('click', () => {
@@ -294,6 +300,7 @@ function renderStep2Combined() {
 
 function buildMeFilterOptions(questions) {
   const years = new Set();
+  const grades = new Set();
   const subjects = new Set();
   const categories = new Set();
   const chapters = new Set();
@@ -303,6 +310,7 @@ function buildMeFilterOptions(questions) {
 
   for (const q of questions) {
     if (q.학년도) years.add(String(q.학년도));
+    if (q.학년) grades.add(q.학년);
     if (q._subject) subjects.add(q._subject);
     if (q.분류) categories.add(q.분류);
     if (q.대단원) chapters.add(q.대단원);
@@ -314,6 +322,7 @@ function buildMeFilterOptions(questions) {
   const sortSet = s => Array.from(s).sort();
   return {
     years: sortSet(years),
+    grades: sortSet(grades),
     subjects: sortSet(subjects),
     categories: sortSet(categories),
     chapters: sortSet(chapters),
@@ -339,6 +348,7 @@ function applyMeFilters() {
   for (let idx = 0; idx < allQuestions.length; idx++) {
     const q = allQuestions[idx];
     if (filters.year && String(q.학년도) !== filters.year) continue;
+    if (filters.grade && (q.학년 || '') !== filters.grade) continue;
     if (filters.subject && q._subject !== filters.subject) continue;
     if (filters.category && (q.분류 || '') !== filters.category) continue;
     if (filters.chapter && (q.대단원 || '') !== filters.chapter) continue;
@@ -372,6 +382,7 @@ function updateMeFilterOptions() {
   const { linkerStore } = state;
 
   const years = new Set();
+  const grades = new Set();
   const subjects = new Set();
   const categories = new Set();
   const chapters = new Set();
@@ -380,6 +391,7 @@ function updateMeFilterOptions() {
 
   for (const q of filtered) {
     if (q.학년도) years.add(String(q.학년도));
+    if (q.학년) grades.add(q.학년);
     if (q._subject) subjects.add(q._subject);
     if (q.분류) categories.add(q.분류);
     if (q.대단원) chapters.add(q.대단원);
@@ -390,6 +402,7 @@ function updateMeFilterOptions() {
 
   const map = {
     meFilterYear: { opts: years, label: '학년도', key: 'year' },
+    meFilterGrade: { opts: grades, label: '학년', key: 'grade' },
     meFilterSubject: { opts: subjects, label: '과목', key: 'subject' },
     meFilterCategory: { opts: categories, label: '분류', key: 'category' },
     meFilterChapter: { opts: chapters, label: '대단원', key: 'chapter' },
@@ -422,11 +435,13 @@ function renderMeTablePage() {
   const start = (state.mePage - 1) * ME_PAGE_SIZE;
   const pageItems = filtered.slice(start, start + ME_PAGE_SIZE);
   const showSubject = state.subjects.length > 1;
+  const showGrade = state.selectedQuestions.some(q => q.학년);
+  const colCount = 8 + (showSubject ? 1 : 0) + (showGrade ? 1 : 0);
 
   // Render tbody
   const tbody = document.getElementById('meTbody');
   if (pageItems.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${showSubject ? 9 : 8}" style="text-align:center;padding:20px;color:#86868b;">조건에 맞는 문항이 없습니다</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center;padding:20px;color:#86868b;">조건에 맞는 문항이 없습니다</td></tr>`;
   } else {
     tbody.innerHTML = pageItems.map(q => {
       const idx = q._origIdx;
@@ -436,6 +451,7 @@ function renderMeTablePage() {
         <td><input type="checkbox" class="me-q-check" data-idx="${idx}" ${checked}></td>
         ${showSubject ? `<td>${escHtml(q._subject)}</td>` : ''}
         <td>${escHtml(String(q.학년도 || ''))}</td>
+        ${showGrade ? `<td>${escHtml(q.학년 || '-')}</td>` : ''}
         <td>${escHtml(q.분류 || '')}</td>
         <td>${escHtml(q.대단원 || '')}</td>
         <td>${escHtml(String(q.번호 || ''))}</td>
@@ -544,19 +560,24 @@ function bindMeCheckboxEvents() {
   });
 }
 
-function bindMeFilterEvents(showSubject) {
-  const ids = ['meFilterYear', 'meFilterCategory', 'meFilterChapter', 'meFilterStandard', 'meFilterDifficulty', 'meFilterAccuracy'];
-  const keys = ['year', 'category', 'chapter', 'standard', 'difficulty', 'accuracy'];
-  if (showSubject) {
-    ids.splice(1, 0, 'meFilterSubject');
-    keys.splice(1, 0, 'subject');
-  }
+function bindMeFilterEvents() {
+  // 과목·학년 드롭다운은 조건부로만 그려지므로, 없는 요소는 건너뛴다.
+  const filterFields = [
+    ['meFilterYear', 'year'],
+    ['meFilterGrade', 'grade'],
+    ['meFilterSubject', 'subject'],
+    ['meFilterCategory', 'category'],
+    ['meFilterChapter', 'chapter'],
+    ['meFilterStandard', 'standard'],
+    ['meFilterDifficulty', 'difficulty'],
+    ['meFilterAccuracy', 'accuracy']
+  ];
 
-  ids.forEach((id, i) => {
+  filterFields.forEach(([id, key]) => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('change', () => {
-        state.meFilters[keys[i]] = el.value || undefined;
+        state.meFilters[key] = el.value || undefined;
         applyMeFilters();
       });
     }
@@ -577,7 +598,7 @@ function bindMeFilterEvents(showSubject) {
   document.getElementById('meFilterReset').addEventListener('click', () => {
     state.meFilters = {};
     // Reset all select/input values
-    ids.forEach(id => {
+    filterFields.forEach(([id]) => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -610,24 +631,9 @@ function updateMeCount() {
   renderMePreview();
 }
 
-const ME_SUBJECT_CODE = {
-  '한국지리': 'korgeo', '세계지리': 'wgeo', '통합사회': 'iss',
-  '한국사': 'korhis', '정치와법': 'pollaw', '경제': 'econ',
-  '사회문화': 'socul', '생활과윤리': 'leth', '윤리와사상': 'ethth',
-  '동아시아사': 'eahis', '세계사': 'worhis'
-};
-const ME_CAT_MONTH = {
-  '수능': '11', '9모': '09', '6모': '06',
-  '10월학평': '10', '7월학평': '07', '5월학평': '05', '4월학평': '04', '3월학평': '03',
-  '11월': '11', '10월': '10', '9월': '09', '7월': '07',
-  '6월': '06', '5월': '05', '4월': '04', '3월': '03'
-};
-
 function getQuestionImageUrl(q) {
-  const code = ME_SUBJECT_CODE[q._subject] || q._subject;
-  const month = ME_CAT_MONTH[q.분류] || '00';
-  const num = String(q.번호).padStart(2, '0');
-  return `${import.meta.env.BASE_URL}images/${encodeURIComponent(q._subject)}/${q.학년도}_${month}_${code}_${num}.jpg`;
+  const fileName = imageFileNameOf(q._subject, q);
+  return `${import.meta.env.BASE_URL}images/${encodeURIComponent(q._subject)}/${fileName}.jpg`;
 }
 
 function renderMePreview() {

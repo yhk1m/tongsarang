@@ -16,7 +16,13 @@ const subjectConfig = {
   '통합사회': { code: 'iss' },
   '경제': { code: 'econ' },
   '사회문화': { code: 'socul' },
+  '한국사': { code: 'korhis' },
+  '동아시아사': { code: 'eahis' },
+  '세계사': { code: 'worhis' },
 };
+
+// 두 번째 인자로 학년도를 제한할 수 있다 (예: node ocr_subjects.cjs 한국지리 2026,2027)
+const yearFilter = process.argv[3] ? new Set(process.argv[3].split(',')) : null;
 const config = subjectConfig[subjectArg];
 if (!config) { console.error('Unknown subject:', subjectArg); process.exit(1); }
 
@@ -34,14 +40,19 @@ const imgDir = path.join(__dirname, '..', 'public', 'images', subjectArg);
 const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
 // 빈 발문/문항내용 찾기
-const needOcr = data.filter(d => !d['발문'] || d['발문'] === '' || !d['문항내용'] || d['문항내용'] === '');
+const needOcr = data.filter(d =>
+  (!d['발문'] || d['발문'] === '' || !d['문항내용'] || d['문항내용'] === '') &&
+  (!yearFilter || yearFilter.has(String(d['학년도'])))
+);
 console.log(`${subjectArg}: ${data.length}문항 중 ${needOcr.length}문항 OCR 필요\n`);
 
 function getImagePath(item) {
   const month = classToMonth[item['분류']];
   if (!month) return null;
+  // 통합사회 고2는 별도 이미지 코드(iss2)를 쓴다
+  const code = config.code === 'iss' && item['학년'] === '고2' ? 'iss2' : config.code;
   const num = String(item['번호']).padStart(2, '0');
-  return path.join(imgDir, `${item['학년도']}_${month}_${config.code}_${num}.jpg`);
+  return path.join(imgDir, `${item['학년도']}_${month}_${code}_${num}.jpg`);
 }
 
 function ocrImage(imgPath) {
@@ -65,12 +76,21 @@ function parseQuestion(rawText, questionNum) {
     new RegExp(`^${numStr}[.。]\\s*`, 'm'),
     new RegExp(`^[\\s]*${numStr}[.。]\\s*`),
   ];
+  let stripped = false;
   for (const pat of numPatterns) {
     const m = text.match(pat);
     if (m) {
       text = text.substring(m.index + m[0].length);
+      stripped = true;
       break;
     }
+  }
+
+  // OCR이 번호를 잘못 읽으면("1."→"7.", "18"→"78") 위 패턴이 빗나간다.
+  // 숫자·기호로만 이루어진 1~4자 토큰 + 공백일 때만 지워, "A ~ C 지형..." 같은
+  // 정상 발문은 건드리지 않는다. (clean_ocr_prefix.cjs 와 같은 규칙)
+  if (!stripped) {
+    text = text.replace(/^\s*[0-9.,:;/\\&%<>@#*^~()[\]{}|_+=ㅇㅁㆍ·'"`-]{1,4}\s+/, '');
   }
 
   // 발문 추출: 첫 번째 "?" 까지 (배점 표시 포함)
@@ -122,7 +142,8 @@ for (let i = 0; i < needOcr.length; i++) {
 
   // 데이터에서 해당 아이템 찾아서 업데이트
   const idx = data.findIndex(d =>
-    d['학년도'] === item['학년도'] && d['분류'] === item['분류'] && d['번호'] === item['번호']
+    d['학년도'] === item['학년도'] && d['분류'] === item['분류'] &&
+    d['번호'] === item['번호'] && (d['학년'] || '') === (item['학년'] || '')
   );
   if (idx >= 0) {
     if (!data[idx]['발문'] || data[idx]['발문'] === '') data[idx]['발문'] = 발문;

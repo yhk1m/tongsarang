@@ -13,6 +13,9 @@ export class FilterManager {
       // 학년도
       if (filters.학년도 && String(item.학년도) !== String(filters.학년도)) return false;
 
+      // 학년 (통합사회의 고1/고2 구분)
+      if (filters.학년 && (item.학년 || '') !== filters.학년) return false;
+
       // 분류
       if (filters.분류 && item.분류 !== filters.분류) return false;
 
@@ -79,12 +82,17 @@ export class FilterManager {
   applySorting(data) {
     if (!this.sortColumn || !this.sortOrder) return data;
 
+    const dir = this.sortOrder === 'asc' ? 1 : -1;
     return [...data].sort((a, b) => {
-      let aVal = parseFloat(a[this.sortColumn]);
-      let bVal = parseFloat(b[this.sortColumn]);
-      if (isNaN(aVal)) aVal = -1;
-      if (isNaN(bVal)) bVal = -1;
-      return this.sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      const aRaw = a[this.sortColumn];
+      const bRaw = b[this.sortColumn];
+      const aNum = parseFloat(aRaw);
+      const bNum = parseFloat(bRaw);
+      // 정답률처럼 수치인 열은 숫자로, 학년처럼 문자인 열은 사전순으로 정렬한다.
+      if (!isNaN(aNum) || !isNaN(bNum)) {
+        return dir * ((isNaN(aNum) ? -1 : aNum) - (isNaN(bNum) ? -1 : bNum));
+      }
+      return dir * String(aRaw ?? '').localeCompare(String(bRaw ?? ''), 'ko');
     });
   }
 }

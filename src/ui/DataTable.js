@@ -1,17 +1,29 @@
 import { isGeoTesterLoaded } from '../core/DataManager.js';
 import { ACHIEVEMENT_STANDARDS } from '../data/achievementStandards.js';
+import { GRADED_SUBJECTS, keyOf } from '../core/questionKey.js';
 
 const GEOTESTER_SUBJECTS = new Set(['한국지리', '세계지리', '통합사회']);
 
+// 학년도, 분류, 번호, 배점, 답, 대단원, 성취기준, 발문, 문항내용, 정답률, 난이도, 문제보기
+const BASE_COLUMN_COUNT = 12;
+
+export function columnCount(subject) {
+  return BASE_COLUMN_COUNT
+    + (GRADED_SUBJECTS.has(subject) ? 1 : 0)
+    + (GEOTESTER_SUBJECTS.has(subject) ? 1 : 0);
+}
+
 export function renderTableShell(subject) {
   const showGeo = GEOTESTER_SUBJECTS.has(subject);
-  const cols = showGeo ? 13 : 12;
+  const showGrade = GRADED_SUBJECTS.has(subject);
+  const cols = columnCount(subject);
   return `
     <div class="table-wrapper">
       <table id="dataTable" data-cols="${cols}">
         <thead>
           <tr>
             <th>학년도</th>
+            ${showGrade ? '<th class="sortable" data-sort="학년">학년</th>' : ''}
             <th>분류</th>
             <th>번호</th>
             <th>배점</th>
@@ -40,7 +52,8 @@ export function renderTableShell(subject) {
 export function renderTableRows(data, currentSubject, linkerStore, devMode, editStore) {
   const tbody = document.getElementById('tableBody');
   const showGeo = GEOTESTER_SUBJECTS.has(currentSubject);
-  const cols = showGeo ? 13 : 12;
+  const showGrade = GRADED_SUBJECTS.has(currentSubject);
+  const cols = columnCount(currentSubject);
 
   if (data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data">검색 결과가 없습니다</td></tr>`;
@@ -52,7 +65,9 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const safeYear = escapeHtml(String(item.학년도));
     const safeCat = escapeHtml(item.분류);
     const safeNum = escapeHtml(String(item.번호));
-    const editKey = `${safeYear}_${safeCat}_${safeNum}`;
+    const safeGrade = escapeHtml(item.학년 || '');
+    const editKey = keyOf(safeYear, safeCat, safeNum, safeGrade);
+    const rowAttrs = `${rowAttrs} data-grade="${safeGrade}"`;
 
     // use edited values if available (both admin and regular mode)
     const balmValue = editStore ? editStore.getFieldValue(currentSubject, item, '발문') : item.발문;
@@ -72,19 +87,20 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const standardDisplay = standardId || '미연결';
 
     // dev mode edit buttons
-    const balmEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="발문" title="발문 수정">&#9998;</button>` : '';
-    const contentEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="문항내용" title="문항내용 수정">&#9998;</button>` : '';
-    const scoreEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="배점" title="배점 수정">&#9998;</button>` : '';
-    const answerEditBtn = devMode ? `<button class="btn-edit-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="답" title="정답 수정">&#9998;</button>` : '';
-    const stdEditBtn = devMode ? `<button class="btn-edit-std" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" title="성취기준 수정">&#9998;</button>` : '';
-    const balmResetBtn = balmEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="발문" title="원래대로">↩</button>` : '';
-    const contentResetBtn = contentEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="문항내용" title="원래대로">↩</button>` : '';
-    const scoreResetBtn = scoreEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="배점" title="원래대로">↩</button>` : '';
-    const answerResetBtn = answerEdited ? `<button class="btn-reset-field" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-field="답" title="원래대로">↩</button>` : '';
+    const balmEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="발문" title="발문 수정">&#9998;</button>` : '';
+    const contentEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="문항내용" title="문항내용 수정">&#9998;</button>` : '';
+    const scoreEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="배점" title="배점 수정">&#9998;</button>` : '';
+    const answerEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="답" title="정답 수정">&#9998;</button>` : '';
+    const stdEditBtn = devMode ? `<button class="btn-edit-std" ${rowAttrs} title="성취기준 수정">&#9998;</button>` : '';
+    const balmResetBtn = balmEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="발문" title="원래대로">↩</button>` : '';
+    const contentResetBtn = contentEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="문항내용" title="원래대로">↩</button>` : '';
+    const scoreResetBtn = scoreEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="배점" title="원래대로">↩</button>` : '';
+    const answerResetBtn = answerEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="답" title="원래대로">↩</button>` : '';
 
     return `
       <tr data-subject="${escapeHtml(currentSubject)}" data-chapter-num="${chapterNum}">
         <td><strong>${safeYear}</strong></td>
+        ${showGrade ? `<td><span class="badge badge-grade">${safeGrade || '-'}</span></td>` : ''}
         <td><span class="badge badge-${safeCat}">${safeCat}</span></td>
         <td>${safeNum}</td>
         <td class="${scoreEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_배점"><strong>${escapeHtml(String(scoreValue))}</strong>${scoreEditBtn}${scoreResetBtn}</td>
@@ -95,7 +111,7 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
         <td class="cell-expandable${contentEdited ? ' cell-edited' : ''}" data-edit-key="${editKey}_문항내용"><div class="cell-text">${safeContent}</div>${contentEditBtn}${contentResetBtn}<button class="btn-expand">더보기</button></td>
         <td class="${getAccuracyClass(item.정답률)}">${escapeHtml(String(item.정답률))}</td>
         <td class="${getDifficultyClass(item.난이도)}">${escapeHtml(item.난이도)}</td>
-        <td><button class="btn-view" data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}">&#128196; 보기</button></td>
+        <td><button class="btn-view" ${rowAttrs}>&#128196; 보기</button></td>
         ${showGeo ? `<td>${getGeoTesterBadge(item.GeoTester)}</td>` : ''}
       </tr>
     `;
@@ -127,6 +143,16 @@ export function showLoading() {
   }
 }
 
+/** 버튼의 data-* 에서 문항 참조를 만든다. */
+function refOf(el) {
+  return {
+    year: el.dataset.year,
+    cat: el.dataset.cat,
+    num: el.dataset.num,
+    grade: el.dataset.grade || ''
+  };
+}
+
 export function bindTableEvents({ onSort, onViewQuestion, onEditField, onEditStandard, onResetField }) {
   document.querySelector('#dataTable thead').addEventListener('click', e => {
     const th = e.target.closest('th.sortable');
@@ -138,7 +164,7 @@ export function bindTableEvents({ onSort, onViewQuestion, onEditField, onEditSta
     if (onResetField) {
       const resetBtn = e.target.closest('.btn-reset-field');
       if (resetBtn) {
-        onResetField(resetBtn.dataset.year, resetBtn.dataset.cat, resetBtn.dataset.num, resetBtn.dataset.field);
+        onResetField(refOf(resetBtn), resetBtn.dataset.field);
         return;
       }
     }
@@ -147,7 +173,7 @@ export function bindTableEvents({ onSort, onViewQuestion, onEditField, onEditSta
     if (onEditField) {
       const editBtn = e.target.closest('.btn-edit-field');
       if (editBtn) {
-        onEditField(editBtn.dataset.year, editBtn.dataset.cat, editBtn.dataset.num, editBtn.dataset.field);
+        onEditField(refOf(editBtn), editBtn.dataset.field);
         return;
       }
     }
@@ -156,14 +182,14 @@ export function bindTableEvents({ onSort, onViewQuestion, onEditField, onEditSta
     if (onEditStandard) {
       const stdEditBtn = e.target.closest('.btn-edit-std');
       if (stdEditBtn) {
-        onEditStandard(stdEditBtn.dataset.year, stdEditBtn.dataset.cat, stdEditBtn.dataset.num);
+        onEditStandard(refOf(stdEditBtn));
         return;
       }
     }
 
     const btn = e.target.closest('.btn-view');
     if (btn) {
-      onViewQuestion(btn.dataset.year, btn.dataset.cat, btn.dataset.num);
+      onViewQuestion(refOf(btn));
       return;
     }
 

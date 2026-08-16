@@ -15,6 +15,10 @@ export function renderFilterPanel() {
           <label>학년도</label>
           <select id="filterYear"><option value="">전체</option></select>
         </div>
+        <div class="filter-group" id="filterGradeGroup" style="display:none">
+          <label>학년</label>
+          <select id="filterGrade"><option value="">전체</option></select>
+        </div>
         <div class="filter-group">
           <label>분류</label>
           <select id="filterCategory"><option value="">전체</option></select>
@@ -82,6 +86,7 @@ function renderAccuracyCheckboxes() {
 
 export function populateFilterOptions(options) {
   fillSelect('filterYear', options.학년도);
+  fillSelect('filterGrade', options.학년);
   fillSelect('filterCategory', options.분류);
   fillSelect('filterChapter', options.대단원);
   fillSelect('filterSubChapter', options.성취기준);
@@ -99,6 +104,7 @@ export function getFilterValues() {
   const accChecked = document.querySelectorAll('#filterAccuracyGroup input:checked');
   return {
     학년도: document.getElementById('filterYear').value,
+    학년: document.getElementById('filterGrade').value,
     분류: document.getElementById('filterCategory').value,
     대단원: document.getElementById('filterChapter').value,
     성취기준: document.getElementById('filterSubChapter').value,
@@ -111,6 +117,7 @@ export function getFilterValues() {
 
 export function resetFilterValues() {
   document.getElementById('filterYear').value = '';
+  document.getElementById('filterGrade').value = '';
   document.getElementById('filterCategory').value = '';
   document.getElementById('filterChapter').value = '';
   document.getElementById('filterSubChapter').value = '';
@@ -171,6 +178,12 @@ export function setGeoTesterFilterVisible(visible) {
   const group = document.getElementById('filterGeoTesterGroup');
   if (group) group.style.display = visible ? '' : 'none';
   if (!visible) document.getElementById('filterGeoTester').value = '';
+}
+
+export function setGradeFilterVisible(visible) {
+  const group = document.getElementById('filterGradeGroup');
+  if (group) group.style.display = visible ? '' : 'none';
+  if (!visible) document.getElementById('filterGrade').value = '';
 }
 
 export function updateSubChapterOptions(allData, selectedChapter, linkerStore, subject) {

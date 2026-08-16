@@ -1,26 +1,5 @@
 import { ACHIEVEMENT_STANDARDS } from '../data/achievementStandards.js';
-
-// 과목 → 이미지 코드 매핑
-const SUBJECT_CODE = {
-  '한국지리': 'korgeo',
-  '세계지리': 'wgeo',
-  '통합사회': 'iss',
-  '한국사': 'korhis',
-  '정치와법': 'pollaw',
-  '경제': 'econ',
-  '사회문화': 'socul',
-  '생활과윤리': 'leth',
-  '윤리와사상': 'ethth',
-  '동아시아사': 'eahis',
-  '세계사': 'worhis'
-};
-
-const CATEGORY_TO_MONTH = {
-  '수능': '11', '9모': '09', '6모': '06',
-  '10월학평': '10', '7월학평': '07', '5월학평': '05', '4월학평': '04', '3월학평': '03',
-  '11월': '11', '10월': '10', '9월': '09', '7월': '07',
-  '6월': '06', '5월': '05', '4월': '04', '3월': '03'
-};
+import { imageFileNameOf, findQuestion } from '../core/questionKey.js';
 
 let LINKER_SUBJECTS = [];
 
@@ -107,13 +86,12 @@ export async function openLinker(subject) {
 }
 
 /** 특정 문항으로 바로 LinkerModal 열기 (개발자 모드용) */
-export async function openLinkerForItem(subject, year, cat, num) {
+export async function openLinkerForItem(subject, ref) {
   await openLinker(subject);
 
   // filtered에서 해당 문항 찾기
-  const idx = lState.filtered.findIndex(
-    i => String(i.학년도) === year && i.분류 === cat && String(i.번호) === num
-  );
+  const target = findQuestion(lState.filtered, ref.year, ref.cat, ref.num, ref.grade);
+  const idx = target ? lState.filtered.indexOf(target) : -1;
 
   if (idx >= 0) {
     lState.currentIdx = idx;
@@ -233,7 +211,7 @@ function renderItemList() {
     return `
       <div class="linker-item-card${active}" data-idx="${idx}">
         <span class="linker-item-status">${mapped ? '●' : '○'}</span>
-        <span class="linker-item-label">${esc(item.학년도)} ${esc(item.분류)} ${esc(String(item.번호))}번</span>
+        <span class="linker-item-label">${esc(item.학년도)} ${item.학년 ? esc(item.학년) + ' ' : ''}${esc(item.분류)} ${esc(String(item.번호))}번</span>
       </div>
     `;
   }).join('');
@@ -302,12 +280,9 @@ function renderRightPanel() {
 
 function loadItemImage(item) {
   const area = document.getElementById('linkerImageArea');
-  const code = SUBJECT_CODE[lState.subject] || lState.subject;
-  const month = CATEGORY_TO_MONTH[item.분류] || '00';
-  const paddedNum = String(item.번호).padStart(2, '0');
-  const fileName = `${item.학년도}_${month}_${code}_${paddedNum}`;
+  const fileName = imageFileNameOf(lState.subject, item);
   const basePath = `${import.meta.env.BASE_URL}images/${encodeURIComponent(lState.subject)}`;
-  const label = `${item.학년도}학년도 ${item.분류} ${item.번호}번`;
+  const label = `${item.학년도}학년도 ${item.학년 ? item.학년 + ' ' : ''}${item.분류} ${item.번호}번`;
 
   const img = new Image();
   img.className = 'linker-image';

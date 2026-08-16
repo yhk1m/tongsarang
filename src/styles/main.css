@@ -249,6 +249,9 @@ body {
 .badge-7월 { background: transparent; color: #6e6e73; border: 1px solid #e5e5e5; }
 .badge-10월 { background: transparent; color: #6e6e73; border: 1px solid #e5e5e5; }
 
+/* 학년(통합사회 고1/고2) */
+.badge-grade { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+
 /* Difficulty: font-weight hierarchy + gray intensity */
 .difficulty-high { color: #1d1d1f; font-weight: 800; }
 .difficulty-medium { color: #6e6e73; font-weight: 600; }
