@@ -30,6 +30,21 @@ SIZE_TOLERANCE = 0.5
 # Bottom padding: from next question boundary, step back a few pts
 BOTTOM_GAP_FROM_NEXT_Q = 8  # pts gap before next question starts
 
+# ── 지면 요소(page furniture) 제외 ─────────────────────────────────────────
+# 페이지번호 박스와 컬럼 구분선은 문항이 아니라 지면에 속한다. 컬럼 폭보다 넓은
+# 페이지번호 박스가 크롭 경계에 걸리면 "문항 맨 우측 일부 잘림"으로 보이고,
+# 구분선은 "문항 맨 우측/좌측 구분선이 없어야 함"으로 제보된다.
+# 픽셀 휴리스틱(cleanup_crops)은 두 줄로 넘어간 ⑤ 선지나 회색 그림에서 오탐이
+# 나므로, PDF 기하로 판정한다.
+EXCLUDE_PAGE_FURNITURE = True
+# 구분선은 '문항 밴드'가 아니라 '지면' 높이로 판정한다. 밴드 기준(35%)으로 잡으면
+# 문항 안의 표 테두리까지 구분선으로 보고 표의 좌/우 변을 잘라내는 사고가 난다.
+# 실측: 컬럼 구분선 = 지면 높이의 65~76%, 표 테두리 = 최대 19%.
+PAGE_RULE_MIN_HEIGHT_RATIO = 0.5
+PAGE_RULE_MAX_WIDTH = 3.0       # pts. 이보다 두꺼우면 선이 아니라 도형
+PAGE_NUM_BOX_MIN_Y_RATIO = 0.85  # 페이지번호 박스는 지면 하단에만 있다
+CONTENT_GUARD = 2.0             # pts. 문항 잉크와 크롭 경계 사이 최소 간격
+
 
 def pdf_to_pixel(val, page_dim_pdf, page_dim_px):
     return int(val * page_dim_px / page_dim_pdf)
@@ -227,6 +242,139 @@ def find_confirm_section_y(doc, midpoint_x):
     return confirm_positions
 
 
+def page_items(page):
+    """페이지의 텍스트 span, 이미지 블록, 도형을 bbox 목록으로 모은다."""
+    texts, images, draws = [], [], []
+    for block in page.get_text('dict')['blocks']:
+        if 'lines' in block:
+            for line in block['lines']:
+                for span in line['spans']:
+                    if span['text'].strip():
+                        texts.append((tuple(span['bbox']), span['text'].strip()))
+        elif block.get('type') == 1:
+            images.append(tuple(block['bbox']))
+    for drawing in page.get_drawings():
+        r = drawing['rect']
+        if r.width > 0.2 and r.height > 0.2:
+            draws.append((r.x0, r.y0, r.x1, r.y1))
+    return texts, images, draws
+
+
+def find_page_number_box(texts, draws, ph, y0, y1):
+    """지면 하단에서 1~3자리 숫자를 담은 테두리 박스를 찾아 그 rect를 돌려준다."""
+    best = None
+    for bx0, by0, bx1, by1 in draws:
+        w, h = bx1 - bx0, by1 - by0
+        if not (12 <= w <= 100 and 8 <= h <= 40):
+            continue
+        if by0 < ph * PAGE_NUM_BOX_MIN_Y_RATIO:
+            continue
+        if by1 <= y0 or by0 >= y1:
+            continue
+        for (tx0, ty0, tx1, ty1), text in texts:
+            if not (text.isdigit() and len(text) <= 3):
+                continue
+            if tx0 >= bx0 - 6 and tx1 <= bx1 + 6 and ty0 >= by0 - 6 and ty1 <= by1 + 6:
+                if best is None or by0 < best[1]:
+                    best = (bx0, by0, bx1, by1)
+                break
+    return best
+
+
+def page_rules(draws, ph, y0, y1):
+    """이 밴드를 가로지르는 세로 구분선 목록 [(x0, x1)]. 지면 높이 기준으로 판정한다."""
+    out = []
+    for bx0, by0, bx1, by1 in draws:
+        if (bx1 - bx0) > PAGE_RULE_MAX_WIDTH:
+            continue
+        if (by1 - by0) < ph * PAGE_RULE_MIN_HEIGHT_RATIO:
+            continue
+        if by1 <= y0 or by0 >= y1:
+            continue
+        out.append((bx0, bx1))
+    return out
+
+
+def _content_bounds(texts, images, draws, furniture, x0, y0, x1, y1):
+    """지면 요소를 뺀, 크롭 영역 안 잉크의 경계 (x0, y0, x1, y1). 없으면 None."""
+    bx0 = by0 = bx1 = by1 = None
+    for bbox in [b for b, _t in texts] + images + draws:
+        if bbox in furniture:
+            continue
+        ix0, iy0, ix1, iy1 = bbox
+        # 크롭 영역과 겹치는 부분만 본다
+        cx0, cy0 = max(ix0, x0), max(iy0, y0)
+        cx1, cy1 = min(ix1, x1), min(iy1, y1)
+        if cx1 - cx0 <= 0.5 or cy1 - cy0 <= 0.5:
+            continue
+        bx0 = cx0 if bx0 is None else min(bx0, cx0)
+        by0 = cy0 if by0 is None else min(by0, cy0)
+        bx1 = cx1 if bx1 is None else max(bx1, cx1)
+        by1 = cy1 if by1 is None else max(by1, cy1)
+    return None if bx0 is None else (bx0, by0, bx1, by1)
+
+
+def exclude_page_furniture(page, ph, x0, y0, x1, y1):
+    """크롭 영역에서 페이지번호 박스와 컬럼 구분선을 잘라낸다.
+
+    문항 잉크를 절대 건드리지 않도록, 조정 후 경계가 내용 경계를 침범하면
+    그 조정은 되돌린다. (예전에 표 테두리를 구분선으로 오인해 문항 번호까지
+    잘라먹은 사고가 있었다.)
+
+    Returns: (x0, y0, x1, y1, [적용한 조치])
+    """
+    if not EXCLUDE_PAGE_FURNITURE:
+        return x0, y0, x1, y1, []
+
+    texts, images, draws = page_items(page)
+    actions = []
+
+    # 1) 지면 요소 식별
+    box = find_page_number_box(texts, draws, ph, y0, y1)
+    rules = page_rules(draws, ph, y0, y1)
+    furniture = {
+        d for d in draws
+        if (d[2] - d[0]) <= PAGE_RULE_MAX_WIDTH and (d[3] - d[1]) >= ph * PAGE_RULE_MIN_HEIGHT_RATIO
+    }
+    if box is not None:
+        # 박스 자체는 물론, 박스 안의 페이지 번호 텍스트도 지면 요소다.
+        # 이걸 내용으로 세면 아래 안전장치가 조정을 되돌려 버린다.
+        bx0, by0, bx1, by1 = box
+        for bbox in [b for b, _t in texts] + images + draws:
+            if (bbox[0] >= bx0 - 6 and bbox[2] <= bx1 + 6
+                    and bbox[1] >= by0 - 6 and bbox[3] <= by1 + 6):
+                furniture.add(bbox)
+
+    content = _content_bounds(texts, images, draws, furniture, x0, y0, x1, y1)
+    if content is None:
+        return x0, y0, x1, y1, []
+    cx0, cy0, cx1, cy1 = content
+
+    # 2) 페이지번호 박스 위로 하단 경계를 올린다
+    if box is not None:
+        new_y1 = box[1] - 3
+        if new_y1 < y1 and new_y1 >= cy1 + CONTENT_GUARD:
+            y1 = new_y1
+            actions.append('페이지번호박스 제외')
+
+    # 3) 좌/우 컬럼 구분선을 바깥으로 밀어낸다
+    left_edges = [b for a, b in rules if x0 - 6 <= b <= x0 + 25]
+    if left_edges:
+        new_x0 = max(left_edges) + 1
+        if new_x0 > x0 and new_x0 <= cx0 - CONTENT_GUARD:
+            x0 = new_x0
+            actions.append('좌측 구분선 제외')
+
+    right_edges = [a for a, b in rules if x1 - 25 <= a <= x1 + 30]
+    if right_edges:
+        new_x1 = min(right_edges) - 1
+        if new_x1 < x1 and new_x1 >= cx1 + CONTENT_GUARD:
+            x1 = new_x1
+            actions.append('우측 구분선 제외')
+
+    return x0, y0, x1, y1, actions
+
+
 def extract_question_regions(doc):
     """Extract question regions using NEXT QUESTION boundary instead of ⑤."""
     page_rect = doc[0].rect
@@ -398,6 +546,9 @@ def crop_and_save(pdf_path, output_dir, pdf_name_override=None):
             print(f"  WARNING: Q{q_num} references page {page_idx+1} but only {len(images)} pages")
             continue
 
+        x0, y0, x1, y1, furniture_acts = exclude_page_furniture(
+            doc[page_idx], ph, x0, y0, x1, y1)
+
         img = images[page_idx]
         iw, ih = img.size
 
@@ -407,7 +558,7 @@ def crop_and_save(pdf_path, output_dir, pdf_name_override=None):
         py1 = pdf_to_pixel(y1, ph, ih)
         q_crop = img.crop((px0, py0, px1, py1))
 
-        tag = ""
+        tag = f" [{', '.join(furniture_acts)}]" if furniture_acts else ""
         if q_num in q_to_group:
             grp = groups[q_to_group[q_num]]
             res_page = grp['page_idx']
@@ -415,10 +566,15 @@ def crop_and_save(pdf_path, output_dir, pdf_name_override=None):
                 res_img = images[res_page]
                 riw, rih = res_img.size
 
-                rpx0 = pdf_to_pixel(grp['x_start'], pw, riw)
-                rpy0 = pdf_to_pixel(max(0, grp['res_y_start']), ph, rih)
-                rpx1 = pdf_to_pixel(grp['x_end'], pw, riw)
-                rpy1 = pdf_to_pixel(grp['res_y_end'], ph, rih)
+                # 공통지문 영역도 같은 지면 요소를 물고 들어올 수 있다
+                rx0, ry0, rx1, ry1, res_acts = exclude_page_furniture(
+                    doc[res_page], ph, grp['x_start'], max(0, grp['res_y_start']),
+                    grp['x_end'], grp['res_y_end'])
+
+                rpx0 = pdf_to_pixel(rx0, pw, riw)
+                rpy0 = pdf_to_pixel(ry0, ph, rih)
+                rpx1 = pdf_to_pixel(rx1, pw, riw)
+                rpy1 = pdf_to_pixel(ry1, ph, rih)
                 res_crop = res_img.crop((rpx0, rpy0, rpx1, rpy1))
 
                 target_w = max(res_crop.width, q_crop.width)
@@ -427,7 +583,7 @@ def crop_and_save(pdf_path, output_dir, pdf_name_override=None):
                 combined.paste(res_crop, (0, 0))
                 combined.paste(q_crop, (0, res_crop.height + GAP_BETWEEN))
                 final = trim_bottom_whitespace(trim_horizontal(combined))
-                tag = " +resource"
+                tag += " +resource" + (f" [{', '.join(res_acts)}]" if res_acts else "")
             else:
                 final = trim_bottom_whitespace(trim_horizontal(q_crop))
         else:
