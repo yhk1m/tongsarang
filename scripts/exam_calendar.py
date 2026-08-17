@@ -6,15 +6,14 @@
 이 저장소의 학년도 표기는 출처가 섞여 있다. 메가스터디 정답과 대조해 확정한 결과:
 
 - **모평(6·9월)·수능**: 전 과목 **학년도** 표기. `2026 수능` = 2025년 11월 시행.
-- **학평(3·4·5·7·10월)**: 과목에 따라 다르다.
-    시행연도 표기 — 한국지리, 한국사, 동아시아사, 세계사, 통합사회
-    학년도 표기   — 세계지리, 생활과윤리, 윤리와사상, 경제, 정치와법, 사회문화
+- **학평(3·4·5·7·10월)**: 전 과목 **시행연도** 표기. `2025 7월` = 2025년 7월 시행.
+
+한때 일부 과목의 학평이 학년도 표기처럼 보였는데, 그건 표기 규칙이 아니라 정답
+데이터가 한 해 밀려 들어간 것이었다(EBSi 해설지·시험지 PDF의 [3점] 위치로 확인,
+fix_scores_from_megastudy.py 가 교정). 지금은 전 과목이 같은 규칙이다.
 
 새 시험을 추가하거나 이미지를 다시 받을 때 이 모듈을 거치면 라벨이 어긋나지 않는다.
 """
-
-# 학평을 '시행연도'로 표기하는 과목
-HAKPYEONG_BY_EXAM_YEAR = {'한국지리', '한국사', '동아시아사', '세계사', '통합사회'}
 
 # 과목 → (이미지 코드, EBSi targetCd, arOrd, subjIdList)
 SUBJECT_EBSI = {
@@ -67,12 +66,8 @@ def to_ebsi(subject, school_year, category):
     if not month:
         return None, None
     year = int(school_year)
-    if is_moc(category):
-        exam_year = year - 1            # 모평·수능은 전 과목 학년도 표기
-    elif subject in HAKPYEONG_BY_EXAM_YEAR:
-        exam_year = year                # 학평을 시행연도로 적는 과목
-    else:
-        exam_year = year - 1            # 학평도 학년도로 적는 과목
+    # 모평·수능만 학년도 표기(시행연도 + 1), 학평은 그대로 시행연도
+    exam_year = year - 1 if is_moc(category) else year
     return exam_year, MONTH_CANDIDATES.get(month, [month])
 
 
