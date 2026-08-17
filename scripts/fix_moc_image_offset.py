@@ -144,7 +144,7 @@ def main():
                 if os.path.isdir(out_dir):
                     shutil.rmtree(out_dir)
                 count = 0
-                for tol in [0.5, 0.8, 1.2]:
+                for tol in [0.5, 0.8, 1.2, 1.6]:
                     cropper.SIZE_TOLERANCE = tol
                     if os.path.isdir(out_dir):
                         shutil.rmtree(out_dir)

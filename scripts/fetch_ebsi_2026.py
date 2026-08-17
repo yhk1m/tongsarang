@@ -153,7 +153,7 @@ EXPECTED_QUESTIONS = {'통합사회': 25}
 
 # 문항 번호 글꼴 크기가 시험지 안에서 미세하게 달라(예: 13.4pt / 14.0pt) 일부 문항이
 # 검출에서 빠지는 경우가 있다. 기본 허용 오차부터 시작해 필요할 때만 넓혀 다시 자른다.
-SIZE_TOLERANCES = [0.5, 0.8, 1.2]
+SIZE_TOLERANCES = [0.5, 0.8, 1.2, 1.6]
 
 
 def png_count(out_dir):
