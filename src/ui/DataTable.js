@@ -67,7 +67,7 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const safeNum = escapeHtml(String(item.번호));
     const safeGrade = escapeHtml(item.학년 || '');
     const editKey = keyOf(safeYear, safeCat, safeNum, safeGrade);
-    const rowAttrs = `${rowAttrs} data-grade="${safeGrade}"`;
+    const rowAttrs = `data-year="${safeYear}" data-cat="${safeCat}" data-num="${safeNum}" data-grade="${safeGrade}"`;
 
     // use edited values if available (both admin and regular mode)
     const balmValue = editStore ? editStore.getFieldValue(currentSubject, item, '발문') : item.발문;
