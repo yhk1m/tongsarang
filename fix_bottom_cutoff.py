@@ -44,6 +44,12 @@ PAGE_RULE_MIN_HEIGHT_RATIO = 0.5
 PAGE_RULE_MAX_WIDTH = 3.0       # pts. 이보다 두꺼우면 선이 아니라 도형
 PAGE_NUM_BOX_MIN_Y_RATIO = 0.85  # 페이지번호 박스는 지면 하단에만 있다
 CONTENT_GUARD = 2.0             # pts. 문항 잉크와 크롭 경계 사이 최소 간격
+# 지면 바깥 여백에 세로로 붙어 있는 과목명 탭(예: 음영 상자 안에 '세 계 지 리').
+# 시험지당 보통 1개라 그 y 범위에 걸린 한 문항만 오염된다.
+EDGE_TAB_MIN_HEIGHT = 60        # pts
+EDGE_TAB_WIDTH_RANGE = (8, 60)  # pts
+EDGE_TAB_MIN_ASPECT = 2.0       # 높이/너비
+EDGE_MARGIN = 60                # pts. 이 안쪽이면 지면 가장자리로 본다
 
 
 def pdf_to_pixel(val, page_dim_pdf, page_dim_px):
@@ -295,6 +301,21 @@ def page_rules(draws, ph, y0, y1):
     return out
 
 
+def find_edge_tabs(draws, pw, y0, y1):
+    """지면 좌·우 바깥 여백에 붙은 과목명 탭 상자 목록."""
+    lo, hi = EDGE_TAB_WIDTH_RANGE
+    out = []
+    for bx0, by0, bx1, by1 in draws:
+        w, h = bx1 - bx0, by1 - by0
+        if h < EDGE_TAB_MIN_HEIGHT or not (lo <= w <= hi) or h / w < EDGE_TAB_MIN_ASPECT:
+            continue
+        if by1 <= y0 or by0 >= y1:
+            continue
+        if bx1 > pw - EDGE_MARGIN or bx0 < EDGE_MARGIN:
+            out.append((bx0, by0, bx1, by1))
+    return out
+
+
 def _content_bounds(texts, images, draws, furniture, x0, y0, x1, y1):
     """지면 요소를 뺀, 크롭 영역 안 잉크의 경계 (x0, y0, x1, y1). 없으면 None."""
     bx0 = by0 = bx1 = by1 = None
@@ -326,20 +347,21 @@ def exclude_page_furniture(page, ph, x0, y0, x1, y1):
     if not EXCLUDE_PAGE_FURNITURE:
         return x0, y0, x1, y1, []
 
+    pw = page.rect.width
     texts, images, draws = page_items(page)
     actions = []
 
     # 1) 지면 요소 식별
     box = find_page_number_box(texts, draws, ph, y0, y1)
     rules = page_rules(draws, ph, y0, y1)
+    tabs = find_edge_tabs(draws, pw, y0, y1)
     furniture = {
         d for d in draws
         if (d[2] - d[0]) <= PAGE_RULE_MAX_WIDTH and (d[3] - d[1]) >= ph * PAGE_RULE_MIN_HEIGHT_RATIO
     }
-    if box is not None:
-        # 박스 자체는 물론, 박스 안의 페이지 번호 텍스트도 지면 요소다.
-        # 이걸 내용으로 세면 아래 안전장치가 조정을 되돌려 버린다.
-        bx0, by0, bx1, by1 = box
+    # 상자 안에 든 것(페이지 번호 숫자, 세로로 쓴 과목명)도 지면 요소다.
+    # 이걸 내용으로 세면 아래 안전장치가 조정을 되돌려 버린다.
+    for bx0, by0, bx1, by1 in ([box] if box is not None else []) + tabs:
         for bbox in [b for b, _t in texts] + images + draws:
             if (bbox[0] >= bx0 - 6 and bbox[2] <= bx1 + 6
                     and bbox[1] >= by0 - 6 and bbox[3] <= by1 + 6):
@@ -371,6 +393,21 @@ def exclude_page_furniture(page, ph, x0, y0, x1, y1):
         if new_x1 < x1 and new_x1 >= cx1 + CONTENT_GUARD:
             x1 = new_x1
             actions.append('우측 구분선 제외')
+
+    # 4) 가장자리 과목명 탭을 바깥으로 밀어낸다
+    for tx0, _ty0, tx1, _ty1 in tabs:
+        if tx0 >= x1:                      # 이미 크롭 밖
+            continue
+        if tx1 > pw - EDGE_MARGIN:         # 오른쪽 탭
+            new_x1 = tx0 - 2
+            if new_x1 < x1 and new_x1 >= cx1 + CONTENT_GUARD:
+                x1 = new_x1
+                actions.append('과목명 탭 제외')
+        elif tx0 < EDGE_MARGIN:            # 왼쪽 탭
+            new_x0 = tx1 + 2
+            if new_x0 > x0 and new_x0 <= cx0 - CONTENT_GUARD:
+                x0 = new_x0
+                actions.append('과목명 탭 제외')
 
     return x0, y0, x1, y1, actions
 
