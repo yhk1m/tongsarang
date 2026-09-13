@@ -372,12 +372,32 @@ def exclude_page_furniture(page, ph, x0, y0, x1, y1):
                     and bbox[1] >= by0 - 6 and bbox[3] <= by1 + 6):
                 furniture.add(bbox)
 
+    # 지면 맨 아래 저작권 안내문("이 문제지에 관한 저작권은 한국교육과정평가원에 있습니다.")
+    # 2027학년도 9월 모평부터 매 면 하단에 들어간다. 같은 줄에 놓인 span을 전부 지면 요소로
+    # 본다. 이걸 내용으로 세면 페이지번호 박스 제외까지 되돌아가 칼럼 마지막 문항에
+    # 박스와 안내문이 통째로 딸려 들어온다.
+    footer_top = None
+    for (fx0, fy0, fx1, fy1), text in texts:
+        if '저작권' not in text or fy0 < ph * PAGE_NUM_BOX_MIN_Y_RATIO:
+            continue
+        for bbox, _t in texts:
+            if bbox[1] >= fy0 - 3 and bbox[3] <= fy1 + 3:
+                furniture.add(bbox)
+        footer_top = fy0 if footer_top is None else min(footer_top, fy0)
+
     content = _content_bounds(texts, images, draws, furniture, x0, y0, x1, y1)
     if content is None:
         return x0, y0, x1, y1, []
     cx0, cy0, cx1, cy1 = content
 
-    # 2) 페이지번호 박스 위로 하단 경계를 올린다
+    # 2) 저작권 안내문 위로 하단 경계를 올린다
+    if footer_top is not None:
+        new_y1 = footer_top - 3
+        if new_y1 < y1 and new_y1 >= cy1 + CONTENT_GUARD:
+            y1 = new_y1
+            actions.append('저작권 안내문 제외')
+
+    # 2') 페이지번호 박스 위로 하단 경계를 올린다
     if box is not None:
         new_y1 = box[1] - 3
         if new_y1 < y1 and new_y1 >= cy1 + CONTENT_GUARD:

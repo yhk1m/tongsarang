@@ -29,12 +29,12 @@ const G3_EXAMS = [
   { seq: 360, month: '09', moc: true },   // 2026.09.02 9월 모평 → 2027학년도
 ];
 // 통합사회 학평. 시행 순서대로 적는다 (최신이 데이터 앞에 오도록 역순으로 처리한다).
-// 2026.09 고1 통합사회(seq 358)는 요청 범위에 없어 넣지 않았다. 필요하면 한 줄 추가하면 된다.
 const ISS_EXAMS = [
   { seq: 350, month: '03', grade: '고1' },
   { seq: 351, month: '03', grade: '고2' },
   { seq: 354, month: '06', grade: '고1' },
   { seq: 355, month: '06', grade: '고2' },
+  { seq: 358, month: '09', grade: '고1' },
   { seq: 359, month: '09', grade: '고2' },
 ];
 
