@@ -10,6 +10,9 @@
  *   node scripts/clean_ocr_prefix.cjs --dry           # 미리보기
  *   node scripts/clean_ocr_prefix.cjs 2026,2027       # 해당 학년도만 적용
  *   node scripts/clean_ocr_prefix.cjs --all           # 전체 적용
+ *   node scripts/clean_ocr_prefix.cjs --exam 2027:9월,2027:9모,2026:9월:고2
+ *       특정 시험(학년도:분류[:학년])만 적용. 이미 한 번 정리한 행에 다시 돌리면
+ *       "1 ~ 3 지역" 같은 정상 발문의 앞 토큰까지 벗겨질 수 있어, 새로 OCR한 시험만 지정한다.
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,12 +26,24 @@ const NOISE_PREFIX = /^\s*[0-9.,:;/\\&%<>@#*^~()[\]{}|_+=ㅇㅁㆍ·'"`-]{1,4}\s
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry');
 const all = args.includes('--all');
-const yearArg = args.find(a => !a.startsWith('--'));
+const examIdx = args.indexOf('--exam');
+const examFilter = examIdx >= 0 && args[examIdx + 1]
+  ? new Set(args[examIdx + 1].split(',').map(e => e.split(':')))
+  : null;
+const yearArg = args.find((a, i) => !a.startsWith('--') && i !== examIdx + 1);
 const yearFilter = yearArg ? new Set(yearArg.split(',')) : null;
 
-if (!all && !yearFilter) {
+if (!all && !yearFilter && !examFilter) {
   console.error('학년도를 지정하거나 --all 을 쓰세요. 예: node scripts/clean_ocr_prefix.cjs 2026,2027');
   process.exit(1);
+}
+
+function matchesExam(row) {
+  if (!examFilter) return true;
+  for (const [year, cat, grade] of examFilter) {
+    if (String(row['학년도']) === year && row['분류'] === cat && (grade === undefined || (row['학년'] || '') === grade)) return true;
+  }
+  return false;
 }
 
 let changed = 0;
@@ -41,6 +56,7 @@ for (const subject of SUBJECTS) {
 
   for (const row of data) {
     if (yearFilter && !yearFilter.has(String(row['학년도']))) continue;
+    if (!matchesExam(row)) continue;
     const before = row['발문'] || '';
     if (!before) continue;
 

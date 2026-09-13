@@ -9,6 +9,9 @@ Usage:
     python scripts/fetch_ebsi_2026.py            # download + crop + copy to public/
     python scripts/fetch_ebsi_2026.py --list     # just print what EBSi offers
     python scripts/fetch_ebsi_2026.py --no-crop  # download only
+    python scripts/fetch_ebsi_2026.py --months 09 --only 한국지리,통합사회_고2 --quality 80
+        # 9월 시험만, 지정 과목만. 이후 추가분은 JPEG q80으로 저장한다
+        # (2026-08-17 이후 기존 이미지가 전부 q80으로 재인코딩됐다)
 """
 import os
 import re
@@ -114,10 +117,12 @@ def download(url, save_path):
     return True
 
 
-def collect(list_only=False):
+def collect(list_only=False, only=None):
     """모든 과목의 2026 시행 시험지를 내려받고 (과목키, pdf이름) 목록을 돌려준다."""
     fetched = []
     for subj_key, (code, target_cd, ar_ord, subj_id, _grade) in SUBJECTS.items():
+        if only and subj_key not in only:
+            continue
         try:
             papers = parse_list(fetch_list(target_cd, ar_ord, subj_id))
         except Exception as e:
@@ -182,7 +187,7 @@ def crop_with_retry(pdf_path, subject_dir, out_dir, pdf_name, expected):
         cropper.SIZE_TOLERANCE = original
 
 
-def crop_all(fetched):
+def crop_all(fetched, quality=92):
     sys.path.insert(0, PROJECT_DIR)
     from PIL import Image
 
@@ -211,7 +216,7 @@ def crop_all(fetched):
             if not png.lower().endswith('.png'):
                 continue
             img = Image.open(os.path.join(out_dir, png)).convert('RGB')
-            img.save(os.path.join(public_dir, os.path.splitext(png)[0] + '.jpg'), 'JPEG', quality=92)
+            img.save(os.path.join(public_dir, os.path.splitext(png)[0] + '.jpg'), 'JPEG', quality=quality)
             copied += 1
         print(f'  {pdf_name}: {copied}문항 -> public/images/{subject}/')
         total += copied
@@ -222,15 +227,26 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--list', action='store_true', help='목록만 출력')
     ap.add_argument('--no-crop', action='store_true', help='다운로드만')
+    ap.add_argument('--months', help='EBSi 시행 월 (쉼표 구분, 기본 03,05,06,07)')
+    ap.add_argument('--only', help='과목 키 (쉼표 구분, 기본 전체)')
+    ap.add_argument('--quality', type=int, default=92, help='JPEG 품질 (기본 92)')
     args = ap.parse_args()
 
-    fetched = collect(list_only=args.list)
+    global MONTHS
+    if args.months:
+        MONTHS = [m.zfill(2) for m in args.months.split(',')]
+    only = set(args.only.split(',')) if args.only else None
+    unknown = (only or set()) - set(SUBJECTS)
+    if unknown:
+        sys.exit(f'알 수 없는 과목 키: {sorted(unknown)}')
+
+    fetched = collect(list_only=args.list, only=only)
     if args.list:
         return
     print(f'\n=== PDF {len(fetched)}건 확보 ===')
     if args.no_crop:
         return
-    total = crop_all(fetched)
+    total = crop_all(fetched, quality=args.quality)
     print(f'\n=== 이미지 {total}개 생성 ===')
 
 

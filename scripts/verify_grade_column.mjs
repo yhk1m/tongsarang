@@ -38,9 +38,11 @@ const iss = JSON.parse(fs.readFileSync('./public/data/통합사회.json', 'utf8'
 const fm = new FilterManager();
 const only2 = fm.applyFilters(iss, { 학년: '고2' }, null, '통합사회');
 const only1 = fm.applyFilters(iss, { 학년: '고1' }, null, '통합사회');
-eq('학년 필터 고2 = 50문항', only2.length, 50);
+eq('학년 필터 고2 = 75문항 (3·6·9월)', only2.length, 75);
 eq('학년 필터 고1 = 705문항', only1.length, 705);
 eq('학년 + 분류 조합', fm.applyFilters(iss, { 학년: '고2', 분류: '3월' }, null, '통합사회').length, 25);
+eq('고2 9월 학평 25문항', fm.applyFilters(iss, { 학년: '고2', 분류: '9월' }, null, '통합사회').length, 25);
+eq('고1 9월은 2025년분만 (2026 고1 9월은 범위 밖)', fm.applyFilters(iss, { 학년: '고1', 분류: '9월', 학년도: '2026' }, null, '통합사회').length, 0);
 eq('학년 미지정이면 전체', fm.applyFilters(iss, {}, null, '통합사회').length, iss.length);
 
 // 5. 정렬: 학년(문자) / 정답률(숫자)
@@ -70,7 +72,9 @@ eq('학년 구분 과목은 통합사회뿐', [...GRADED_SUBJECTS], ['통합사�
 const kor = JSON.parse(fs.readFileSync('./public/data/한국지리.json', 'utf8'));
 const opts = dm.getFilterOptions(kor, null, '한국지리');
 eq('한국지리 학년도에 2027 포함', opts.학년도.slice(0, 2), ['2027', '2026']);
-eq('한국지리 분류에 신규 학평 포함', ['3월학평', '5월학평', '7월학평', '6모'].every(c => opts.분류.includes(c)), true);
+eq('한국지리 분류에 신규 학평 포함', ['3월학평', '5월학평', '7월학평', '6모', '9모'].every(c => opts.분류.includes(c)), true);
+eq('한국지리 2027 9모 20문항', fm.applyFilters(kor, { 학년도: '2027', 분류: '9모' }, null, '한국지리').length, 20);
+eq('2027 9모 이미지 파일명', imageFileNameOf('한국지리', { 학년도: '2027', 학년: '', 분류: '9모', 번호: '20' }), '2027_09_korgeo_20');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

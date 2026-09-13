@@ -234,7 +234,12 @@ def find_confirm_section_y(doc, midpoint_x):
             continue
         for line in block['lines']:
             line_text = ''.join(s['text'] for s in line['spans'])
-            if '확인' in line_text:
+            # '확인 사항' 머리글이나 '답안지 ... 기입(표기)했는지 확인' 안내문만 지면 요소로 본다.
+            # 문항 본문의 '확인하고', '무효 확인 소송' 같은 낱말에 걸리면 마지막 문항이 잘린다
+            # (2027_09_pollaw 18번에서 발견).
+            is_footer = (re.search(r'확\s*인\s*사\s*항', line_text)
+                         or ('답안지' in line_text and '기입' in line_text))
+            if is_footer:
                 for span in line['spans']:
                     if '확인' in span['text']:
                         bbox = span['bbox']

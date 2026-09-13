@@ -6,6 +6,11 @@
  *
  *   node scripts/crawl_megastudy_2026.cjs           # 병합
  *   node scripts/crawl_megastudy_2026.cjs --dry     # 크롤링 결과만 출력
+ *
+ * 이미 들어 있는 시험은 건너뛰므로, 새 시험이 시행되면 아래 표에 examSeq만 추가하고 다시 돌린다.
+ * examSeq는 https://www.megastudy.net/Entinfo/correctRate/main_examNm_ax.asp (grdFlg=학년,
+ * examYear) 에서 찾는다. 이름이 아직 안 붙은 최신 시험은 EBSi 해설지 정답과 대조해 확정한다
+ * (2026.09.02 시행분: 고1 358, 고2 359, 고3 360 — 해설지 정답 25/25, 3점 위치 일치로 확인).
  */
 const fs = require('fs');
 const os = require('os');
@@ -21,11 +26,17 @@ const G3_EXAMS = [
   { seq: 353, month: '05', moc: false },
   { seq: 356, month: '06', moc: true },
   { seq: 357, month: '07', moc: false },
+  { seq: 360, month: '09', moc: true },   // 2026.09.02 9월 모평 → 2027학년도
 ];
-const ISS_EXAMS = {
-  고1: [{ seq: 350, month: '03', moc: false }, { seq: 354, month: '06', moc: false }],
-  고2: [{ seq: 351, month: '03', moc: false }, { seq: 355, month: '06', moc: false }],
-};
+// 통합사회 학평. 시행 순서대로 적는다 (최신이 데이터 앞에 오도록 역순으로 처리한다).
+// 2026.09 고1 통합사회(seq 358)는 요청 범위에 없어 넣지 않았다. 필요하면 한 줄 추가하면 된다.
+const ISS_EXAMS = [
+  { seq: 350, month: '03', grade: '고1' },
+  { seq: 351, month: '03', grade: '고2' },
+  { seq: 354, month: '06', grade: '고1' },
+  { seq: 355, month: '06', grade: '고2' },
+  { seq: 359, month: '09', grade: '고2' },
+];
 
 // 과목 → 메가스터디 조회 정보. catStyle: 한국지리만 '학평/모' 접미사를 쓴다.
 const SUBJECTS = {
@@ -166,25 +177,25 @@ for (const [subject, cfg] of Object.entries(SUBJECTS)) {
 
   const sample = withGrade[0];
   const newRows = [];
-  // 3월 → 6월 순으로 만들되 최신이 앞에 오도록 역순, 같은 시험은 고1 → 고2 순
-  for (const ex of [{ month: '06' }, { month: '03' }]) {
-    for (const grade of ['고1', '고2']) {
-      const info = ISS_EXAMS[grade].find(e => e.month === ex.month);
-      const 학년도 = '2026';
-      const 분류 = `${Number(ex.month)}월`;
-      const { title, rows } = fetchRates(info.seq, 5, null);
-      if (rows.length === 0) {
-        console.log(`  ! 통합사회 ${grade} ${학년도} ${분류}: 데이터 없음 (${title})`);
-        continue;
-      }
-      if (hasExam(withGrade, 학년도, 분류, grade)) {
-        console.log(`  - 통합사회 ${grade} ${학년도} ${분류}: 이미 존재, 건너뜀`);
-        continue;
-      }
-      rows.forEach(r => newRows.push(buildRow(sample, { 학년도, 분류, 학년: grade }, r)));
-      console.log(`  + 통합사회 ${grade} ${학년도} ${분류}: ${rows.length}문항 (${title})`);
+  // 최신 시험이 앞에 오도록 시행 역순으로 만든다. 같은 시험은 고1 → 고2 순이 되도록
+  // 역순 처리 후 고1 행이 고2 앞에 오게 grade 순으로 정렬한다.
+  for (const ex of [...ISS_EXAMS].reverse()) {
+    const grade = ex.grade;
+    const 학년도 = '2026';
+    const 분류 = `${Number(ex.month)}월`;
+    const { title, rows } = fetchRates(ex.seq, 5, null);
+    if (rows.length === 0) {
+      console.log(`  ! 통합사회 ${grade} ${학년도} ${분류}: 데이터 없음 (${title})`);
+      continue;
     }
+    if (hasExam(withGrade, 학년도, 분류, grade)) {
+      console.log(`  - 통합사회 ${grade} ${학년도} ${분류}: 이미 존재, 건너뜀`);
+      continue;
+    }
+    rows.forEach(r => newRows.push(buildRow(sample, { 학년도, 분류, 학년: grade }, r)));
+    console.log(`  + 통합사회 ${grade} ${학년도} ${분류}: ${rows.length}문항 (${title})`);
   }
+  newRows.sort((a, b) => (b['분류'].localeCompare(a['분류'], 'ko', { numeric: true })) || a['학년'].localeCompare(b['학년']));
 
   if (!dryRun) saveData(subject, [...newRows, ...withGrade]);
   grandTotal += newRows.length;
