@@ -1,86 +1,88 @@
+import { icon } from './icons.js';
+
 export function renderFilterPanel() {
   return `
-    <div class="filter-section">
-      <div class="filter-title">
-        <div class="filter-title-text">
-          <span class="filter-icon">&#128269;</span> 필터 및 검색
+    <section class="filter-section" aria-label="문항 찾기">
+      <div class="filter-top">
+        <div class="filter-search">
+          <span class="filter-search-icon">${icon.search(18)}</span>
+          <input type="search" id="searchKeyword" placeholder="발문, 내용으로 찾기" aria-label="키워드로 찾기">
         </div>
-        <div class="filter-title-buttons">
-          <button class="btn btn-primary" id="btnApplyFilter">&#10003; 필터 적용</button>
-          <button class="btn btn-secondary" id="btnResetFilter">&#8634; 초기화</button>
-        </div>
+        <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="true" aria-controls="filterGrid">
+          ${icon.filter(18)}<span>조건</span><span class="filter-count num" id="filterCount" hidden></span>
+          <span class="filter-toggle-arrow">${icon.chevronDown(18)}</span>
+        </button>
       </div>
-      <div class="filter-grid">
+      <div class="filter-grid" id="filterGrid">
         <div class="filter-group">
-          <label>학년도</label>
+          <label for="filterYear">학년도</label>
           <select id="filterYear"><option value="">전체</option></select>
         </div>
         <div class="filter-group" id="filterGradeGroup" style="display:none">
-          <label>학년</label>
+          <label for="filterGrade">학년</label>
           <select id="filterGrade"><option value="">전체</option></select>
         </div>
         <div class="filter-group">
-          <label>분류</label>
+          <label for="filterCategory">분류</label>
           <select id="filterCategory"><option value="">전체</option></select>
         </div>
-        <div class="filter-group">
-          <label>대단원</label>
+        <div class="filter-group filter-group-wide">
+          <label for="filterChapter">대단원</label>
           <select id="filterChapter"><option value="">전체</option></select>
         </div>
         <div class="filter-group">
-          <label>성취기준</label>
+          <label for="filterSubChapter">성취기준</label>
           <select id="filterSubChapter"><option value="">전체</option></select>
         </div>
         <div class="filter-group">
-          <label>난이도</label>
+          <label for="filterDifficulty">난이도</label>
           <select id="filterDifficulty"><option value="">전체</option></select>
         </div>
         <div class="filter-group" id="filterGeoTesterGroup" style="display:none">
-          <label>GeoTester</label>
+          <label for="filterGeoTester">GeoTester</label>
           <select id="filterGeoTester">
             <option value="">전체</option>
-            <option value="yes">탑재됨</option>
-            <option value="no">미탑재</option>
+            <option value="yes">올린 문항</option>
+            <option value="no">안 올린 문항</option>
           </select>
         </div>
         <div class="filter-group">
-          <label>정답률</label>
+          <span class="filter-label" id="accuracyLabel">정답률</span>
           <div class="accuracy-dropdown">
-            <div class="accuracy-selector" id="accuracySelector">
-              <span class="accuracy-selector-text" id="accuracySelectorText">선택 안 함</span>
-              <span class="accuracy-selector-arrow">&#9660;</span>
-            </div>
+            <button type="button" class="accuracy-selector" id="accuracySelector" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="accuracyLabel accuracySelectorText">
+              <span class="accuracy-selector-text" id="accuracySelectorText">전체</span>
+              <span class="accuracy-selector-arrow">${icon.chevronDown(18)}</span>
+            </button>
             <div class="checkbox-group" id="filterAccuracyGroup">
               ${renderAccuracyCheckboxes()}
             </div>
           </div>
         </div>
-        <div class="filter-group">
-          <label>키워드 검색</label>
-          <input type="text" id="searchKeyword" placeholder="발문, 문항 내용 검색...">
+        <div class="filter-group filter-group-action">
+          <button type="button" class="btn btn-ghost" id="btnResetFilter">${icon.reset()}조건 지우기</button>
         </div>
       </div>
-    </div>
+    </section>
   `;
 }
 
 function renderAccuracyCheckboxes() {
   const ranges = [
     { id: 'acc_0_20', value: '0-20', label: '20% 이하' },
-    { id: 'acc_21_30', value: '21-30', label: '21-30%' },
-    { id: 'acc_31_40', value: '31-40', label: '31-40%' },
-    { id: 'acc_41_50', value: '41-50', label: '41-50%' },
-    { id: 'acc_51_60', value: '51-60', label: '51-60%' },
-    { id: 'acc_61_70', value: '61-70', label: '61-70%' },
-    { id: 'acc_71_80', value: '71-80', label: '71-80%' },
-    { id: 'acc_81_90', value: '81-90', label: '81-90%' },
-    { id: 'acc_91_100', value: '91-100', label: '91-100%' }
+    { id: 'acc_21_30', value: '21-30', label: '21~30%' },
+    { id: 'acc_31_40', value: '31-40', label: '31~40%' },
+    { id: 'acc_41_50', value: '41-50', label: '41~50%' },
+    { id: 'acc_51_60', value: '51-60', label: '51~60%' },
+    { id: 'acc_61_70', value: '61-70', label: '61~70%' },
+    { id: 'acc_71_80', value: '71-80', label: '71~80%' },
+    { id: 'acc_81_90', value: '81-90', label: '81~90%' },
+    { id: 'acc_91_100', value: '91-100', label: '91~100%' }
   ];
   return ranges.map(r => `
-    <div class="checkbox-item">
+    <label class="checkbox-item" for="${r.id}">
       <input type="checkbox" id="${r.id}" value="${r.value}">
-      <label for="${r.id}">${r.label}</label>
-    </div>
+      <span>${r.label}</span>
+    </label>
   `).join('');
 }
 
@@ -126,50 +128,95 @@ export function resetFilterValues() {
   document.getElementById('searchKeyword').value = '';
   document.querySelectorAll('#filterAccuracyGroup input').forEach(cb => cb.checked = false);
   updateAccuracyText();
+  updateFilterCount();
 }
 
-export function bindFilterEvents({ onApply, onReset, onChapterChange }) {
-  document.getElementById('btnApplyFilter').addEventListener('click', onApply);
-  document.getElementById('btnResetFilter').addEventListener('click', onReset);
-  document.getElementById('filterChapter').addEventListener('change', onChapterChange);
+export function bindFilterEvents({ onApply: apply, onReset: reset, onChapterChange }) {
+  // 조건을 바꿀 때마다 접힌 막대의 '조건 n개' 도 맞춘다
+  const onApply = () => { apply(); updateFilterCount(); };
+  const onReset = () => { reset(); updateFilterCount(); };
 
-  document.getElementById('searchKeyword').addEventListener('keydown', e => {
+  // 조건 접기: 휴대폰에서는 처음에 접어 둔다
+  const toggle = document.getElementById('filterToggle');
+  const setFiltersOpen = open => {
+    document.getElementById('filterGrid').hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.classList.toggle('open', open);
+  };
+  setFiltersOpen(!window.matchMedia('(max-width: 768px)').matches);
+  toggle.addEventListener('click', () => setFiltersOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+  document.getElementById('btnResetFilter').addEventListener('click', onReset);
+
+  // 고르는 즉시 결과에 반영한다
+  ['filterYear', 'filterGrade', 'filterCategory', 'filterSubChapter', 'filterDifficulty', 'filterGeoTester']
+    .forEach(id => document.getElementById(id).addEventListener('change', onApply));
+  document.getElementById('filterChapter').addEventListener('change', () => {
+    onChapterChange();
+    onApply();
+  });
+
+  const keyword = document.getElementById('searchKeyword');
+  let keywordTimer = null;
+  keyword.addEventListener('input', () => {
+    clearTimeout(keywordTimer);
+    keywordTimer = setTimeout(onApply, 250);
+  });
+  keyword.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      clearTimeout(keywordTimer);
       onApply();
     }
   });
 
-  // Accuracy dropdown toggle
-  document.getElementById('accuracySelector').addEventListener('click', () => {
-    document.getElementById('filterAccuracyGroup').classList.toggle('open');
-    document.getElementById('accuracySelector').classList.toggle('open');
+  // 정답률 펼침 목록
+  const selector = document.getElementById('accuracySelector');
+  const group = document.getElementById('filterAccuracyGroup');
+  const setOpen = open => {
+    group.classList.toggle('open', open);
+    selector.classList.toggle('open', open);
+    selector.setAttribute('aria-expanded', String(open));
+  };
+  selector.addEventListener('click', () => setOpen(!group.classList.contains('open')));
+  group.addEventListener('change', () => {
+    updateAccuracyText();
+    onApply();
   });
-
-  // Update accuracy text on check
-  document.getElementById('filterAccuracyGroup').addEventListener('change', updateAccuracyText);
-
-  // Close accuracy dropdown on outside click
-  document.addEventListener('click', e => {
-    const dd = document.querySelector('.accuracy-dropdown');
-    if (dd && !dd.contains(e.target)) {
-      document.getElementById('filterAccuracyGroup').classList.remove('open');
-      document.getElementById('accuracySelector').classList.remove('open');
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && group.classList.contains('open')) {
+      setOpen(false);
+      selector.focus();
     }
   });
+  document.addEventListener('click', e => {
+    const dd = document.querySelector('.accuracy-dropdown');
+    if (dd && !dd.contains(e.target)) setOpen(false);
+  });
+}
+
+/** 고른 조건 수 (검색어 제외) */
+export function updateFilterCount() {
+  const ids = ['filterYear', 'filterGrade', 'filterCategory', 'filterChapter', 'filterSubChapter', 'filterDifficulty', 'filterGeoTester'];
+  let n = ids.filter(id => document.getElementById(id)?.value).length;
+  if (document.querySelector('#filterAccuracyGroup input:checked')) n++;
+  const el = document.getElementById('filterCount');
+  if (!el) return;
+  el.hidden = n === 0;
+  el.textContent = `${n}개`;
 }
 
 function updateAccuracyText() {
   const checked = document.querySelectorAll('#filterAccuracyGroup input:checked');
   const textEl = document.getElementById('accuracySelectorText');
   if (checked.length === 0) {
-    textEl.textContent = '선택 안 함';
+    textEl.textContent = '전체';
     textEl.classList.remove('selected');
   } else if (checked.length === 1) {
-    textEl.textContent = document.querySelector(`label[for="${checked[0].id}"]`).textContent;
+    textEl.textContent = document.querySelector(`label[for="${checked[0].id}"]`).textContent.trim();
     textEl.classList.add('selected');
   } else {
-    textEl.textContent = `${checked.length}개 선택됨`;
+    textEl.textContent = `${checked.length}개 구간`;
     textEl.classList.add('selected');
   }
 }

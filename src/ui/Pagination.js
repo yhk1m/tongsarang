@@ -1,3 +1,5 @@
+import { icon } from './icons.js';
+
 export class Pagination {
   constructor(defaultSize = 100) {
     this.currentPage = 1;
@@ -28,7 +30,7 @@ export class Pagination {
 
   render() {
     const sizes = [10, 20, 50, 100];
-    let sizeSelect = `<select class="page-size-select">`;
+    let sizeSelect = `<select class="page-size-select" aria-label="한 쪽에 보일 문항 수">`;
     for (const s of sizes) {
       sizeSelect += `<option value="${s}" ${s === this.pageSize ? 'selected' : ''}>${s}개씩</option>`;
     }
@@ -42,7 +44,7 @@ export class Pagination {
     let buttons = '';
 
     // Previous
-    buttons += `<button class="page-btn" data-page="prev" ${this.currentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+    buttons += `<button class="page-btn" data-page="prev" aria-label="이전 쪽" ${this.currentPage === 1 ? 'disabled' : ''}>${icon.chevronLeft()}</button>`;
 
     // Page numbers (show max 7 around current)
     const start = Math.max(1, this.currentPage - 3);
@@ -64,7 +66,7 @@ export class Pagination {
     }
 
     // Next
-    buttons += `<button class="page-btn" data-page="next" ${this.currentPage === pages ? 'disabled' : ''}>&raquo;</button>`;
+    buttons += `<button class="page-btn" data-page="next" aria-label="다음 쪽" ${this.currentPage === pages ? 'disabled' : ''}>${icon.chevronRight()}</button>`;
 
     return `<div class="pagination">${sizeSelect}${buttons}</div>`;
   }

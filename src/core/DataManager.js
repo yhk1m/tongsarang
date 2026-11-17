@@ -1,17 +1,18 @@
 // DataManager: JSON 데이터 로드 및 과목별 캐싱
 
+// group: 과목 탭을 나누는 대분류 (통합사회, 지리, 일반사회, 윤리, 역사)
 const SUBJECTS = [
-  { id: '통합사회', label: '통합사회', icon: '📚' },
-  { id: '한국지리', label: '한국지리', icon: '🇰🇷' },
-  { id: '세계지리', label: '세계지리', icon: '🌍' },
-  { id: '정치와법', label: '정치와법', icon: '⚖️' },
-  { id: '경제', label: '경제', icon: '💰' },
-  { id: '사회문화', label: '사회문화', icon: '👥' },
-  { id: '생활과윤리', label: '생활과윤리', icon: '🤝' },
-  { id: '윤리와사상', label: '윤리와사상', icon: '💡' },
-  { id: '한국사', label: '한국사', icon: '🏯' },
-  { id: '동아시아사', label: '동아시아사', icon: '🏮' },
-  { id: '세계사', label: '세계사', icon: '🌐' }
+  { id: '통합사회', label: '통합사회', group: '통합사회' },
+  { id: '한국지리', label: '한국지리', group: '지리' },
+  { id: '세계지리', label: '세계지리', group: '지리' },
+  { id: '정치와법', label: '정치와법', group: '일반사회' },
+  { id: '경제', label: '경제', group: '일반사회' },
+  { id: '사회문화', label: '사회문화', group: '일반사회' },
+  { id: '생활과윤리', label: '생활과윤리', group: '윤리' },
+  { id: '윤리와사상', label: '윤리와사상', group: '윤리' },
+  { id: '한국사', label: '한국사', group: '역사' },
+  { id: '동아시아사', label: '동아시아사', group: '역사' },
+  { id: '세계사', label: '세계사', group: '역사' }
 ];
 
 export class DataManager {

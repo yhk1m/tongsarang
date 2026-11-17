@@ -1,4 +1,5 @@
 import { imageFileName } from '../core/questionKey.js';
+import { icon } from './icons.js';
 
 // 탐색 상태
 let _navSubject = '';
@@ -7,10 +8,10 @@ let _navIndex = -1;
 
 export function renderModal() {
   return `
-    <div id="imageModal" class="modal">
-      <span class="modal-close" id="modalClose">&times;</span>
-      <button class="modal-nav modal-nav-prev" id="modalPrev" title="이전 문제 (←)">&#10094;</button>
-      <button class="modal-nav modal-nav-next" id="modalNext" title="다음 문제 (→)">&#10095;</button>
+    <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="문제 보기">
+      <button class="modal-close" id="modalClose" aria-label="닫기">${icon.close(24)}</button>
+      <button class="modal-nav modal-nav-prev" id="modalPrev" aria-label="이전 문제">${icon.chevronLeft(28)}</button>
+      <button class="modal-nav modal-nav-next" id="modalNext" aria-label="다음 문제">${icon.chevronRight(28)}</button>
       <div class="modal-content" id="modalContent">
         <div id="modalBody"></div>
       </div>
@@ -64,7 +65,7 @@ function _showCurrent(subject, year, category, number, grade) {
 
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
-  body.innerHTML = '<div class="modal-loading"><div class="spinner"></div>이미지를 불러오는 중...</div>';
+  body.innerHTML = '<div class="modal-loading"><div class="spinner"></div>문제를 불러오고 있어요</div>';
 
   // 네비게이션 버튼 표시/숨김
   document.getElementById('modalPrev').style.display = _navIndex > 0 ? '' : 'none';
@@ -73,8 +74,8 @@ function _showCurrent(subject, year, category, number, grade) {
   const basePath = `${import.meta.env.BASE_URL}images/${encodeURIComponent(subject)}`;
   const fileName = imageFileName(subject, year, category, number, grade);
   const gradeLabel = grade ? `${grade} ` : '';
-  const label = `${subject} - ${year}학년도 ${gradeLabel}${category} ${number}번`;
-  const counter = _navList.length > 0 ? ` (${_navIndex + 1} / ${_navList.length})` : '';
+  const label = `${subject}  ${year}학년도 ${gradeLabel}${category} ${number}번`;
+  const counter = _navList.length > 0 ? `  ${_navIndex + 1} / ${_navList.length}` : '';
 
   const img = new Image();
   img.className = 'modal-image';
@@ -104,9 +105,9 @@ function _showCurrent(subject, year, category, number, grade) {
     pngImg.onerror = () => {
       body.innerHTML = `
         <div class="modal-error">
-          이미지를 찾을 수 없습니다<br><br>
-          <small>${fileName}.jpg / .png</small><br>
-          <small>경로: images/${subject}/</small>
+          <strong>이 문제의 그림이 아직 없어요</strong>
+          <span>오류 제보로 알려 주시면 채워 넣을게요.</span>
+          <small>images/${subject}/${fileName}.jpg</small>
         </div>
       `;
     };

@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #1a1a2e;
-  color: #fff;
+  background: var(--text-strong);
+  color: var(--surface);
   padding: 8px 16px;
   border-radius: 8px;
   margin-bottom: 12px;
@@ -18,8 +18,8 @@
 }
 
 .dev-badge {
-  background: #1d1d1f;
-  color: #fff;
+  background: var(--text-strong);
+  color: var(--surface);
   font-weight: 700;
   font-size: 11px;
   padding: 2px 8px;
@@ -32,7 +32,7 @@
 }
 
 .dev-edit-count {
-  color: #a0a0b0;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -43,7 +43,7 @@
 
 .dev-btn {
   background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 4px 12px;
   border-radius: 4px;
@@ -72,8 +72,8 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #f0f0f0;
-  border: 1px solid #d0d0d0;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-300);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
@@ -85,7 +85,7 @@
 }
 
 .btn-edit-field:hover {
-  background: #e0e0e0;
+  background: var(--gray-200);
 }
 
 .btn-edit-std {
@@ -94,8 +94,8 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #e8f4fd;
-  border: 1px solid #b3d9f2;
+  background: var(--info-weak);
+  border: 1px solid var(--info);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
@@ -107,7 +107,7 @@
 }
 
 .btn-edit-std:hover {
-  background: #d0ecfa;
+  background: var(--info-weak);
 }
 
 /* Reset button in edited cells */
@@ -117,8 +117,8 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #fff3e0;
-  border: 1px solid #ffb74d;
+  background: var(--warning-weak);
+  border: 1px solid var(--warning);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
@@ -130,12 +130,12 @@
 }
 
 .btn-reset-field:hover {
-  background: #ffe0b2;
+  background: var(--warning-weak);
 }
 
 /* Edited cell highlight */
 .cell-edited {
-  background-color: #fffde7 !important;
+  background-color: var(--warning-weak) !important;
 }
 
 /* Cell wrapper for edit mode */
@@ -159,7 +159,7 @@
   width: 100%;
   min-height: 80px;
   padding: 6px 8px;
-  border: 2px solid #0071e3;
+  border: 2px solid var(--info);
   border-radius: 4px;
   font-size: 12px;
   font-family: inherit;
@@ -184,7 +184,7 @@
 .dev-edit-input {
   width: 50px;
   padding: 3px 6px;
-  border: 2px solid #0071e3;
+  border: 2px solid var(--info);
   border-radius: 4px;
   font-size: 12px;
   font-family: inherit;
@@ -217,21 +217,21 @@
 }
 
 .dev-edit-save {
-  background: #0071e3;
-  color: #fff;
+  background: var(--info);
+  color: var(--surface);
 }
 
 .dev-edit-save:hover {
-  background: #0060c0;
+  background: var(--info);
 }
 
 .dev-edit-cancel {
-  background: #e0e0e0;
-  color: #333;
+  background: var(--gray-200);
+  color: var(--text);
 }
 
 .dev-edit-cancel:hover {
-  background: #d0d0d0;
+  background: var(--gray-300);
 }
 
 /* Standard cell edit indicator */

@@ -1,29 +1,29 @@
+// © 2026 김용현
 export function renderStatsBar() {
   return `
     <div class="table-header">
-      <div class="table-title">&#128203; 문제 목록</div>
-      <div class="table-stats">
-        <span class="stat-item">총 문제 수: <strong id="totalCount">-</strong></span>
-        <span class="geotester-stat" id="geoTesterStat" style="display:none">
-          GeoTester 탑재: <strong id="geoTesterCount">-</strong>
-        </span>
-        <span class="result-count" id="resultCount">검색 결과: 0개</span>
-      </div>
+      <p class="table-summary">
+        전체 <strong id="totalCount" class="num">-</strong>문항 중
+        <strong id="resultCount" class="num">0</strong>문항을 보고 있어요
+      </p>
+      <span class="geotester-stat" id="geoTesterStat" style="display:none">
+        GeoTester에 올린 문항 <strong id="geoTesterCount" class="num">-</strong>개
+      </span>
     </div>
   `;
 }
 
 export function updateStats(stats, showGeoTester) {
-  document.getElementById('totalCount').textContent = stats.총문제수;
+  document.getElementById('totalCount').textContent = stats.총문제수.toLocaleString();
   const geoStat = document.getElementById('geoTesterStat');
   if (showGeoTester) {
     geoStat.style.display = '';
-    document.getElementById('geoTesterCount').textContent = stats.GeoTester탑재수;
+    document.getElementById('geoTesterCount').textContent = stats.GeoTester탑재수.toLocaleString();
   } else {
     geoStat.style.display = 'none';
   }
 }
 
 export function updateResultCount(count) {
-  document.getElementById('resultCount').textContent = `검색 결과: ${count}개`;
+  document.getElementById('resultCount').textContent = count.toLocaleString();
 }

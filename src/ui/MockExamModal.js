@@ -1,5 +1,6 @@
 import { generateMockExamPDF } from './MockExamPDF.js';
 import { imageFileNameOf } from '../core/questionKey.js';
+import { icon } from './icons.js';
 
 let SUBJECTS_WITH_DATA = [];
 
@@ -8,10 +9,10 @@ const ME_PAGE_SIZE = 20;
 export function renderMockExamModal() {
   return `
     <div id="mockExamModal" class="mockexam-modal">
-      <div class="mockexam-wizard">
+      <div class="mockexam-wizard" role="dialog" aria-modal="true" aria-labelledby="meTitle">
         <div class="me-header">
-          <h2>모의고사 만들기</h2>
-          <button class="me-close" id="meClose">&times;</button>
+          <h2 id="meTitle">모의고사 만들기</h2>
+          <button class="me-close" id="meClose" aria-label="닫기">${icon.close(20)}</button>
         </div>
         <div class="me-step-indicator" id="meStepIndicator"></div>
         <div class="me-body" id="meBody"></div>
@@ -68,7 +69,7 @@ export async function openMockExam(currentSubject, dm, linkerStore) {
 
   // 데이터가 있는 과목 목록을 동적으로 로드
   const body = document.getElementById('meBody');
-  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">과목 확인 중...</div></div>';
+  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">과목을 확인하고 있어요</div></div>';
   renderFooter('', '');
   SUBJECTS_WITH_DATA = await dm.getSubjectsWithData();
 
@@ -91,14 +92,14 @@ function renderStep() {
 }
 
 function renderStepIndicator() {
-  const steps = ['유형 선택', '문항 선택'];
+  const steps = ['종류 고르기', '문항 고르기'];
   document.getElementById('meStepIndicator').innerHTML = steps.map((label, i) => {
     const num = i + 1;
     let cls = 'me-step';
     if (num < state.step) cls += ' done';
     else if (num === state.step) cls += ' active';
-    const arrow = i < steps.length - 1 ? '<span class="me-step-arrow">&#9654;</span>' : '';
-    return `<span class="${cls}"><span class="me-step-num">${num}</span>${label}</span>${arrow}`;
+    const arrow = i < steps.length - 1 ? `<span class="me-step-arrow">${icon.chevronRight(14)}</span>` : '';
+    return `<span class="${cls}"><span class="me-step-num">${num < state.step ? icon.check(12) : num}</span>${label}</span>${arrow}`;
   }).join('');
 }
 
@@ -113,17 +114,19 @@ function renderFooter(leftHtml, buttons) {
 function renderStep1() {
   const body = document.getElementById('meBody');
   body.innerHTML = `
+    <h3 class="me-question">어떤 모의고사를 만들까요?</h3>
     <div class="me-type-cards">
-      <div class="me-type-card" id="meTypeSingle">
-        <h3>과목별 모의고사</h3>
-        <p>과목을 선택하여<br>문항을 선택합니다</p>
-      </div>
-      <div class="me-type-card" id="meTypeMulti">
-        <h3>통합 모의고사</h3>
-        <p>모든 과목의 문항을 모아<br>통합 모의고사를 만듭니다</p>
-      </div>
+      <button type="button" class="me-type-card" id="meTypeSingle">
+        <strong>과목 하나로</strong>
+        <span>과목 하나를 고른 뒤 그 과목 문항을 골라요</span>
+      </button>
+      <button type="button" class="me-type-card" id="meTypeMulti">
+        <strong>여러 과목 섞어서</strong>
+        <span>모든 과목 문항을 한 목록에서 골라요</span>
+      </button>
     </div>
     <div id="meSubjectPicker" style="display:none">
+      <h3 class="me-question">어느 과목으로 만들까요?</h3>
       <div class="me-subject-list" id="meSubjectList"></div>
     </div>
   `;
@@ -132,6 +135,7 @@ function renderStep1() {
 
   document.getElementById('meTypeSingle').addEventListener('click', () => {
     state.type = 'single';
+    document.getElementById('meTypeSingle').classList.add('selected');
     showSubjectPicker();
   });
 
@@ -149,11 +153,12 @@ function showSubjectPicker() {
   list.innerHTML = SUBJECTS_WITH_DATA.map(s => `
     <label>
       <input type="radio" name="meSingleSubject" value="${escHtml(s)}" ${s === state.currentSubject ? 'checked' : ''}>
-      ${escHtml(s)}
+      <span>${escHtml(s)}</span>
     </label>
   `).join('');
 
-  renderFooter('', '<button class="btn btn-primary" id="meSubjectNext">다음</button>');
+  renderFooter('', '<button class="btn btn-primary" id="meSubjectNext">문항 고르기</button>');
+  picker.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   document.getElementById('meSubjectNext').addEventListener('click', () => {
     const selected = list.querySelector('input[name="meSingleSubject"]:checked');
     if (!selected) return;
@@ -168,7 +173,7 @@ async function goStep2() {
   renderStepIndicator();
 
   const body = document.getElementById('meBody');
-  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">데이터 로드 중...</div></div>';
+  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">문항을 불러오고 있어요</div></div>';
   renderFooter('', '');
 
   // Load data for all selected subjects
@@ -201,7 +206,7 @@ function renderStep2Combined() {
   const showSubject = state.subjects.length > 1;
 
   if (allQuestions.length === 0) {
-    body.innerHTML = '<div class="me-no-data">문항 데이터가 없습니다</div>';
+    body.innerHTML = '<div class="me-no-data"><strong>고를 수 있는 문항이 없어요</strong><span>이전으로 돌아가 다른 과목을 골라 주세요.</span></div>';
     renderFooter('', '<button class="btn btn-secondary" id="meBackTo1">이전</button>');
     document.getElementById('meBackTo1').addEventListener('click', () => {
       state.step = 1;
@@ -234,14 +239,14 @@ function renderStep2Combined() {
     <option value="51-70">51~70%</option>
     <option value="71-100">71~100%</option>
   </select>`;
-  filterHtml += `<input id="meFilterKeyword" type="text" placeholder="키워드 검색">`;
-  filterHtml += `<button id="meFilterReset">초기화</button>`;
+  filterHtml += `<input id="meFilterKeyword" type="search" placeholder="발문으로 찾기" aria-label="발문으로 찾기">`;
+  filterHtml += `<button type="button" class="btn btn-ghost" id="meFilterReset">${icon.reset()}조건 지우기</button>`;
   filterHtml += `</div>`;
 
   // Table header
   let theadHtml = `<table class="me-question-table me-flat-table">
     <thead><tr>
-      <th><input type="checkbox" id="meSelectAll"></th>
+      <th><input type="checkbox" id="meSelectAll" aria-label="찾은 문항 모두 고르기"></th>
       ${showSubject ? '<th>과목</th>' : ''}
       <th>학년도</th>
       ${showGrade ? '<th>학년</th>' : ''}
@@ -276,10 +281,12 @@ function renderStep2Combined() {
 
   // Footer
   renderFooter(
-    `<span class="me-select-count" id="meSelCount">선택: <strong>${state.checkedSet.size}</strong> / ${allQuestions.length}문항</span>`,
+    `<span class="me-select-count" id="meSelCount"></span>`,
     `<button class="btn btn-secondary" id="meBackTo1">이전</button>
-     <button class="btn btn-primary" id="meGenPDF">PDF 생성</button>`
+     <button class="btn btn-primary" id="meGenPDF" disabled>${icon.download()}PDF 만들기</button>`
   );
+
+  updateMeCount();
 
   // Bind filter events
   bindMeFilterEvents();
@@ -441,14 +448,14 @@ function renderMeTablePage() {
   // Render tbody
   const tbody = document.getElementById('meTbody');
   if (pageItems.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center;padding:20px;color:#86868b;">조건에 맞는 문항이 없습니다</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${colCount}" class="me-empty-row">조건에 맞는 문항이 없어요. 조건을 하나씩 빼 보세요.</td></tr>`;
   } else {
     tbody.innerHTML = pageItems.map(q => {
       const idx = q._origIdx;
       const checked = state.checkedSet.has(idx) ? 'checked' : '';
       const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
-      return `<tr>
-        <td><input type="checkbox" class="me-q-check" data-idx="${idx}" ${checked}></td>
+      return `<tr class="${checked ? 'is-checked' : ''}">
+        <td><input type="checkbox" class="me-q-check" data-idx="${idx}" ${checked} aria-label="${escHtml(String(q.학년도 || ''))} ${escHtml(q.분류 || '')} ${escHtml(String(q.번호 || ''))}번 고르기"></td>
         ${showSubject ? `<td>${escHtml(q._subject)}</td>` : ''}
         <td>${escHtml(String(q.학년도 || ''))}</td>
         ${showGrade ? `<td>${escHtml(q.학년 || '-')}</td>` : ''}
@@ -485,12 +492,12 @@ function renderMeTablePage() {
 function renderMePagination(totalPages) {
   const container = document.getElementById('mePagination');
   if (totalPages <= 1) {
-    container.innerHTML = `<span class="me-page-info">${state.meFilteredQuestions.length}문항</span>`;
+    container.innerHTML = `<span class="me-page-info">찾은 문항 ${state.meFilteredQuestions.length.toLocaleString()}개</span>`;
     return;
   }
 
   let html = '';
-  html += `<button class="me-page-btn" data-mepage="prev" ${state.mePage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+  html += `<button class="me-page-btn" data-mepage="prev" aria-label="이전 쪽" ${state.mePage === 1 ? 'disabled' : ''}>${icon.chevronLeft()}</button>`;
 
   const start = Math.max(1, state.mePage - 3);
   const end = Math.min(totalPages, state.mePage + 3);
@@ -510,8 +517,8 @@ function renderMePagination(totalPages) {
     html += `<button class="me-page-btn" data-mepage="${totalPages}">${totalPages}</button>`;
   }
 
-  html += `<button class="me-page-btn" data-mepage="next" ${state.mePage === totalPages ? 'disabled' : ''}>&raquo;</button>`;
-  html += `<span class="me-page-info">${state.meFilteredQuestions.length}문항</span>`;
+  html += `<button class="me-page-btn" data-mepage="next" aria-label="다음 쪽" ${state.mePage === totalPages ? 'disabled' : ''}>${icon.chevronRight()}</button>`;
+  html += `<span class="me-page-info">찾은 문항 ${state.meFilteredQuestions.length.toLocaleString()}개</span>`;
 
   container.innerHTML = html;
 
@@ -546,6 +553,7 @@ function bindMeCheckboxEvents() {
       } else {
         state.checkedSet.delete(idx);
       }
+      cb.closest('tr')?.classList.toggle('is-checked', cb.checked);
       // Update select-all state
       const selectAll = document.getElementById('meSelectAll');
       if (selectAll) {
@@ -626,7 +634,16 @@ function bindMeFilterEvents() {
 function updateMeCount() {
   const el = document.getElementById('meSelCount');
   if (el) {
-    el.innerHTML = `선택: <strong>${state.checkedSet.size}</strong> / ${state.selectedQuestions.length}문항`;
+    el.innerHTML = state.checkedSet.size === 0
+      ? '문항을 고르면 PDF를 만들 수 있어요'
+      : `<strong>${state.checkedSet.size}</strong>문항을 골랐어요`;
+  }
+  const genBtn = document.getElementById('meGenPDF');
+  if (genBtn) {
+    genBtn.disabled = state.checkedSet.size === 0;
+    genBtn.innerHTML = state.checkedSet.size === 0
+      ? `${icon.download()}PDF 만들기`
+      : `${icon.download()}${state.checkedSet.size}문항 PDF 만들기`;
   }
   renderMePreview();
 }
@@ -649,7 +666,7 @@ function renderMePreview() {
   const showSubject = state.subjects.length > 1;
 
   container.innerHTML = `
-    <div class="me-preview-header">선택한 문항 미리보기 (${sorted.length}문항)</div>
+    <div class="me-preview-header">고른 문항 ${sorted.length}개</div>
     <div class="me-preview-list">
       ${sorted.map(idx => {
         const q = state.selectedQuestions[idx];
@@ -659,7 +676,7 @@ function renderMePreview() {
         return `<div class="me-preview-item" data-idx="${idx}">
           <div class="me-preview-item-header">
             <span class="me-preview-label">${escHtml(label)}</span>
-            <button class="me-preview-remove" data-idx="${idx}" title="선택 해제">&times;</button>
+            <button class="me-preview-remove" data-idx="${idx}" aria-label="${escHtml(label)} 빼기">${icon.close(14)}</button>
           </div>
           <img src="${getQuestionImageUrl(q)}" alt="${escHtml(label)}" loading="lazy">
         </div>`;
@@ -698,17 +715,23 @@ function buildChapterTree(data, subj) {
 
 async function startPDFGeneration(questions) {
   const body = document.getElementById('meBody');
-  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text" id="mePdfProgress">PDF 생성 중... (0/' + questions.length + ')</div></div>';
+  body.innerHTML = `<div class="me-progress-overlay">
+    <div class="me-progress-text">PDF를 만들고 있어요</div>
+    <div class="me-progress-bar"><div class="me-progress-fill" id="mePdfBar"></div></div>
+    <div class="me-progress-count num" id="mePdfProgress">0 / ${questions.length}</div>
+  </div>`;
   renderFooter('', '');
 
   try {
     await generateMockExamPDF(questions, (done, total) => {
       const el = document.getElementById('mePdfProgress');
-      if (el) el.textContent = `PDF 생성 중... (${done}/${total})`;
+      if (el) el.textContent = `${done} / ${total}`;
+      const bar = document.getElementById('mePdfBar');
+      if (bar) bar.style.width = `${Math.round((done / total) * 100)}%`;
     });
     closeMockExam();
   } catch (err) {
-    body.innerHTML = `<div class="me-no-data">PDF 생성 실패: ${escHtml(err.message)}</div>`;
+    body.innerHTML = `<div class="me-no-data"><strong>PDF를 만들지 못했어요</strong><span>이전으로 돌아가 다시 만들어 주세요. 계속 안 되면 오류 제보로 알려 주세요.</span><small>${escHtml(err.message)}</small></div>`;
     renderFooter('', '<button class="btn btn-secondary" id="meBackToQuestions">이전</button>');
     document.getElementById('meBackToQuestions').addEventListener('click', () => {
       state.step = 2;

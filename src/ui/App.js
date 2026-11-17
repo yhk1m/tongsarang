@@ -1,5 +1,5 @@
-import { renderHeader } from './Header.js';
-import { renderSubjectNav, bindSubjectNav } from './SubjectNav.js';
+import { renderHeader, renderFooter } from './Header.js';
+import { renderSubjectNav, renderSubjectMenuButton, renderSubjectSheet, bindSubjectNav, setActiveSubject } from './SubjectNav.js';
 import { renderFilterPanel, populateFilterOptions, bindFilterEvents, getFilterValues, resetFilterValues, updateSubChapterOptions, setGeoTesterFilterVisible, setGradeFilterVisible } from './FilterPanel.js';
 import { renderStatsBar, updateStats, updateResultCount } from './StatsBar.js';
 import { renderTableShell, renderTableRows, showLoading, bindTableEvents, updateSortIndicators, GEOTESTER_SUBJECTS, columnCount } from './DataTable.js';
@@ -48,11 +48,11 @@ export class App {
     const params = new URLSearchParams(window.location.search);
     const isAdmin = params.get('mode') === 'admin' || params.get('p') === 'admin';
     if (isAdmin) {
-      const pw = prompt('관리자 모드 비밀번호를 입력하세요');
+      const pw = prompt('관리자 비밀번호를 적어 주세요');
       if (pw === 'rs21') {
         this.adminMode = true;
       } else if (pw !== null) {
-        alert('비밀번호가 틀렸습니다.');
+        alert('비밀번호가 맞지 않아요. 일반 화면으로 열게요.');
       }
     }
   }
@@ -61,21 +61,21 @@ export class App {
     const subjects = this.dm.getSubjects();
 
     this.root.innerHTML = `
-      <div class="container">
-        ${renderHeader()}
-        <div class="main-card">
-          ${renderSubjectNav(subjects, this.currentSubject)}
-          <div class="content">
-            ${this.adminMode ? renderDevToolbar() : ''}
-            ${renderFilterPanel()}
-            <div class="table-container">
-              ${renderStatsBar()}
-              <div id="tableShellContainer">${renderTableShell(this.currentSubject)}</div>
-              <div id="paginationContainer"></div>
-            </div>
-          </div>
-        </div>
+      <div class="topbar">
+        ${renderHeader(renderSubjectMenuButton(subjects, this.currentSubject))}
+        ${renderSubjectNav(subjects, this.currentSubject)}
       </div>
+      <main class="content">
+        ${this.adminMode ? renderDevToolbar() : ''}
+        ${renderFilterPanel()}
+        <section class="table-container" aria-label="문항 목록">
+          ${renderStatsBar()}
+          <div id="tableShellContainer">${renderTableShell(this.currentSubject)}</div>
+          <div id="paginationContainer"></div>
+        </section>
+      </main>
+      ${renderFooter()}
+      ${renderSubjectSheet(subjects, this.currentSubject)}
       ${renderModal()}
       ${renderMockExamModal()}
       ${renderLinkerModal()}
@@ -220,10 +220,9 @@ export class App {
     this.currentSubject = subject;
     this.fm.resetSort();
 
-    // Update active tab
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.subject === subject);
-    });
+    // 탭, 휴대폰 과목 목록, 햄버거 버튼 이름
+    const subj = this.dm.getSubjects().find(s => s.id === subject);
+    setActiveSubject(subject, subj?.label);
 
     // Re-render table shell (GeoTester column may change)
     document.getElementById('tableShellContainer').innerHTML = renderTableShell(subject);
@@ -259,7 +258,7 @@ export class App {
     } catch (err) {
       const cols = columnCount(subject);
       document.getElementById('tableBody').innerHTML =
-        `<tr><td colspan="${cols}" class="no-data">데이터 로드 실패: ${err.message}</td></tr>`;
+        `<tr><td colspan="${cols}" class="no-data"><strong>문항을 불러오지 못했어요</strong><span>인터넷 연결을 확인하고 다른 과목을 눌렀다가 다시 눌러 주세요.</span></td></tr>`;
     }
   }
 

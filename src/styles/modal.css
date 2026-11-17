@@ -1,30 +1,27 @@
-/* Image Modal */
+/* © 2026 김용현 */
+/* 문제 보기 */
 .modal {
   display: none;
   position: fixed;
+  inset: 0;
   z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  animation: fadeIn 0.3s;
+  background: rgba(16, 20, 26, 0.88);
+  animation: fade-in var(--dur) var(--ease-enter);
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 .modal-content {
   position: relative;
-  margin: auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
   top: 50%;
   transform: translateY(-50%);
+  width: 90%;
+  max-width: 1200px;
+  max-height: 92vh;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,88 +29,82 @@
 
 .modal-image {
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 82vh;
   object-fit: contain;
-  border-radius: 8px;
-  box-shadow: none;
+  border-radius: var(--r-control);
+  background: #ffffff;
 }
 
-.modal-close {
-  position: fixed;
-  top: 20px;
-  right: 40px;
-  color: white;
-  font-size: 40px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: color 0.3s;
-  z-index: 1001;
-  line-height: 1;
-}
-
-.modal-close:hover {
-  color: #86868b;
-}
-
-.modal-info {
-  color: white;
-  margin-top: 20px;
-  font-size: 1.1em;
-  text-align: center;
-}
-
-.modal-loading {
-  color: white;
-  font-size: 1.2em;
-  text-align: center;
-}
-
-.modal-error {
-  color: #aeaeb2;
-  font-size: 1.2em;
-  text-align: center;
-  padding: 40px;
-}
-
-/* Navigation arrows */
+.modal-close,
 .modal-nav {
   position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-  font-size: 36px;
-  width: 50px;
-  height: 80px;
-  cursor: pointer;
   z-index: 1001;
-  border-radius: 6px;
-  transition: background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 0;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease);
 }
 
-.modal-nav:hover {
-  background: rgba(255, 255, 255, 0.25);
+.modal-close:hover,
+.modal-nav:hover { background: rgba(255, 255, 255, 0.22); }
+
+.modal-close {
+  top: var(--sp-4);
+  right: var(--sp-4);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
 }
 
-.modal-nav-prev { left: 16px; }
-.modal-nav-next { right: 16px; }
+.modal-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 72px;
+  border-radius: var(--r-control);
+}
 
-/* Responsive */
+.modal-nav-prev { left: var(--sp-4); }
+.modal-nav-next { right: var(--sp-4); }
+
+.modal-info {
+  margin-top: var(--sp-3);
+  color: #e4e7ec;
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: pre;
+}
+
+.modal-loading {
+  color: #e4e7ec;
+  text-align: center;
+}
+.modal-loading .spinner {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+}
+
+.modal-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-10);
+  color: #c4cad3;
+  text-align: center;
+}
+.modal-error strong { color: #ffffff; font-size: var(--fs-title-s); font-weight: var(--fw-semibold); }
+.modal-error small { margin-top: var(--sp-3); color: #a9b1bd; font-size: var(--fs-caption); }
+
 @media (max-width: 768px) {
-  .modal-close {
-    right: 20px;
-    top: 10px;
-    font-size: 30px;
-  }
-  .modal-nav {
-    font-size: 24px;
-    width: 36px;
-    height: 56px;
-  }
-  .modal-nav-prev { left: 6px; }
-  .modal-nav-next { right: 6px; }
+  .modal-close { top: var(--sp-2); right: var(--sp-2); }
+  .modal-nav { width: 44px; height: 56px; }
+  .modal-nav-prev { left: var(--sp-1); }
+  .modal-nav-next { right: var(--sp-1); }
+  .modal-content { width: calc(100% - 104px); }
 }

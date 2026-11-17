@@ -1,6 +1,7 @@
 import { isGeoTesterLoaded } from '../core/DataManager.js';
 import { ACHIEVEMENT_STANDARDS } from '../data/achievementStandards.js';
 import { GRADED_SUBJECTS, keyOf } from '../core/questionKey.js';
+import { icon } from './icons.js';
 
 const GEOTESTER_SUBJECTS = new Set(['한국지리', '세계지리', '통합사회']);
 
@@ -23,7 +24,7 @@ export function renderTableShell(subject) {
         <thead>
           <tr>
             <th>학년도</th>
-            ${showGrade ? '<th class="sortable" data-sort="학년">학년</th>' : ''}
+            ${showGrade ? `<th class="sortable" data-sort="학년" aria-sort="none"><button type="button" class="th-sort">학년${icon.sort(14)}</button></th>` : ''}
             <th>분류</th>
             <th>번호</th>
             <th>배점</th>
@@ -32,16 +33,16 @@ export function renderTableShell(subject) {
             <th>성취기준</th>
             <th>발문</th>
             <th>문항 내용</th>
-            <th class="sortable" data-sort="정답률">정답률(%)</th>
+            <th class="sortable" data-sort="정답률" aria-sort="none"><button type="button" class="th-sort">정답률(%)${icon.sort(14)}</button></th>
             <th>난이도</th>
-            <th>문제보기</th>
+            <th>문제</th>
             ${showGeo ? '<th>GeoTester</th>' : ''}
           </tr>
         </thead>
         <tbody id="tableBody">
           <tr><td colspan="${cols}" class="loading">
             <div class="spinner"></div>
-            데이터를 불러오는 중...
+            문항을 불러오고 있어요
           </td></tr>
         </tbody>
       </table>
@@ -56,7 +57,7 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
   const cols = columnCount(currentSubject);
 
   if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data">검색 결과가 없습니다</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data"><strong>조건에 맞는 문항이 없어요</strong><span>조건을 하나씩 빼 보거나 다른 낱말로 찾아보세요.</span></td></tr>`;
     return;
   }
 
@@ -87,32 +88,32 @@ export function renderTableRows(data, currentSubject, linkerStore, devMode, edit
     const standardDisplay = standardId || '미연결';
 
     // dev mode edit buttons
-    const balmEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="발문" title="발문 수정">&#9998;</button>` : '';
-    const contentEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="문항내용" title="문항내용 수정">&#9998;</button>` : '';
-    const scoreEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="배점" title="배점 수정">&#9998;</button>` : '';
-    const answerEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="답" title="정답 수정">&#9998;</button>` : '';
-    const stdEditBtn = devMode ? `<button class="btn-edit-std" ${rowAttrs} title="성취기준 수정">&#9998;</button>` : '';
-    const balmResetBtn = balmEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="발문" title="원래대로">↩</button>` : '';
-    const contentResetBtn = contentEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="문항내용" title="원래대로">↩</button>` : '';
-    const scoreResetBtn = scoreEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="배점" title="원래대로">↩</button>` : '';
-    const answerResetBtn = answerEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="답" title="원래대로">↩</button>` : '';
+    const balmEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="발문" title="발문 수정" aria-label="발문 수정">${icon.edit(14)}</button>` : '';
+    const contentEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="문항내용" title="문항내용 수정" aria-label="문항내용 수정">${icon.edit(14)}</button>` : '';
+    const scoreEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="배점" title="배점 수정" aria-label="배점 수정">${icon.edit(14)}</button>` : '';
+    const answerEditBtn = devMode ? `<button class="btn-edit-field" ${rowAttrs} data-field="답" title="정답 수정" aria-label="정답 수정">${icon.edit(14)}</button>` : '';
+    const stdEditBtn = devMode ? `<button class="btn-edit-std" ${rowAttrs} title="성취기준 수정" aria-label="성취기준 수정">${icon.edit(14)}</button>` : '';
+    const balmResetBtn = balmEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="발문" title="원래대로" aria-label="원래대로">${icon.undo(14)}</button>` : '';
+    const contentResetBtn = contentEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="문항내용" title="원래대로" aria-label="원래대로">${icon.undo(14)}</button>` : '';
+    const scoreResetBtn = scoreEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="배점" title="원래대로" aria-label="원래대로">${icon.undo(14)}</button>` : '';
+    const answerResetBtn = answerEdited ? `<button class="btn-reset-field" ${rowAttrs} data-field="답" title="원래대로" aria-label="원래대로">${icon.undo(14)}</button>` : '';
 
     return `
-      <tr data-subject="${escapeHtml(currentSubject)}" data-chapter-num="${chapterNum}">
-        <td><strong>${safeYear}</strong></td>
+      <tr class="q-row" ${rowAttrs} data-subject="${escapeHtml(currentSubject)}" data-chapter-num="${chapterNum}">
+        <td class="num">${safeYear}</td>
         ${showGrade ? `<td><span class="badge badge-grade">${safeGrade || '-'}</span></td>` : ''}
         <td><span class="badge badge-${safeCat}">${safeCat}</span></td>
-        <td>${safeNum}</td>
-        <td class="${scoreEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_배점"><strong>${escapeHtml(String(scoreValue))}</strong>${scoreEditBtn}${scoreResetBtn}</td>
-        <td class="${answerEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_답"><strong>${escapeHtml(String(answerValue))}</strong>${answerEditBtn}${answerResetBtn}</td>
+        <td class="num">${safeNum}</td>
+        <td class="${scoreEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_배점"><strong class="num">${escapeHtml(String(scoreValue))}</strong>${scoreEditBtn}${scoreResetBtn}</td>
+        <td class="${answerEdited ? 'cell-edited' : ''}" data-edit-key="${editKey}_답"><strong class="num">${escapeHtml(String(answerValue))}</strong>${answerEditBtn}${answerResetBtn}</td>
         <td>${escapeHtml(item.대단원)}</td>
         <td class="cell-expandable">${stdEditBtn}${escapeHtml(standardDisplay)}${standardText ? `<div class="std-detail">${escapeHtml(standardText)}</div><button class="btn-expand-std">더보기</button>` : ''}</td>
         <td class="cell-expandable${balmEdited ? ' cell-edited' : ''}" data-edit-key="${editKey}_발문"><div class="cell-text">${safeBalm}</div>${balmEditBtn}${balmResetBtn}<button class="btn-expand">더보기</button></td>
         <td class="cell-expandable${contentEdited ? ' cell-edited' : ''}" data-edit-key="${editKey}_문항내용"><div class="cell-text">${safeContent}</div>${contentEditBtn}${contentResetBtn}<button class="btn-expand">더보기</button></td>
-        <td class="${getAccuracyClass(item.정답률)}">${escapeHtml(String(item.정답률))}</td>
+        <td class="num ${getAccuracyClass(item.정답률)}">${escapeHtml(String(item.정답률))}</td>
         <td class="${getDifficultyClass(item.난이도)}">${escapeHtml(item.난이도)}</td>
-        <td><button class="btn-view" ${rowAttrs}>&#128196; 보기</button></td>
-        ${showGeo ? `<td>${getGeoTesterBadge(item.GeoTester)}</td>` : ''}
+        <td><button class="btn-view" ${rowAttrs} aria-label="${safeYear} ${safeCat} ${safeNum}번 문제 보기">${icon.image()}보기</button></td>
+        ${showGeo ? `<td>${getGeoTesterBadge(item)}</td>` : ''}
       </tr>
     `;
   }).join('');
@@ -139,7 +140,7 @@ export function showLoading() {
   const tbody = document.getElementById('tableBody');
   if (tbody) {
     const cols = document.getElementById('dataTable')?.dataset.cols || 13;
-    tbody.innerHTML = `<tr><td colspan="${cols}" class="loading"><div class="spinner"></div>데이터를 불러오는 중...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="loading"><div class="spinner"></div>문항을 불러오고 있어요</td></tr>`;
   }
 }
 
@@ -208,14 +209,22 @@ export function bindTableEvents({ onSort, onViewQuestion, onEditField, onEditSta
       stdBtn.textContent = isExpanded ? '접기' : '더보기';
       return;
     }
+
+    // 줄 아무 곳이나 누르면 문제를 연다 (글자를 고르는 중이거나 수정 칸이면 열지 않음)
+    if (e.target.closest('button, input, textarea, select, a, .dev-edit-area')) return;
+    if (window.getSelection && String(window.getSelection()).length > 0) return;
+    const row = e.target.closest('tr.q-row');
+    if (row) onViewQuestion(refOf(row));
   });
 }
 
 export function updateSortIndicators(column, order) {
   document.querySelectorAll('#dataTable thead th.sortable').forEach(th => {
     th.classList.remove('asc', 'desc');
+    th.setAttribute('aria-sort', 'none');
     if (column && order && th.dataset.sort === column) {
       th.classList.add(order);
+      th.setAttribute('aria-sort', order === 'asc' ? 'ascending' : 'descending');
     }
   });
 }
@@ -254,11 +263,17 @@ function getDifficultyClass(val) {
   return '';
 }
 
-function getGeoTesterBadge(value) {
-  if (isGeoTesterLoaded(value)) {
-    return '<span class="geotester-badge geotester-yes">&#10003; 탑재</span>';
+const GEOTESTER_URL = 'https://geotester.bgnl.kr/';
+
+function getGeoTesterBadge(item) {
+  if (!isGeoTesterLoaded(item.GeoTester)) {
+    return '<span class="geotester-badge geotester-no">없음</span>';
   }
-  return '<span class="geotester-badge geotester-no">-</span>';
+  // 문항 id 가 있으면 그 문항이 열린 채로, 없으면 첫 화면으로
+  const url = item.GeoTesterID
+    ? `${GEOTESTER_URL}?problem=${encodeURIComponent(item.GeoTesterID)}`
+    : GEOTESTER_URL;
+  return `<a class="geotester-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" aria-label="GeoTester에서 이 문항 열기 (새 탭)">${icon.check(12)}열기${icon.external(12)}</a>`;
 }
 
 function escapeHtml(str) {

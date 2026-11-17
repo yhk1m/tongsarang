@@ -1,73 +1,62 @@
-/* Subject navigation tabs */
+/* © 2026 김용현 */
+/* 과목 탭 */
 .tabs-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
-
-.tabs-wrapper::-webkit-scrollbar {
-  height: 4px;
-}
-
-.tabs-wrapper::-webkit-scrollbar-thumb {
-  background: #d1d1d1;
-  border-radius: 2px;
-}
+.tabs-wrapper::-webkit-scrollbar { display: none; }
 
 .tabs {
   display: flex;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e5e5;
-  gap: 0;
-  padding: 0 40px;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-5);
   min-width: max-content;
 }
 
 .tab {
-  padding: 12px 16px;
-  text-align: center;
-  color: #86868b;
-  cursor: pointer;
-  font-size: 0.95em;
-  font-weight: 500;
-  transition: all 0.3s;
-  border: none;
-  background: transparent;
-  border-radius: 0;
   position: relative;
-  border-bottom: 2px solid transparent;
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-body);
   white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
 }
 
-.tab:hover:not(.active) {
-  color: #424245;
-  background: transparent;
-}
+.tab:hover:not(.active) { color: var(--text-strong); }
 
 .tab.active {
-  color: #1d1d1f;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid #1d1d1f;
-  font-size: 0.95em;
-  font-weight: 600;
-  padding-bottom: 12px;
-  margin-bottom: 0;
-  box-shadow: none;
-  z-index: 10;
+  color: var(--text-strong);
+  font-weight: var(--fw-semibold);
+}
+
+/* 고른 과목 밑 일자 막대 */
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: var(--sp-3);
+  right: var(--sp-3);
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* 대분류 사이 세로 구분선 */
+.tab-divider {
+  flex-shrink: 0;
+  align-self: center;
+  width: 1px;
+  height: 16px;
+  margin: 0 var(--sp-2);
+  background: var(--line-strong);
 }
 
 @media (max-width: 768px) {
-  .tabs {
-    padding: 0 10px;
-  }
-
-  .tab {
-    padding: 10px 12px;
-    font-size: 0.85em;
-  }
-
-  .tab.active {
-    font-size: 0.85em;
-  }
+  .tabs { padding: 0 var(--sp-2); }
+  .tab-divider { margin: 0 var(--sp-1); }
 }

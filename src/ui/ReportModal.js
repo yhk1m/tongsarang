@@ -1,4 +1,5 @@
 import { submitReport, fetchReports, updateReport } from '../core/ReportAPI.js';
+import { icon } from './icons.js';
 
 const SUBJECTS = [
   '한국지리', '세계지리', '통합사회', '정치와법', '사회문화',
@@ -8,14 +9,14 @@ const SUBJECTS = [
 export function renderReportModal() {
   return `
     <div id="reportModal" class="report-modal">
-      <div class="report-card">
+      <div class="report-card" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
         <div class="report-header">
-          <h2>오류 제보</h2>
-          <button class="report-close" id="reportClose">&times;</button>
+          <h2 id="reportTitle">오류 제보</h2>
+          <button class="report-close" id="reportClose" aria-label="닫기">${icon.close(20)}</button>
         </div>
-        <div class="report-tabs">
-          <button class="report-tab active" data-tab="form">오류 제보</button>
-          <button class="report-tab" data-tab="list">제보 내역</button>
+        <div class="report-tabs" role="tablist">
+          <button class="report-tab active" data-tab="form" role="tab">제보하기</button>
+          <button class="report-tab" data-tab="list" role="tab">지금까지 들어온 제보</button>
         </div>
         <div class="report-body" id="reportBody"></div>
       </div>
@@ -69,39 +70,39 @@ function renderFormTab() {
   body.innerHTML = `
     <form id="reportForm" class="report-form">
       <div class="report-field">
-        <label for="reportSubject">과목 <span class="required">*</span></label>
+        <label for="reportSubject">과목</label>
         <select id="reportSubject" required>
-          <option value="">선택하세요</option>
+          <option value="">과목 고르기</option>
           ${SUBJECTS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}
         </select>
       </div>
       <div class="report-row">
         <div class="report-field">
-          <label for="reportYear">학년도 <span class="required">*</span></label>
-          <input type="text" id="reportYear" placeholder="예: 2025" required>
+          <label for="reportYear">학년도</label>
+          <input type="text" id="reportYear" inputmode="numeric" placeholder="2025" required>
         </div>
         <div class="report-field">
-          <label for="reportCat">분류 <span class="required">*</span></label>
-          <input type="text" id="reportCat" placeholder="예: 수능, 6월" required>
+          <label for="reportCat">분류</label>
+          <input type="text" id="reportCat" placeholder="수능, 6월" required>
         </div>
         <div class="report-field">
-          <label for="reportNum">번호 <span class="required">*</span></label>
-          <input type="text" id="reportNum" placeholder="예: 5" required>
+          <label for="reportNum">번호</label>
+          <input type="text" id="reportNum" inputmode="numeric" placeholder="5" required>
         </div>
       </div>
       <div class="report-field">
-        <label for="reportContent">오류 내용 <span class="required">*</span></label>
-        <textarea id="reportContent" rows="4" placeholder="발견한 오류를 설명해 주세요" required></textarea>
+        <label for="reportContent">어떤 오류인가요?</label>
+        <textarea id="reportContent" rows="4" placeholder="정답이 틀렸어요, 그림이 잘렸어요처럼 적어 주세요" required></textarea>
       </div>
-      <div class="report-section-label">제보자 정보 (선택)</div>
+      <div class="report-section-label">제보한 분 정보 <span>적지 않아도 돼요. 답을 드릴 때만 써요.</span></div>
       <div class="report-row">
         <div class="report-field">
           <label for="reportName">이름</label>
-          <input type="text" id="reportName" placeholder="이름">
+          <input type="text" id="reportName" autocomplete="name">
         </div>
         <div class="report-field">
           <label for="reportSchool">소속</label>
-          <input type="text" id="reportSchool" placeholder="소속">
+          <input type="text" id="reportSchool" autocomplete="organization">
         </div>
       </div>
       <div class="report-field">
@@ -111,20 +112,20 @@ function renderFormTab() {
       <div class="report-row">
         <div class="report-field">
           <label for="reportTeachSubject">담당과목</label>
-          <input type="text" id="reportTeachSubject" placeholder="담당과목이 없는 경우 비워주세요.">
+          <input type="text" id="reportTeachSubject" placeholder="없으면 비워 두세요">
         </div>
         <div class="report-field">
           <label for="reportRole">직위</label>
           <select id="reportRole">
-            <option value="">선택하세요</option>
+            <option value="">고르기</option>
             <option value="교사">교사</option>
             <option value="학생">학생</option>
-            <option value="__custom__">기타(직접작성)</option>
+            <option value="__custom__">그 밖에 (직접 적기)</option>
           </select>
-          <input type="text" id="reportRoleCustom" placeholder="직위를 입력하세요" style="display:none">
+          <input type="text" id="reportRoleCustom" placeholder="직위 적기" style="display:none">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary report-submit">제보하기</button>
+      <button type="submit" class="btn btn-primary report-submit">제보 보내기</button>
       <div id="reportMsg" class="report-msg"></div>
     </form>
   `;
@@ -145,7 +146,7 @@ function renderFormTab() {
     const msgEl = document.getElementById('reportMsg');
     const submitBtn = body.querySelector('.report-submit');
     submitBtn.disabled = true;
-    submitBtn.textContent = '전송 중...';
+    submitBtn.textContent = '보내고 있어요';
     msgEl.textContent = '';
     msgEl.className = 'report-msg';
 
@@ -166,26 +167,26 @@ function renderFormTab() {
 
     try {
       await submitReport(data);
-      msgEl.textContent = '제보가 접수되었습니다. 감사합니다!';
+      msgEl.textContent = '제보를 받았어요. 고맙습니다. 확인하면 아래 제보 목록에 처리 상태를 적어 둘게요.';
       msgEl.classList.add('success');
       document.getElementById('reportForm').reset();
     } catch (err) {
-      msgEl.textContent = '전송 실패: ' + err.message;
+      msgEl.textContent = '제보를 보내지 못했어요. 인터넷 연결을 확인하고 다시 보내 주세요.';
       msgEl.classList.add('error');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = '제보하기';
+      submitBtn.textContent = '제보 보내기';
     }
   });
 }
 
 function renderListTab() {
   const body = document.getElementById('reportBody');
-  body.innerHTML = '<div class="report-loading"><div class="spinner"></div>제보 내역을 불러오는 중...</div>';
+  body.innerHTML = '<div class="report-loading"><div class="spinner"></div>제보 목록을 불러오고 있어요</div>';
 
   fetchReports().then(rows => {
     if (!rows || rows.length === 0) {
-      body.innerHTML = '<div class="report-empty">제보 내역이 없습니다.</div>';
+      body.innerHTML = '<div class="report-empty"><strong>아직 들어온 제보가 없어요</strong><span>오류를 보셨다면 제보하기 탭에서 알려 주세요.</span></div>';
       return;
     }
 
@@ -195,7 +196,7 @@ function renderListTab() {
     reportListState.page = 1;
     renderReportListPage();
   }).catch(err => {
-    body.innerHTML = `<div class="report-empty">조회 실패: ${esc(err.message)}</div>`;
+    body.innerHTML = `<div class="report-empty"><strong>제보 목록을 불러오지 못했어요</strong><span>잠시 뒤 탭을 다시 눌러 주세요.</span></div>`;
   });
 }
 
@@ -211,18 +212,18 @@ function renderReportListPage() {
   // Top bar: actions + pagination controls
   html += `<div class="report-list-topbar">`;
   if (adminMode) {
-    html += `<button class="btn btn-secondary" id="reportCsvDownload">CSV 다운로드</button>`;
+    html += `<button class="btn btn-secondary" id="reportCsvDownload">${icon.download()}CSV로 내려받기</button>`;
   }
   html += `
     <div class="report-pagination">
-      <span class="report-page-info">총 ${sorted.length}건</span>
+      <span class="report-page-info">모두 ${sorted.length}건</span>
       <select class="report-page-size" id="reportPageSize">
-        ${[10, 20, 50].map(s => `<option value="${s}" ${pageSize === s ? 'selected' : ''}>${s}개</option>`).join('')}
+        ${[10, 20, 50].map(s => `<option value="${s}" ${pageSize === s ? 'selected' : ''}>${s}개씩</option>`).join('')}
       </select>
       <div class="report-page-nav">
-        <button class="report-page-btn" id="reportPagePrev" ${page <= 1 ? 'disabled' : ''}>&laquo;</button>
+        <button class="report-page-btn" id="reportPagePrev" aria-label="이전 쪽" ${page <= 1 ? 'disabled' : ''}>${icon.chevronLeft()}</button>
         <span class="report-page-current">${page} / ${totalPages}</span>
-        <button class="report-page-btn" id="reportPageNext" ${page >= totalPages ? 'disabled' : ''}>&raquo;</button>
+        <button class="report-page-btn" id="reportPageNext" aria-label="다음 쪽" ${page >= totalPages ? 'disabled' : ''}>${icon.chevronRight()}</button>
       </div>
     </div>
   </div>`;
@@ -237,9 +238,9 @@ function renderReportListPage() {
             <th>학년도</th>
             <th>분류</th>
             <th>번호</th>
-            <th>오류내용</th>
-            <th>처리상태</th>
-            <th>상세설명</th>
+            <th>오류 내용</th>
+            <th>처리 상태</th>
+            <th>답변</th>
           </tr>
         </thead>
         <tbody>
@@ -304,7 +305,7 @@ function renderStatusEditable(value, rowIndex) {
   return `
     <select class="report-status-select" data-row="${rowIndex}" data-field="처리상태">
       ${STATUS_OPTIONS.map(opt =>
-        `<option value="${esc(opt)}" ${(value || '') === opt ? 'selected' : ''}>${opt || '—'}</option>`
+        `<option value="${esc(opt)}" ${(value || '') === opt ? 'selected' : ''}>${opt || '정하지 않음'}</option>`
       ).join('')}
     </select>
   `;
@@ -314,8 +315,8 @@ function renderDescCell(value, rowIndex) {
   if (adminMode) {
     return `
       <div class="report-admin-desc" data-row="${rowIndex}">
-        <div class="report-desc-clamp${value ? '' : ' empty'}">${value ? esc(value) : '<span class="report-desc-placeholder">미입력</span>'}</div>
-        <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+        <div class="report-desc-clamp${value ? '' : ' empty'}">${value ? esc(value) : '<span class="report-desc-placeholder">아직 없음</span>'}</div>
+        <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}" aria-label="답변 고치기">${icon.edit(14)}</button>
       </div>
     `;
   }
@@ -336,7 +337,7 @@ function bindAdminEditEvents(body, rows) {
         select.classList.add('report-save-ok');
         setTimeout(() => select.classList.remove('report-save-ok'), 1500);
       } catch (err) {
-        alert('처리상태 저장 실패: ' + err.message);
+        alert('처리 상태를 저장하지 못했어요. 다시 골라 주세요.');
       } finally {
         select.disabled = false;
       }
@@ -355,7 +356,7 @@ function bindAdminEditEvents(body, rows) {
           <textarea class="report-desc-textarea">${esc(currentValue)}</textarea>
           <div class="report-desc-edit-actions">
             <button class="report-desc-save" type="button">저장</button>
-            <button class="report-desc-cancel" type="button">취소</button>
+            <button class="report-desc-cancel" type="button">닫기</button>
           </div>
         </div>
       `;
@@ -367,13 +368,13 @@ function bindAdminEditEvents(body, rows) {
         const newValue = textarea.value;
         const saveBtn = container.querySelector('.report-desc-save');
         saveBtn.disabled = true;
-        saveBtn.textContent = '저장 중...';
+        saveBtn.textContent = '저장하고 있어요';
         try {
           await updateReport(rowIndex, { 상세설명: newValue });
           rows[rowIndex].상세설명 = newValue;
           container.innerHTML = `
-            <div class="report-desc-clamp${newValue ? '' : ' empty'}">${newValue ? esc(newValue) : '<span class="report-desc-placeholder">미입력</span>'}</div>
-            <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+            <div class="report-desc-clamp${newValue ? '' : ' empty'}">${newValue ? esc(newValue) : '<span class="report-desc-placeholder">아직 없음</span>'}</div>
+            <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}" aria-label="답변 고치기">${icon.edit(14)}</button>
           `;
           // Re-bind the new edit button
           const newBtn = container.querySelector('.report-desc-edit-btn');
@@ -384,7 +385,7 @@ function bindAdminEditEvents(body, rows) {
           container.classList.add('report-save-ok');
           setTimeout(() => container.classList.remove('report-save-ok'), 1500);
         } catch (err) {
-          alert('상세설명 저장 실패: ' + err.message);
+          alert('답변을 저장하지 못했어요. 다시 저장해 주세요.');
           saveBtn.disabled = false;
           saveBtn.textContent = '저장';
         }
@@ -392,8 +393,8 @@ function bindAdminEditEvents(body, rows) {
 
       container.querySelector('.report-desc-cancel').addEventListener('click', () => {
         container.innerHTML = `
-          <div class="report-desc-clamp${currentValue ? '' : ' empty'}">${currentValue ? esc(currentValue) : '<span class="report-desc-placeholder">미입력</span>'}</div>
-          <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}">&#9998;</button>
+          <div class="report-desc-clamp${currentValue ? '' : ' empty'}">${currentValue ? esc(currentValue) : '<span class="report-desc-placeholder">아직 없음</span>'}</div>
+          <button class="report-desc-edit-btn" type="button" data-row="${rowIndex}" aria-label="답변 고치기">${icon.edit(14)}</button>
         `;
         bindAdminEditEvents(container, rows);
       });

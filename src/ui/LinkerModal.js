@@ -444,8 +444,8 @@ function renderFooter() {
 
   footer.innerHTML = `
     <div class="linker-footer-left">
-      <button class="btn btn-secondary linker-nav-btn" id="linkerPrev" ${lState.currentIdx <= 0 ? 'disabled' : ''}>◀ 이전</button>
-      <button class="btn btn-secondary linker-nav-btn" id="linkerNext" ${lState.currentIdx >= total - 1 ? 'disabled' : ''}>다음 ▶</button>
+      <button class="btn btn-secondary linker-nav-btn" id="linkerPrev" ${lState.currentIdx <= 0 ? 'disabled' : ''}>이전 문항</button>
+      <button class="btn btn-secondary linker-nav-btn" id="linkerNext" ${lState.currentIdx >= total - 1 ? 'disabled' : ''}>다음 문항</button>
       <span class="linker-footer-count">${current} / ${total}</span>
     </div>
     <div class="linker-footer-right">

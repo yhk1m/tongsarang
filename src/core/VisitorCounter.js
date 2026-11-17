@@ -1,6 +1,8 @@
 const COUNTER_URL = 'https://script.google.com/macros/s/AKfycbzOjTEaAT2WeDN8NWwpOUp7JyYdcbMTcgYPx0kO2F-ohfjksP-vop78firT1wi_e2k5/exec';
 
 export async function trackVisit() {
+  // 화면 확인용으로 열 때는 세지 않는다 (?noview=1)
+  if (new URLSearchParams(location.search).has('noview')) return;
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 5000);

@@ -1,23 +1,29 @@
-export function renderHeader() {
+// © 2026 김용현
+import { icon } from './icons.js';
+
+export function renderHeader(subjectMenuButton = '') {
   return `
-    <div class="header">
-      <div class="header-left">
-        <h1><img src="${import.meta.env.BASE_URL}favicon.svg" alt="" class="header-logo">통사랑<span class="title-eng">(tongsarang)</span> <span class="title-sub">사회탐구 기출문제</span></h1>
-        <div class="header-buttons">
-          <button class="btn btn-mockexam" id="btnMockExam">📝 모의고사 만들기</button>
-          <button class="btn btn-report" id="btnReport">🔔 오류 제보</button>
-        </div>
+    <header class="header">
+      <div class="header-brand">
+        <img src="${import.meta.env.BASE_URL}favicon.svg" alt="" class="header-logo">
+        <h1>통사랑</h1>
+        <span class="header-sub">사회탐구 기출문제</span>
       </div>
-      <div class="header-right">
-        <div class="header-copyright">
-          &copy; 2026 양정고등학교 지리교사 김용현<br>
-          <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
-        </div>
-        <div class="visitor-counter" id="visitorCounter">
-          <div class="vc-item">Today <strong id="vcToday">-</strong></div>
-          <div class="vc-item">Total <strong id="vcTotal">-</strong></div>
-        </div>
+      ${subjectMenuButton}
+      <div class="header-buttons">
+        <button class="btn btn-ghost" id="btnReport">${icon.flag()}오류 제보</button>
+        <button class="btn btn-primary" id="btnMockExam">${icon.doc()}모의고사 만들기</button>
       </div>
-    </div>
+    </header>
+  `;
+}
+
+export function renderFooter() {
+  return `
+    <footer class="site-footer">
+      <span>만든 사람 양정고등학교 지리교사 김용현</span>
+      <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
+      <span class="visitor-counter" id="visitorCounter">오늘 <strong id="vcToday" class="num">-</strong>명, 전체 <strong id="vcTotal" class="num">-</strong>명</span>
+    </footer>
   `;
 }
