@@ -56,40 +56,6 @@
 }
 .me-close:hover { background: var(--fill-subtle); color: var(--text-strong); }
 
-/* 단계 */
-.me-step-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding: 0 var(--sp-6) var(--sp-3);
-}
-
-.me-step {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-small);
-  color: var(--text-muted);
-}
-.me-step.active { color: var(--text-strong); font-weight: var(--fw-semibold); }
-
-.me-step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--gray-200);
-  color: var(--text-muted);
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-semibold);
-}
-.me-step.active .me-step-num { background: var(--accent); color: var(--on-accent); }
-.me-step.done .me-step-num { background: var(--gray-300); color: var(--text-strong); }
-
-.me-step-arrow { display: flex; color: var(--icon-muted); }
-
 /* 본문 */
 .me-body {
   flex: 1;
@@ -107,103 +73,94 @@
   padding: var(--sp-3) var(--sp-6) var(--sp-4);
   box-shadow: 0 -1px 0 var(--line);
 }
-.me-footer:has(.me-footer-right:empty) { display: none; }
+.me-footer:empty { display: none; }
 
 .me-footer-right { display: flex; gap: var(--sp-2); }
 
 .me-select-count { font-size: var(--fs-body); color: var(--text-muted); }
 .me-select-count strong { color: var(--text-strong); font-weight: var(--fw-semibold); }
 
-/* 1단계: 종류 고르기 */
-.me-question {
-  font-size: var(--fs-title-s);
-  font-weight: var(--fw-semibold);
-  color: var(--text-strong);
-  margin: var(--sp-2) 0 var(--sp-3);
-}
-
-.me-type-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-3);
-}
-
-.me-type-card {
+/* 과목 칩: 한 번에 오간다 */
+.me-subject-chips {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--sp-1);
-  padding: var(--sp-5);
-  border: 1.5px solid var(--line-strong);
-  border-radius: var(--r-card);
-  background: var(--surface);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
-}
-.me-type-card:hover { background: var(--gray-50); border-color: var(--gray-400); }
-.me-type-card.selected { background: var(--accent-weak); border-color: var(--accent); }
-
-.me-type-card strong {
-  font-size: var(--fs-title-s);
-  font-weight: var(--fw-semibold);
-  color: var(--text-strong);
-}
-.me-type-card span { font-size: var(--fs-body); color: var(--text-muted); }
-
-#meSubjectPicker { margin-top: var(--sp-6); }
-
-.me-subject-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  flex-wrap: wrap;
   gap: var(--sp-2);
+  padding: var(--sp-1) 0 var(--sp-3);
 }
 
-.me-subject-list label {
-  display: flex;
+.me-chip {
+  display: inline-flex;
   align-items: center;
-  gap: var(--sp-2);
-  min-height: 44px;
+  gap: 6px;
+  min-height: var(--btn-h-s);
   padding: 0 var(--sp-3);
-  border: 1.5px solid var(--line-strong);
-  border-radius: var(--r-control);
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--fill-subtle);
   color: var(--text-strong);
+  font: inherit;
+  font-size: var(--fs-body);
+  white-space: nowrap;
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease);
 }
-.me-subject-list label:hover { background: var(--gray-50); }
-.me-subject-list label:has(input:checked) {
-  background: var(--accent-weak);
-  border-color: var(--accent);
-  font-weight: var(--fw-semibold);
-}
-.me-subject-list input { width: 16px; height: 16px; }
+.me-chip:hover:not(:disabled):not(.active) { background: var(--gray-200); }
+.me-chip.active { background: var(--accent); color: var(--on-accent); font-weight: var(--fw-semibold); }
+.me-chip:disabled { color: var(--text-disabled); cursor: default; }
+.me-chip-count { font-size: var(--fs-caption); color: var(--text-muted); }
+.me-chip.active .me-chip-count { color: var(--on-accent); opacity: 0.8; }
 
-/* 2단계: 조건 */
+/* 조건 칸: 이름이 늘 보이게 */
 .me-filter-bar {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
-  align-items: center;
+  align-items: flex-end;
   padding-bottom: var(--sp-3);
 }
 
-.me-filter-bar select {
-  max-width: 150px;
-  min-height: var(--btn-h-s) !important;
-  font-size: var(--fs-small);
+.me-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+.me-search .icon {
+  position: absolute;
+  left: var(--sp-3);
+  color: var(--icon-muted);
+  pointer-events: none;
+}
+.me-search input {
+  width: 100%;
+  min-height: var(--field-h) !important;
+  padding-left: calc(var(--sp-3) + 22px) !important;
+  background: var(--fill-subtle) !important;
+  border-color: transparent !important;
 }
 
-.me-filter-bar input[type="search"] {
-  flex: 1;
-  min-width: 140px;
-  max-width: 240px;
-  min-height: var(--btn-h-s) !important;
-  font-size: var(--fs-small);
+.me-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
+.me-field-label { font-size: var(--fs-caption); color: var(--text-muted); }
+.me-field select { max-width: 180px; }
+.me-field.is-set select { border-color: var(--accent); font-weight: var(--fw-semibold); }
+.me-field.is-set .me-field-label { color: var(--text-strong); font-weight: var(--fw-semibold); }
 
-.me-filter-bar .btn { min-height: var(--btn-h-s); font-size: var(--fs-small); }
+.me-filter-reset { min-height: var(--field-h); }
+
+.me-list-head {
+  padding: 0 0 var(--sp-2);
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+.me-list-head strong { color: var(--text-strong); font-weight: var(--fw-semibold); }
+
+.me-table-wrap { overflow-x: auto; }
 
 /* 문항 표 */
 .me-question-table {
@@ -250,8 +207,41 @@
 .me-question-table tbody td:first-child { width: 36px !important; text-align: center !important; }
 .me-question-table input[type="checkbox"] { width: 16px; height: 16px; vertical-align: middle; cursor: pointer; }
 
+.me-question-table tbody tr.me-row { cursor: pointer; }
+.me-question-table tbody td { white-space: nowrap; }
+
+/* 묶음 문항 표시 */
+.me-bundle {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: var(--r-badge);
+  background: var(--info-weak);
+  color: var(--info);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+.me-preview-note {
+  padding: 0 6px 2px;
+  font-size: var(--fs-caption);
+  color: var(--info);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.me-question-table .me-chapter-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .me-question-table .me-balm-cell {
-  max-width: 300px;
+  max-width: 340px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -297,8 +287,7 @@
 /* 고른 문항 미리보기 */
 .me-preview {
   flex-shrink: 0;
-  max-height: 30vh;
-  overflow-y: auto;
+  overflow: hidden;
   padding: var(--sp-3) var(--sp-6);
   background: var(--gray-50);
   box-shadow: 0 -1px 0 var(--line);
@@ -308,9 +297,10 @@
 .me-preview-header {
   font-size: var(--fs-small);
   font-weight: var(--fw-semibold);
-  color: var(--text-muted);
+  color: var(--text-strong);
   padding-bottom: var(--sp-2);
 }
+.me-preview-header span { margin-left: var(--sp-2); font-weight: var(--fw-regular); color: var(--text-muted); }
 
 .me-preview-list {
   display: flex;
@@ -359,7 +349,13 @@
 }
 .me-preview-remove:hover { background: var(--fill-subtle); color: var(--text-strong); }
 
-.me-preview-item img { width: 100%; display: block; }
+.me-preview-item img {
+  width: 100%;
+  height: 88px;
+  display: block;
+  object-fit: cover;
+  object-position: top;
+}
 
 /* 쪽 넘기기 */
 .me-pagination {
@@ -406,6 +402,7 @@
 }
 .me-no-data strong { font-size: var(--fs-title-s); font-weight: var(--fw-semibold); color: var(--text-strong); }
 .me-no-data small { margin-top: var(--sp-3); font-size: var(--fs-caption); color: var(--text-muted); }
+.me-no-data .btn { margin-top: var(--sp-4); }
 
 @media (max-width: 768px) {
   .mockexam-wizard {
@@ -416,10 +413,13 @@
     border-radius: 0;
   }
   .me-header { padding-left: var(--page-x); }
-  .me-step-indicator, .me-body, .me-footer, .me-preview { padding-left: var(--page-x); padding-right: var(--page-x); }
-  .me-type-cards { grid-template-columns: 1fr; }
-  .me-filter-bar select { max-width: calc(50% - 4px); flex: 1 1 40%; }
-  .me-filter-bar input[type="search"] { max-width: 100%; }
+  .me-body, .me-footer, .me-preview { padding-left: var(--page-x); padding-right: var(--page-x); }
+  .me-subject-chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--page-x)); padding-left: var(--page-x); padding-right: var(--page-x); scrollbar-width: none; }
+  .me-search { max-width: none; flex-basis: 100%; }
+  .me-field { flex: 1 1 calc(50% - 4px); }
+  .me-field select { max-width: none; width: 100%; }
+  .me-preview-item img { height: 56px; }
+  .me-preview-header span { display: none; }
   .me-footer { flex-wrap: wrap; }
   .me-footer-right { margin-left: auto; }
 }

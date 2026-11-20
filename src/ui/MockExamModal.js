@@ -1,10 +1,53 @@
-import { generateMockExamPDF } from './MockExamPDF.js';
-import { imageFileNameOf } from '../core/questionKey.js';
+// © 2026 김용현
+import { generateMockExamPDF, planBundles } from './MockExamPDF.js';
+import { imageFileNameOf, questionKey } from '../core/questionKey.js';
 import { icon } from './icons.js';
 
-let SUBJECTS_WITH_DATA = [];
+/*
+  모의고사 만들기: 한 화면에서 과목을 오가며 문항을 고르고 PDF로 만든다.
+  - 과목은 칩으로 한 번에 바꾼다. 고른 문항은 과목을 바꿔도, 창을 닫았다 열어도 남는다.
+  - 조건 칸의 목록은 "자기 칸을 뺀 나머지 조건"으로 좁힌다. 그래서 고른 값을 다른 값으로
+    바로 바꿀 수 있고, 다른 조건과 겹치는 문항이 없는 값은 목록에 나오지 않는다.
+  - 다른 조건을 바꿔서 고른 값이 목록에서 사라지면 그 조건은 저절로 풀린다.
+*/
 
-const ME_PAGE_SIZE = 20;
+const PAGE_SIZE = 20;
+
+const CATEGORY_ORDER = { '수능': 12, '11월': 11, '10월': 10, '10월학평': 10, '9월': 9, '9모': 9, '7월': 7, '7월학평': 7, '6월': 6, '6모': 6, '5월': 5, '5월학평': 5, '4월': 4, '4월학평': 4, '3월': 3, '3월학평': 3 };
+const DIFFICULTY_ORDER = ['최상', '상', '중상', '중', '중하', '하', '최하'];
+const ACCURACY_RANGES = [
+  { value: '0-30', label: '30% 이하' },
+  { value: '31-50', label: '31~50%' },
+  { value: '51-70', label: '51~70%' },
+  { value: '71-100', label: '71% 이상' },
+];
+
+// 조건 칸: key 는 state.filters 의 이름, get 은 문항에서 값을 꺼내는 방법
+const FIELDS = [
+  { key: 'year', label: '학년도', get: q => String(q.학년도 || ''), sort: (a, b) => b.localeCompare(a, 'ko', { numeric: true }) },
+  { key: 'grade', label: '학년', get: q => q.학년 || '', sort: (a, b) => a.localeCompare(b, 'ko', { numeric: true }) },
+  { key: 'category', label: '분류', get: q => q.분류 || '', sort: (a, b) => (CATEGORY_ORDER[b] ?? 0) - (CATEGORY_ORDER[a] ?? 0) },
+  { key: 'chapter', label: '대단원', get: q => q.대단원 || '', sort: (a, b) => a.localeCompare(b, 'ko', { numeric: true }) },
+  { key: 'standard', label: '성취기준', get: q => q._std || '', sort: (a, b) => a.localeCompare(b, 'ko', { numeric: true }) },
+  { key: 'difficulty', label: '난이도', get: q => String(q.난이도 || ''), sort: (a, b) => rank(DIFFICULTY_ORDER, a) - rank(DIFFICULTY_ORDER, b) },
+];
+
+function rank(list, v) {
+  const i = list.indexOf(v);
+  return i < 0 ? list.length : i;
+}
+
+// 문항 전체(과목 11개)와 고른 문항은 창을 닫아도 남겨 둔다
+let ALL = [];
+let SUBJECTS = [];
+const checked = new Set(); // ALL 의 _idx
+
+let state = {
+  subject: '',   // '' = 모든 과목
+  filters: {},   // year, grade, category, chapter, standard, difficulty, accuracy, keyword
+  page: 1,
+  view: [],      // 지금 조건에 맞는 문항
+};
 
 export function renderMockExamModal() {
   return `
@@ -14,28 +57,13 @@ export function renderMockExamModal() {
           <h2 id="meTitle">모의고사 만들기</h2>
           <button class="me-close" id="meClose" aria-label="닫기">${icon.close(20)}</button>
         </div>
-        <div class="me-step-indicator" id="meStepIndicator"></div>
         <div class="me-body" id="meBody"></div>
+        <div class="me-preview" id="mePreview"></div>
         <div class="me-footer" id="meFooter"></div>
       </div>
     </div>
   `;
 }
-
-let state = {
-  step: 1,
-  type: null, // 'single' | 'multi'
-  subjects: [],
-  subjectData: {},
-  selectedQuestions: [],
-  dm: null,
-  currentSubject: null,
-  // Step 2 filter/pagination state
-  checkedSet: new Set(),
-  meFilters: {},
-  mePage: 1,
-  meFilteredQuestions: []
-};
 
 export function bindMockExamEvents() {
   const modal = document.getElementById('mockExamModal');
@@ -50,30 +78,65 @@ export function bindMockExamEvents() {
 }
 
 export async function openMockExam(currentSubject, dm, linkerStore) {
-  state = {
-    step: 1,
-    type: null,
-    subjects: [],
-    subjectData: {},
-    selectedQuestions: [],
-    dm,
-    linkerStore,
-    currentSubject,
-    checkedSet: new Set(),
-    meFilters: {},
-    mePage: 1,
-    meFilteredQuestions: []
-  };
   document.getElementById('mockExamModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // 데이터가 있는 과목 목록을 동적으로 로드
   const body = document.getElementById('meBody');
-  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">과목을 확인하고 있어요</div></div>';
-  renderFooter('', '');
-  SUBJECTS_WITH_DATA = await dm.getSubjectsWithData();
+  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">문항을 불러오고 있어요</div></div>';
+  document.getElementById('meFooter').innerHTML = '';
+  document.getElementById('mePreview').innerHTML = '';
 
-  renderStep();
+  try {
+    if (ALL.length === 0) {
+      SUBJECTS = await dm.getSubjectsWithData();
+      const bundles = await loadBundles();
+      for (const subj of SUBJECTS) {
+        const data = await dm.loadSubject(subj);
+        const sb = bundles[subj] || {};
+        for (const q of data) {
+          // 묶음 문항이면 { group: [17, 18], end: 자료가 끝나는 줄(px) }
+          ALL.push({ ...q, _subject: subj, _idx: ALL.length, _bundle: sb[questionKey(q)] || null });
+        }
+      }
+    }
+  } catch {
+    body.innerHTML = '<div class="me-no-data"><strong>문항을 불러오지 못했어요</strong><span>인터넷 연결을 확인하고 창을 닫았다가 다시 열어 주세요.</span></div>';
+    return;
+  }
+
+  // 성취기준 연결은 관리자가 바꿀 수 있으니 열 때마다 다시 읽는다
+  for (const q of ALL) {
+    q._std = (linkerStore ? linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || '';
+  }
+
+  // 조건은 처음으로, 과목은 본 화면에서 보던 과목으로. 고른 문항은 그대로 둔다.
+  state = {
+    subject: SUBJECTS.includes(currentSubject) ? currentSubject : '',
+    filters: {},
+    page: 1,
+    view: [],
+  };
+  renderPicker();
+}
+
+/** 묶음 문항 목록 (scripts/detect_bundles.py 가 만든다). 없거나 못 받으면 묶음 없이 동작한다. */
+async function loadBundles() {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/bundles.json`);
+    return res.ok ? await res.json() : {};
+  } catch {
+    return {};
+  }
+}
+
+function bundleRange(q) {
+  const g = q._bundle?.group;
+  return g ? `${g[0]}~${g[g.length - 1]}` : '';
+}
+
+function bundleBadge(q) {
+  if (!q._bundle) return '';
+  return `<span class="me-bundle" title="${bundleRange(q)}번이 같은 자료를 써요. 함께 고르면 자료는 한 번만 들어가요.">${bundleRange(q)} 묶음</span>`;
 }
 
 function closeMockExam() {
@@ -81,571 +144,256 @@ function closeMockExam() {
   document.body.style.overflow = '';
 }
 
-function renderStep() {
-  renderStepIndicator();
-  if (state.step === 1) {
-    const preview = document.getElementById('mePreview');
-    if (preview) preview.innerHTML = '';
-    renderStep1();
+// ── 거르기 ──
+
+function matches(q, skipKey) {
+  const f = state.filters;
+  if (skipKey !== 'subject' && state.subject && q._subject !== state.subject) return false;
+  for (const fd of FIELDS) {
+    if (fd.key === skipKey || !f[fd.key]) continue;
+    if (fd.get(q) !== f[fd.key]) return false;
   }
-  else if (state.step === 2) renderStep2Combined();
+  if (skipKey !== 'accuracy' && f.accuracy) {
+    const rate = parseFloat(q.정답률);
+    const [lo, hi] = f.accuracy.split('-').map(Number);
+    if (isNaN(rate) || rate < lo || rate > hi) return false;
+  }
+  if (skipKey !== 'keyword' && f.keyword) {
+    const text = `${q.발문 || ''} ${q.문항내용 || ''}`.toLowerCase();
+    if (!text.includes(f.keyword.toLowerCase())) return false;
+  }
+  return true;
 }
 
-function renderStepIndicator() {
-  const steps = ['종류 고르기', '문항 고르기'];
-  document.getElementById('meStepIndicator').innerHTML = steps.map((label, i) => {
-    const num = i + 1;
-    let cls = 'me-step';
-    if (num < state.step) cls += ' done';
-    else if (num === state.step) cls += ' active';
-    const arrow = i < steps.length - 1 ? `<span class="me-step-arrow">${icon.chevronRight(14)}</span>` : '';
-    return `<span class="${cls}"><span class="me-step-num">${num < state.step ? icon.check(12) : num}</span>${label}</span>${arrow}`;
-  }).join('');
+/** 칸마다 고를 수 있는 값. 자기 칸을 뺀 나머지 조건으로 좁힌다. */
+function facetOptions(fd) {
+  const set = new Set();
+  for (const q of ALL) {
+    if (!matches(q, fd.key)) continue;
+    const v = fd.get(q);
+    if (v) set.add(v);
+  }
+  return Array.from(set).sort(fd.sort);
 }
 
-function renderFooter(leftHtml, buttons) {
-  document.getElementById('meFooter').innerHTML = `
-    <div class="me-footer-left">${leftHtml}</div>
-    <div class="me-footer-right">${buttons}</div>
-  `;
+// 과목마다 값이 다른 조건 (과목을 바꾸면 맞지 않을 수 있다)
+const SUBJECT_BOUND = ['grade', 'category', 'chapter', 'standard'];
+
+/** 과목 칩 옆 숫자: 과목에 딸리지 않은 조건(학년도, 난이도, 정답률, 검색어)에 맞는 문항 수.
+    과목에 딸린 조건은 과목을 바꾸면 풀리므로 세지 않는다. 칩은 잠그지 않는다. */
+function subjectCounts() {
+  const saved = state.filters;
+  state.filters = Object.fromEntries(Object.entries(saved).filter(([k]) => !SUBJECT_BOUND.includes(k)));
+  const counts = Object.fromEntries(SUBJECTS.map(s => [s, 0]));
+  let total = 0;
+  for (const q of ALL) {
+    if (!matches(q, 'subject')) continue;
+    counts[q._subject]++;
+    total++;
+  }
+  state.filters = saved;
+  return { counts, total };
 }
 
-// ── Step 1: Type selection ──
-function renderStep1() {
+function applyFilters() {
+  // 다른 조건이 바뀌어 고른 값이 목록에서 사라지면 그 조건을 푼다.
+  // 과목에 딸린 조건(대단원 등)을 먼저 푼다. 같이 따지면 맞지 않는 대단원 때문에
+  // 학년도처럼 새 과목에도 있는 값까지 풀려 버린다.
+  for (let round = 0; round <= FIELDS.length; round++) {
+    const invalid = FIELDS.filter(fd => {
+      const v = state.filters[fd.key];
+      return v && !facetOptions(fd).includes(v);
+    });
+    if (invalid.length === 0) break;
+    const bound = invalid.filter(fd => SUBJECT_BOUND.includes(fd.key));
+    for (const fd of (bound.length ? bound : invalid)) delete state.filters[fd.key];
+  }
+  state.view = ALL.filter(q => matches(q));
+  state.page = 1;
+}
+
+// ── 그리기 ──
+
+function renderPicker() {
+  applyFilters();
   const body = document.getElementById('meBody');
   body.innerHTML = `
-    <h3 class="me-question">어떤 모의고사를 만들까요?</h3>
-    <div class="me-type-cards">
-      <button type="button" class="me-type-card" id="meTypeSingle">
-        <strong>과목 하나로</strong>
-        <span>과목 하나를 고른 뒤 그 과목 문항을 골라요</span>
-      </button>
-      <button type="button" class="me-type-card" id="meTypeMulti">
-        <strong>여러 과목 섞어서</strong>
-        <span>모든 과목 문항을 한 목록에서 골라요</span>
-      </button>
+    <div class="me-subject-chips" id="meSubjectChips" role="radiogroup" aria-label="과목"></div>
+    <div class="me-filter-bar" id="meFilterBar"></div>
+    <div class="me-list-head" id="meListHead"></div>
+    <div class="me-table-wrap">
+      <table class="me-question-table" id="meTable"></table>
     </div>
-    <div id="meSubjectPicker" style="display:none">
-      <h3 class="me-question">어느 과목으로 만들까요?</h3>
-      <div class="me-subject-list" id="meSubjectList"></div>
-    </div>
+    <div class="me-pagination" id="mePagination"></div>
   `;
-
-  renderFooter('', '');
-
-  document.getElementById('meTypeSingle').addEventListener('click', () => {
-    state.type = 'single';
-    document.getElementById('meTypeSingle').classList.add('selected');
-    showSubjectPicker();
-  });
-
-  document.getElementById('meTypeMulti').addEventListener('click', () => {
-    state.type = 'multi';
-    state.subjects = [...SUBJECTS_WITH_DATA];
-    goStep2();
-  });
+  bindPickerEvents();
+  refresh();
 }
 
-function showSubjectPicker() {
-  const picker = document.getElementById('meSubjectPicker');
-  picker.style.display = '';
-  const list = document.getElementById('meSubjectList');
-  list.innerHTML = SUBJECTS_WITH_DATA.map(s => `
-    <label>
-      <input type="radio" name="meSingleSubject" value="${escHtml(s)}" ${s === state.currentSubject ? 'checked' : ''}>
-      <span>${escHtml(s)}</span>
-    </label>
-  `).join('');
-
-  renderFooter('', '<button class="btn btn-primary" id="meSubjectNext">문항 고르기</button>');
-  picker.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  document.getElementById('meSubjectNext').addEventListener('click', () => {
-    const selected = list.querySelector('input[name="meSingleSubject"]:checked');
-    if (!selected) return;
-    state.subjects = [selected.value];
-    goStep2();
-  });
+/** 조건이 바뀔 때마다 칩, 조건 칸, 표, 쪽 번호를 다시 그린다 (입력 칸은 그대로 둔다) */
+function refresh() {
+  renderChips();
+  renderFilterBar();
+  renderTable();
+  renderFooter();
+  renderPreview();
 }
 
-// ── Step 2: Filter bar + flat table + pagination ──
-async function goStep2() {
-  state.step = 2;
-  renderStepIndicator();
-
-  const body = document.getElementById('meBody');
-  body.innerHTML = '<div class="me-progress-overlay"><div class="spinner"></div><div class="me-progress-text">문항을 불러오고 있어요</div></div>';
-  renderFooter('', '');
-
-  // Load data for all selected subjects
-  for (const subj of state.subjects) {
-    if (!state.subjectData[subj]) {
-      state.subjectData[subj] = await state.dm.loadSubject(subj);
-    }
-  }
-
-  // Build allQuestions
-  const allQuestions = [];
-  for (const subj of state.subjects) {
-    const data = state.subjectData[subj];
-    for (const q of data) {
-      allQuestions.push({ ...q, _subject: subj });
-    }
-  }
-  state.selectedQuestions = allQuestions;
-  state.checkedSet = new Set();
-  state.meFilters = {};
-  state.mePage = 1;
-  state.meFilteredQuestions = [...allQuestions];
-
-  renderStep2Combined();
+function renderChips() {
+  const { counts, total } = subjectCounts();
+  const chip = (value, label, count) => {
+    const on = state.subject === value;
+    return `<button type="button" class="me-chip${on ? ' active' : ''}" role="radio" aria-checked="${on}" data-subject="${escHtml(value)}">
+      ${escHtml(label)}<span class="me-chip-count num">${count.toLocaleString()}</span>
+    </button>`;
+  };
+  document.getElementById('meSubjectChips').innerHTML =
+    chip('', '모든 과목', total) + SUBJECTS.map(s => chip(s, s, counts[s])).join('');
 }
 
-function renderStep2Combined() {
-  const body = document.getElementById('meBody');
-  const allQuestions = state.selectedQuestions;
-  const showSubject = state.subjects.length > 1;
+function renderFilterBar() {
+  const bar = document.getElementById('meFilterBar');
+  const keywordEl = document.getElementById('meFilterKeyword');
+  const keepKeyword = keywordEl && document.activeElement === keywordEl;
 
-  if (allQuestions.length === 0) {
-    body.innerHTML = '<div class="me-no-data"><strong>고를 수 있는 문항이 없어요</strong><span>이전으로 돌아가 다른 과목을 골라 주세요.</span></div>';
-    renderFooter('', '<button class="btn btn-secondary" id="meBackTo1">이전</button>');
-    document.getElementById('meBackTo1').addEventListener('click', () => {
-      state.step = 1;
-      renderStep();
-    });
+  const selects = FIELDS.map(fd => {
+    const opts = facetOptions(fd);
+    const cur = state.filters[fd.key] || '';
+    // 학년처럼 지금 과목에 없는 칸은 숨긴다
+    if (opts.length === 0 && !cur) return '';
+    return `<label class="me-field${cur ? ' is-set' : ''}">
+      <span class="me-field-label">${fd.label}</span>
+      <select data-key="${fd.key}">
+        <option value="">전체</option>
+        ${opts.map(o => `<option value="${escHtml(o)}"${o === cur ? ' selected' : ''}>${escHtml(o)}</option>`).join('')}
+      </select>
+    </label>`;
+  }).join('');
+
+  const acc = state.filters.accuracy || '';
+  const accSelect = `<label class="me-field${acc ? ' is-set' : ''}">
+    <span class="me-field-label">정답률</span>
+    <select data-key="accuracy">
+      <option value="">전체</option>
+      ${ACCURACY_RANGES.map(r => `<option value="${r.value}"${r.value === acc ? ' selected' : ''}>${r.label}</option>`).join('')}
+    </select>
+  </label>`;
+
+  const active = Object.values(state.filters).filter(Boolean).length;
+
+  if (keepKeyword) {
+    // 검색어를 치는 중에는 입력 칸을 다시 만들지 않는다 (글자, 커서가 날아가지 않게)
+    bar.querySelectorAll('.me-field').forEach(el => el.remove());
+    bar.querySelector('.me-filter-reset')?.remove();
+    bar.querySelector('.me-search').insertAdjacentHTML('afterend', selects + accSelect + resetButton(active));
     return;
   }
 
-  // Build filter options
-  const filterOpts = buildMeFilterOptions(allQuestions);
-
-  // Filter bar HTML
-  let filterHtml = `<div class="me-filter-bar">`;
-  filterHtml += buildSelectHtml('meFilterYear', '학년도', filterOpts.years);
-  if (showSubject) {
-    filterHtml += buildSelectHtml('meFilterSubject', '과목', filterOpts.subjects);
-  }
-  const showGrade = filterOpts.grades.length > 0;
-  if (showGrade) {
-    filterHtml += buildSelectHtml('meFilterGrade', '학년', filterOpts.grades);
-  }
-  filterHtml += buildSelectHtml('meFilterCategory', '분류', filterOpts.categories);
-  filterHtml += buildSelectHtml('meFilterChapter', '대단원', filterOpts.chapters);
-  filterHtml += buildSelectHtml('meFilterStandard', '성취기준', filterOpts.standards);
-  filterHtml += buildSelectHtml('meFilterDifficulty', '난이도', filterOpts.difficulties);
-  filterHtml += `<select id="meFilterAccuracy">
-    <option value="">정답률</option>
-    <option value="0-30">~30%</option>
-    <option value="31-50">31~50%</option>
-    <option value="51-70">51~70%</option>
-    <option value="71-100">71~100%</option>
-  </select>`;
-  filterHtml += `<input id="meFilterKeyword" type="search" placeholder="발문으로 찾기" aria-label="발문으로 찾기">`;
-  filterHtml += `<button type="button" class="btn btn-ghost" id="meFilterReset">${icon.reset()}조건 지우기</button>`;
-  filterHtml += `</div>`;
-
-  // Table header
-  let theadHtml = `<table class="me-question-table me-flat-table">
-    <thead><tr>
-      <th><input type="checkbox" id="meSelectAll" aria-label="찾은 문항 모두 고르기"></th>
-      ${showSubject ? '<th>과목</th>' : ''}
-      <th>학년도</th>
-      ${showGrade ? '<th>학년</th>' : ''}
-      <th>분류</th>
-      <th>대단원</th>
-      <th>번호</th>
-      <th>발문</th>
-      <th>배점</th>
-      <th>답</th>
-    </tr></thead>
-    <tbody id="meTbody"></tbody>
-  </table>`;
-
-  // Pagination
-  let paginationHtml = `<div class="me-pagination" id="mePagination"></div>`;
-
-  body.innerHTML = filterHtml + theadHtml + paginationHtml;
-
-  // Preview panel (fixed at bottom, outside body scroll)
-  let preview = document.getElementById('mePreview');
-  if (!preview) {
-    preview = document.createElement('div');
-    preview.id = 'mePreview';
-    preview.className = 'me-preview';
-    // Insert before footer inside the wizard
-    const footer = document.getElementById('meFooter');
-    footer.parentNode.insertBefore(preview, footer);
-  }
-
-  // Apply initial filters and render
-  applyMeFilters();
-
-  // Footer
-  renderFooter(
-    `<span class="me-select-count" id="meSelCount"></span>`,
-    `<button class="btn btn-secondary" id="meBackTo1">이전</button>
-     <button class="btn btn-primary" id="meGenPDF" disabled>${icon.download()}PDF 만들기</button>`
-  );
-
-  updateMeCount();
-
-  // Bind filter events
-  bindMeFilterEvents();
-
-  // Back button
-  document.getElementById('meBackTo1').addEventListener('click', () => {
-    state.step = 1;
-    renderStep();
-  });
-
-  // PDF generation
-  document.getElementById('meGenPDF').addEventListener('click', () => {
-    if (state.checkedSet.size === 0) return;
-    const selected = Array.from(state.checkedSet).sort((a, b) => a - b).map(i => state.selectedQuestions[i]);
-    startPDFGeneration(selected);
-  });
+  bar.innerHTML = `
+    <div class="me-search">
+      ${icon.search(16)}
+      <input id="meFilterKeyword" type="search" placeholder="발문, 내용으로 찾기" aria-label="발문, 내용으로 찾기" value="${escHtml(state.filters.keyword || '')}">
+    </div>
+    ${selects}${accSelect}${resetButton(active)}
+  `;
 }
 
-function buildMeFilterOptions(questions) {
-  const years = new Set();
-  const grades = new Set();
-  const subjects = new Set();
-  const categories = new Set();
-  const chapters = new Set();
-  const standards = new Set();
-  const difficulties = new Set();
-  const { linkerStore } = state;
-
-  for (const q of questions) {
-    if (q.학년도) years.add(String(q.학년도));
-    if (q.학년) grades.add(q.학년);
-    if (q._subject) subjects.add(q._subject);
-    if (q.분류) categories.add(q.분류);
-    if (q.대단원) chapters.add(q.대단원);
-    const std = (linkerStore ? linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
-    if (std) standards.add(std);
-    if (q.난이도) difficulties.add(String(q.난이도));
-  }
-
-  const sortSet = s => Array.from(s).sort();
-  return {
-    years: sortSet(years),
-    grades: sortSet(grades),
-    subjects: sortSet(subjects),
-    categories: sortSet(categories),
-    chapters: sortSet(chapters),
-    standards: sortSet(standards),
-    difficulties: sortSet(difficulties)
-  };
+function resetButton(active) {
+  return active > 0
+    ? `<button type="button" class="btn btn-ghost me-filter-reset" id="meFilterReset">${icon.reset()}조건 지우기</button>`
+    : '';
 }
 
-function buildSelectHtml(id, label, options) {
-  let html = `<select id="${id}"><option value="">${escHtml(label)}</option>`;
-  for (const opt of options) {
-    html += `<option value="${escHtml(opt)}">${escHtml(opt)}</option>`;
-  }
-  html += `</select>`;
-  return html;
-}
+function renderTable() {
+  const view = state.view;
+  const totalPages = Math.max(1, Math.ceil(view.length / PAGE_SIZE));
+  if (state.page > totalPages) state.page = totalPages;
+  const pageItems = view.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
 
-function applyMeFilters() {
-  const filters = state.meFilters;
-  const allQuestions = state.selectedQuestions;
-  const result = [];
+  const showSubject = !state.subject;
+  const showGrade = view.some(q => q.학년);
 
-  for (let idx = 0; idx < allQuestions.length; idx++) {
-    const q = allQuestions[idx];
-    if (filters.year && String(q.학년도) !== filters.year) continue;
-    if (filters.grade && (q.학년 || '') !== filters.grade) continue;
-    if (filters.subject && q._subject !== filters.subject) continue;
-    if (filters.category && (q.분류 || '') !== filters.category) continue;
-    if (filters.chapter && (q.대단원 || '') !== filters.chapter) continue;
-    if (filters.standard) {
-      const std = (state.linkerStore ? state.linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
-      if ((std || '') !== filters.standard) continue;
-    }
-    if (filters.difficulty && String(q.난이도 || '') !== filters.difficulty) continue;
-    if (filters.accuracy) {
-      const rate = parseFloat(q.정답률);
-      if (isNaN(rate)) continue;
-      const [lo, hi] = filters.accuracy.split('-').map(Number);
-      if (rate < lo || rate > hi) continue;
-    }
-    if (filters.keyword) {
-      const kw = filters.keyword.toLowerCase();
-      const text = ((q.발문 || '') + ' ' + (q.문항내용 || '')).toLowerCase();
-      if (!text.includes(kw)) continue;
-    }
-    result.push({ ...q, _origIdx: idx });
-  }
+  // 찾은 문항 중 몇 개를 골랐는지
+  const pickedInView = view.reduce((n, q) => n + (checked.has(q._idx) ? 1 : 0), 0);
+  document.getElementById('meListHead').innerHTML = `
+    <span>찾은 문항 <strong class="num">${view.length.toLocaleString()}</strong>개${pickedInView ? `, 그중 <strong class="num">${pickedInView}</strong>개 고름` : ''}</span>
+  `;
 
-  state.meFilteredQuestions = result;
-  state.mePage = 1;
-  renderMeTablePage();
-  updateMeFilterOptions();
-}
+  const allOn = view.length > 0 && pickedInView === view.length;
+  const someOn = pickedInView > 0 && !allOn;
+  const head = `<thead><tr>
+    <th><input type="checkbox" id="meSelectAll" aria-label="찾은 문항 ${view.length}개 모두 고르기" title="찾은 문항 모두 고르기" ${allOn ? 'checked' : ''}${view.length === 0 ? ' disabled' : ''}></th>
+    ${showSubject ? '<th>과목</th>' : ''}
+    <th>학년도</th>
+    ${showGrade ? '<th>학년</th>' : ''}
+    <th>분류</th>
+    <th>번호</th>
+    <th>대단원</th>
+    <th>발문</th>
+    <th>배점</th>
+    <th>답</th>
+    <th>정답률</th>
+  </tr></thead>`;
 
-function updateMeFilterOptions() {
-  const filtered = state.meFilteredQuestions;
-  const { linkerStore } = state;
-
-  const years = new Set();
-  const grades = new Set();
-  const subjects = new Set();
-  const categories = new Set();
-  const chapters = new Set();
-  const standards = new Set();
-  const difficulties = new Set();
-
-  for (const q of filtered) {
-    if (q.학년도) years.add(String(q.학년도));
-    if (q.학년) grades.add(q.학년);
-    if (q._subject) subjects.add(q._subject);
-    if (q.분류) categories.add(q.분류);
-    if (q.대단원) chapters.add(q.대단원);
-    const std = (linkerStore ? linkerStore.getMapping(q._subject, q) : null) || q.성취기준 || null;
-    if (std) standards.add(std);
-    if (q.난이도) difficulties.add(String(q.난이도));
-  }
-
-  const map = {
-    meFilterYear: { opts: years, label: '학년도', key: 'year' },
-    meFilterGrade: { opts: grades, label: '학년', key: 'grade' },
-    meFilterSubject: { opts: subjects, label: '과목', key: 'subject' },
-    meFilterCategory: { opts: categories, label: '분류', key: 'category' },
-    meFilterChapter: { opts: chapters, label: '대단원', key: 'chapter' },
-    meFilterStandard: { opts: standards, label: '성취기준', key: 'standard' },
-    meFilterDifficulty: { opts: difficulties, label: '난이도', key: 'difficulty' },
-  };
-
-  for (const [id, { opts, label, key }] of Object.entries(map)) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    const current = state.meFilters[key] || '';
-    const sorted = Array.from(opts).sort();
-    let html = `<option value="">${escHtml(label)}</option>`;
-    for (const o of sorted) {
-      html += `<option value="${escHtml(o)}"${o === current ? ' selected' : ''}>${escHtml(o)}</option>`;
-    }
-    // 현재 선택값이 목록에 없으면 유지 (자기 자신 필터이므로)
-    if (current && !opts.has(current)) {
-      html += `<option value="${escHtml(current)}" selected>${escHtml(current)}</option>`;
-    }
-    el.innerHTML = html;
-  }
-}
-
-function renderMeTablePage() {
-  const filtered = state.meFilteredQuestions;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ME_PAGE_SIZE));
-  if (state.mePage > totalPages) state.mePage = totalPages;
-
-  const start = (state.mePage - 1) * ME_PAGE_SIZE;
-  const pageItems = filtered.slice(start, start + ME_PAGE_SIZE);
-  const showSubject = state.subjects.length > 1;
-  const showGrade = state.selectedQuestions.some(q => q.학년);
-  const colCount = 8 + (showSubject ? 1 : 0) + (showGrade ? 1 : 0);
-
-  // Render tbody
-  const tbody = document.getElementById('meTbody');
-  if (pageItems.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${colCount}" class="me-empty-row">조건에 맞는 문항이 없어요. 조건을 하나씩 빼 보세요.</td></tr>`;
-  } else {
-    tbody.innerHTML = pageItems.map(q => {
-      const idx = q._origIdx;
-      const checked = state.checkedSet.has(idx) ? 'checked' : '';
-      const balm = (q.발문 || '').slice(0, 50) + ((q.발문 || '').length > 50 ? '...' : '');
-      return `<tr class="${checked ? 'is-checked' : ''}">
-        <td><input type="checkbox" class="me-q-check" data-idx="${idx}" ${checked} aria-label="${escHtml(String(q.학년도 || ''))} ${escHtml(q.분류 || '')} ${escHtml(String(q.번호 || ''))}번 고르기"></td>
+  const colCount = 9 + (showSubject ? 1 : 0) + (showGrade ? 1 : 0);
+  const rows = pageItems.length === 0
+    ? `<tr><td colspan="${colCount}" class="me-empty-row">조건에 맞는 문항이 없어요. 조건을 하나씩 빼 보세요.</td></tr>`
+    : pageItems.map(q => {
+      const on = checked.has(q._idx);
+      const label = `${q._subject} ${q.학년도} ${q.학년 ? q.학년 + ' ' : ''}${q.분류} ${q.번호}번`;
+      return `<tr class="me-row${on ? ' is-checked' : ''}" data-idx="${q._idx}">
+        <td><input type="checkbox" class="me-q-check" data-idx="${q._idx}" ${on ? 'checked' : ''} aria-label="${escHtml(label)} 고르기"></td>
         ${showSubject ? `<td>${escHtml(q._subject)}</td>` : ''}
         <td>${escHtml(String(q.학년도 || ''))}</td>
         ${showGrade ? `<td>${escHtml(q.학년 || '-')}</td>` : ''}
         <td>${escHtml(q.분류 || '')}</td>
-        <td>${escHtml(q.대단원 || '')}</td>
-        <td>${escHtml(String(q.번호 || ''))}</td>
-        <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(balm)}</td>
+        <td>${escHtml(String(q.번호 || ''))}${bundleBadge(q)}</td>
+        <td class="me-chapter-cell" title="${escHtml(q.대단원 || '')}">${escHtml(q.대단원 || '')}</td>
+        <td class="me-balm-cell" title="${escHtml(q.발문 || '')}">${escHtml(q.발문 || '')}</td>
         <td>${escHtml(String(q.배점 || ''))}</td>
         <td>${escHtml(String(q.답 || ''))}</td>
+        <td>${escHtml(String(q.정답률 ?? ''))}</td>
       </tr>`;
     }).join('');
-  }
 
-  // Update select-all checkbox state
+  const table = document.getElementById('meTable');
+  table.innerHTML = head + `<tbody>${rows}</tbody>`;
   const selectAll = document.getElementById('meSelectAll');
-  if (selectAll) {
-    const pageIdxs = pageItems.map(q => q._origIdx);
-    const allChecked = pageIdxs.length > 0 && pageIdxs.every(i => state.checkedSet.has(i));
-    const someChecked = pageIdxs.some(i => state.checkedSet.has(i));
-    selectAll.checked = allChecked;
-    selectAll.indeterminate = !allChecked && someChecked;
-  }
+  if (selectAll) selectAll.indeterminate = someOn;
 
-  // Render pagination
-  renderMePagination(totalPages);
-
-  // Bind checkbox events on this page
-  bindMeCheckboxEvents();
-
-  // Update count
-  updateMeCount();
+  renderPagination(totalPages);
 }
 
-function renderMePagination(totalPages) {
-  const container = document.getElementById('mePagination');
-  if (totalPages <= 1) {
-    container.innerHTML = `<span class="me-page-info">찾은 문항 ${state.meFilteredQuestions.length.toLocaleString()}개</span>`;
-    return;
-  }
-
-  let html = '';
-  html += `<button class="me-page-btn" data-mepage="prev" aria-label="이전 쪽" ${state.mePage === 1 ? 'disabled' : ''}>${icon.chevronLeft()}</button>`;
-
-  const start = Math.max(1, state.mePage - 3);
-  const end = Math.min(totalPages, state.mePage + 3);
-
-  if (start > 1) {
-    html += `<button class="me-page-btn" data-mepage="1">1</button>`;
-    if (start > 2) html += `<span class="me-page-dots">...</span>`;
-  }
-
+function renderPagination(totalPages) {
+  const el = document.getElementById('mePagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const p = state.page;
+  let html = `<button class="me-page-btn" data-page="${p - 1}" aria-label="이전 쪽" ${p === 1 ? 'disabled' : ''}>${icon.chevronLeft()}</button>`;
+  const start = Math.max(1, p - 3);
+  const end = Math.min(totalPages, p + 3);
+  if (start > 1) html += `<button class="me-page-btn" data-page="1">1</button>${start > 2 ? '<span class="me-page-dots">...</span>' : ''}`;
   for (let i = start; i <= end; i++) {
-    const active = i === state.mePage ? ' active' : '';
-    html += `<button class="me-page-btn${active}" data-mepage="${i}">${i}</button>`;
+    html += `<button class="me-page-btn${i === p ? ' active' : ''}" data-page="${i}"${i === p ? ' aria-current="page"' : ''}>${i}</button>`;
   }
-
-  if (end < totalPages) {
-    if (end < totalPages - 1) html += `<span class="me-page-dots">...</span>`;
-    html += `<button class="me-page-btn" data-mepage="${totalPages}">${totalPages}</button>`;
-  }
-
-  html += `<button class="me-page-btn" data-mepage="next" aria-label="다음 쪽" ${state.mePage === totalPages ? 'disabled' : ''}>${icon.chevronRight()}</button>`;
-  html += `<span class="me-page-info">찾은 문항 ${state.meFilteredQuestions.length.toLocaleString()}개</span>`;
-
-  container.innerHTML = html;
-
-  // Bind page click events
-  container.addEventListener('click', handleMePageClick);
+  if (end < totalPages) html += `${end < totalPages - 1 ? '<span class="me-page-dots">...</span>' : ''}<button class="me-page-btn" data-page="${totalPages}">${totalPages}</button>`;
+  html += `<button class="me-page-btn" data-page="${p + 1}" aria-label="다음 쪽" ${p === totalPages ? 'disabled' : ''}>${icon.chevronRight()}</button>`;
+  el.innerHTML = html;
 }
 
-function handleMePageClick(e) {
-  const btn = e.target.closest('.me-page-btn');
-  if (!btn || btn.disabled) return;
-
-  const totalPages = Math.max(1, Math.ceil(state.meFilteredQuestions.length / ME_PAGE_SIZE));
-  const page = btn.dataset.mepage;
-
-  if (page === 'prev') {
-    state.mePage = Math.max(1, state.mePage - 1);
-  } else if (page === 'next') {
-    state.mePage = Math.min(totalPages, state.mePage + 1);
-  } else {
-    state.mePage = parseInt(page);
-  }
-  renderMeTablePage();
-}
-
-function bindMeCheckboxEvents() {
-  const tbody = document.getElementById('meTbody');
-  tbody.querySelectorAll('.me-q-check').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const idx = parseInt(cb.dataset.idx);
-      if (cb.checked) {
-        state.checkedSet.add(idx);
-      } else {
-        state.checkedSet.delete(idx);
-      }
-      cb.closest('tr')?.classList.toggle('is-checked', cb.checked);
-      // Update select-all state
-      const selectAll = document.getElementById('meSelectAll');
-      if (selectAll) {
-        const pageCbs = tbody.querySelectorAll('.me-q-check');
-        const allChecked = pageCbs.length > 0 && Array.from(pageCbs).every(c => c.checked);
-        const someChecked = Array.from(pageCbs).some(c => c.checked);
-        selectAll.checked = allChecked;
-        selectAll.indeterminate = !allChecked && someChecked;
-      }
-      updateMeCount();
-    });
-  });
-}
-
-function bindMeFilterEvents() {
-  // 과목·학년 드롭다운은 조건부로만 그려지므로, 없는 요소는 건너뛴다.
-  const filterFields = [
-    ['meFilterYear', 'year'],
-    ['meFilterGrade', 'grade'],
-    ['meFilterSubject', 'subject'],
-    ['meFilterCategory', 'category'],
-    ['meFilterChapter', 'chapter'],
-    ['meFilterStandard', 'standard'],
-    ['meFilterDifficulty', 'difficulty'],
-    ['meFilterAccuracy', 'accuracy']
-  ];
-
-  filterFields.forEach(([id, key]) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', () => {
-        state.meFilters[key] = el.value || undefined;
-        applyMeFilters();
-      });
-    }
-  });
-
-  // Keyword input with debounce
-  const keywordInput = document.getElementById('meFilterKeyword');
-  let keywordTimer = null;
-  keywordInput.addEventListener('input', () => {
-    clearTimeout(keywordTimer);
-    keywordTimer = setTimeout(() => {
-      state.meFilters.keyword = keywordInput.value.trim() || undefined;
-      applyMeFilters();
-    }, 300);
-  });
-
-  // Reset button
-  document.getElementById('meFilterReset').addEventListener('click', () => {
-    state.meFilters = {};
-    // Reset all select/input values
-    filterFields.forEach(([id]) => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    keywordInput.value = '';
-    applyMeFilters();
-  });
-
-  // Select-all checkbox: toggles ALL filtered questions (not just current page)
-  document.getElementById('meSelectAll').addEventListener('change', (e) => {
-    const checked = e.target.checked;
-    if (checked) {
-      for (const q of state.meFilteredQuestions) {
-        state.checkedSet.add(q._origIdx);
-      }
-    } else {
-      for (const q of state.meFilteredQuestions) {
-        state.checkedSet.delete(q._origIdx);
-      }
-    }
-    // Re-render current page to update checkboxes
-    renderMeTablePage();
-  });
-}
-
-function updateMeCount() {
-  const el = document.getElementById('meSelCount');
-  if (el) {
-    el.innerHTML = state.checkedSet.size === 0
-      ? '문항을 고르면 PDF를 만들 수 있어요'
-      : `<strong>${state.checkedSet.size}</strong>문항을 골랐어요`;
-  }
-  const genBtn = document.getElementById('meGenPDF');
-  if (genBtn) {
-    genBtn.disabled = state.checkedSet.size === 0;
-    genBtn.innerHTML = state.checkedSet.size === 0
-      ? `${icon.download()}PDF 만들기`
-      : `${icon.download()}${state.checkedSet.size}문항 PDF 만들기`;
-  }
-  renderMePreview();
+function renderFooter() {
+  const n = checked.size;
+  const subjectsPicked = new Set([...checked].map(i => ALL[i]._subject)).size;
+  document.getElementById('meFooter').innerHTML = `
+    <div class="me-footer-left">
+      <span class="me-select-count">${n === 0
+        ? '문항을 고르면 PDF를 만들 수 있어요'
+        : `<strong class="num">${n}</strong>문항을 골랐어요${subjectsPicked > 1 ? ` (${subjectsPicked}과목)` : ''}`}</span>
+    </div>
+    <div class="me-footer-right">
+      ${n > 0 ? `<button class="btn btn-ghost" id="meClearAll">다 빼기</button>` : ''}
+      <button class="btn btn-primary" id="meGenPDF" ${n === 0 ? 'disabled' : ''}>${icon.download()}${n === 0 ? 'PDF 만들기' : `${n}문항 PDF 만들기`}</button>
+    </div>
+  `;
 }
 
 function getQuestionImageUrl(q) {
@@ -653,64 +401,143 @@ function getQuestionImageUrl(q) {
   return `${import.meta.env.BASE_URL}images/${encodeURIComponent(q._subject)}/${fileName}.jpg`;
 }
 
-function renderMePreview() {
+function pickedSorted() {
+  return [...checked].sort((a, b) => a - b).map(i => ALL[i]);
+}
+
+function renderPreview() {
   const container = document.getElementById('mePreview');
-  if (!container) return;
-
-  if (state.checkedSet.size === 0) {
-    container.innerHTML = '';
-    return;
-  }
-
-  const sorted = Array.from(state.checkedSet).sort((a, b) => a - b);
-  const showSubject = state.subjects.length > 1;
-
+  if (checked.size === 0) { container.innerHTML = ''; return; }
+  const items = pickedSorted();
+  const multi = new Set(items.map(q => q._subject)).size > 1;
+  const plans = planBundles(items);
+  // 묶음 문항이 어떻게 들어가는지 짧게 알린다
+  const note = (q, i) => {
+    const p = plans[i];
+    if (p.kind === 'follow') return '자료는 앞 문항과 함께';
+    if (p.kind === 'lead' && !p.range) return `${bundleRange(q)} 묶음 중 1문항`;
+    if (p.kind === 'lead') return `${bundleRange(q)} 묶음 자료`;
+    return '';
+  };
   container.innerHTML = `
-    <div class="me-preview-header">고른 문항 ${sorted.length}개</div>
+    <div class="me-preview-header">고른 문항 ${items.length}개 <span>PDF에 이 순서로 들어가요</span></div>
     <div class="me-preview-list">
-      ${sorted.map(idx => {
-        const q = state.selectedQuestions[idx];
-        const label = showSubject
-          ? `${q._subject} ${q.학년도} ${q.분류} ${q.번호}번`
-          : `${q.학년도} ${q.분류} ${q.번호}번`;
-        return `<div class="me-preview-item" data-idx="${idx}">
+      ${items.map((q, i) => {
+        const label = `${multi ? q._subject + ' ' : ''}${q.학년도} ${q.학년 ? q.학년 + ' ' : ''}${q.분류} ${q.번호}번`;
+        return `<div class="me-preview-item">
           <div class="me-preview-item-header">
-            <span class="me-preview-label">${escHtml(label)}</span>
-            <button class="me-preview-remove" data-idx="${idx}" aria-label="${escHtml(label)} 빼기">${icon.close(14)}</button>
+            <span class="me-preview-label" title="${escHtml(label)}">${escHtml(label)}</span>
+            <button class="me-preview-remove" data-idx="${q._idx}" aria-label="${escHtml(label)} 빼기">${icon.close(14)}</button>
           </div>
+          ${note(q, i) ? `<div class="me-preview-note">${note(q, i)}</div>` : ''}
           <img src="${getQuestionImageUrl(q)}" alt="${escHtml(label)}" loading="lazy">
         </div>`;
       }).join('')}
     </div>
   `;
-
-  container.querySelectorAll('.me-preview-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      state.checkedSet.delete(idx);
-      renderMeTablePage();
-    });
-  });
 }
 
-function buildChapterTree(data, subj) {
-  const tree = new Map();
-  let hasMinor = false;
-  for (const item of data) {
-    if (!item.대단원) continue;
-    if (!tree.has(item.대단원)) tree.set(item.대단원, new Map());
-    const minors = tree.get(item.대단원);
-    const minorKey = item.중단원 || '';
-    if (minorKey) hasMinor = true;
-    minors.set(minorKey || '(미분류)', (minors.get(minorKey || '(미분류)') || 0) + 1);
-  }
+// ── 이벤트 (한 번만 걸고, 안쪽 내용은 다시 그려도 그대로 동작) ──
 
-  return Array.from(tree.entries()).map(([major, minors]) => ({
-    name: major,
-    count: Array.from(minors.values()).reduce((a, b) => a + b, 0),
-    minors: Array.from(minors.entries()).map(([name, count]) => ({ name, count })),
-    hasMinor
-  }));
+function toggle(idx, on) {
+  if (on) checked.add(idx); else checked.delete(idx);
+}
+
+/** 고르기만 바뀌었을 때: 표는 그 줄만, 머리, 바닥, 미리보기만 다시 */
+function refreshSelection() {
+  const body = document.getElementById('meBody');
+  const keepScroll = body.scrollTop;
+  renderTable();
+  renderFooter();
+  renderPreview();
+  body.scrollTop = keepScroll;
+}
+
+function bindPickerEvents() {
+  const body = document.getElementById('meBody');
+
+  body.querySelector('#meSubjectChips').addEventListener('click', e => {
+    const chip = e.target.closest('.me-chip');
+    if (!chip || chip.dataset.subject === state.subject) return;
+    state.subject = chip.dataset.subject;
+    // 대단원, 성취기준처럼 과목에 딸린 조건은 새 과목에 맞지 않으면 아래 applyFilters 가 푼다
+    applyFilters();
+    refresh();
+  });
+
+  const bar = body.querySelector('#meFilterBar');
+  bar.addEventListener('change', e => {
+    const sel = e.target.closest('select[data-key]');
+    if (!sel) return;
+    if (sel.value) state.filters[sel.dataset.key] = sel.value;
+    else delete state.filters[sel.dataset.key];
+    applyFilters();
+    refresh();
+  });
+
+  let timer = null;
+  bar.addEventListener('input', e => {
+    if (e.target.id !== 'meFilterKeyword') return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const v = e.target.value.trim();
+      if (v) state.filters.keyword = v; else delete state.filters.keyword;
+      applyFilters();
+      refresh();
+    }, 250);
+  });
+
+  bar.addEventListener('click', e => {
+    if (!e.target.closest('#meFilterReset')) return;
+    state.filters = {};
+    applyFilters();
+    refresh();
+  });
+
+  // 줄 아무 곳이나 누르면 고르기/빼기
+  body.querySelector('#meTable').addEventListener('click', e => {
+    if (e.target.id === 'meSelectAll') {
+      const on = e.target.checked;
+      for (const q of state.view) toggle(q._idx, on);
+      refreshSelection();
+      return;
+    }
+    const row = e.target.closest('tr.me-row');
+    if (!row) return;
+    const idx = Number(row.dataset.idx);
+    const cb = row.querySelector('.me-q-check');
+    const on = e.target === cb ? cb.checked : !checked.has(idx);
+    toggle(idx, on);
+    refreshSelection();
+  });
+
+  body.querySelector('#mePagination').addEventListener('click', e => {
+    const btn = e.target.closest('.me-page-btn');
+    if (!btn || btn.disabled) return;
+    state.page = Number(btn.dataset.page);
+    renderTable();
+    document.getElementById('meListHead')?.scrollIntoView({ block: 'nearest' });
+  });
+
+  // 바닥과 미리보기는 renderPicker 바깥에 있어서 한 번만 건다
+  const footer = document.getElementById('meFooter');
+  if (!footer.dataset.bound) {
+    footer.dataset.bound = '1';
+    footer.addEventListener('click', e => {
+      if (e.target.closest('#meClearAll')) {
+        checked.clear();
+        refreshSelection();
+      } else if (e.target.closest('#meGenPDF')) {
+        if (checked.size > 0) startPDFGeneration(pickedSorted());
+      }
+    });
+    document.getElementById('mePreview').addEventListener('click', e => {
+      const btn = e.target.closest('.me-preview-remove');
+      if (!btn) return;
+      checked.delete(Number(btn.dataset.idx));
+      refreshSelection();
+    });
+  }
 }
 
 async function startPDFGeneration(questions) {
@@ -720,7 +547,8 @@ async function startPDFGeneration(questions) {
     <div class="me-progress-bar"><div class="me-progress-fill" id="mePdfBar"></div></div>
     <div class="me-progress-count num" id="mePdfProgress">0 / ${questions.length}</div>
   </div>`;
-  renderFooter('', '');
+  document.getElementById('meFooter').innerHTML = '';
+  document.getElementById('mePreview').innerHTML = '';
 
   try {
     await generateMockExamPDF(questions, (done, total) => {
@@ -729,19 +557,17 @@ async function startPDFGeneration(questions) {
       const bar = document.getElementById('mePdfBar');
       if (bar) bar.style.width = `${Math.round((done / total) * 100)}%`;
     });
+    // 다 만들었으면 고른 문항을 비우고 닫는다
+    checked.clear();
     closeMockExam();
   } catch (err) {
-    body.innerHTML = `<div class="me-no-data"><strong>PDF를 만들지 못했어요</strong><span>이전으로 돌아가 다시 만들어 주세요. 계속 안 되면 오류 제보로 알려 주세요.</span><small>${escHtml(err.message)}</small></div>`;
-    renderFooter('', '<button class="btn btn-secondary" id="meBackToQuestions">이전</button>');
-    document.getElementById('meBackToQuestions').addEventListener('click', () => {
-      state.step = 2;
-      renderStep();
-    });
+    body.innerHTML = `<div class="me-no-data"><strong>PDF를 만들지 못했어요</strong><span>고른 문항은 그대로 있어요. 문항 고르기로 돌아가 다시 만들어 주세요.</span><small>${escHtml(err.message)}</small><button type="button" class="btn btn-secondary" id="meBackToPicker">문항 고르기로 돌아가기</button></div>`;
+    document.getElementById('meBackToPicker').addEventListener('click', renderPicker);
   }
 }
 
 function escHtml(str) {
-  if (!str) return '';
+  if (str === null || str === undefined || str === '') return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
