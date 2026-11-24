@@ -191,7 +191,8 @@ def passage_end(a, b, dy, dx):
 
 def exam_id(exam):
     year, cat, grade = exam
-    return f'{year}_{cat}' + (f'_{grade}' if grade else '')
+    # key_of 와 같게: 고2 만 학년을 붙인다 (고1, 고3 은 붙이지 않는다)
+    return f'{year}_{cat}' + ('_고2' if grade == '고2' else '')
 
 
 def detect(subject, only=None):

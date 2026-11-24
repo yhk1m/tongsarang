@@ -27,6 +27,7 @@ const G3_EXAMS = [
   { seq: 356, month: '06', moc: true },
   { seq: 357, month: '07', moc: false },
   { seq: 360, month: '09', moc: true },   // 2026.09.02 9월 모평 → 2027학년도
+  { seq: 363, month: '10', moc: false },  // 2026.10.20 학평
   { seq: 364, month: '11', moc: true },   // 2026.11.19 수능 → 2027학년도 (이름 없음, EBSi 해설지 정답·3점 위치로 확인)
 ];
 // 통합사회 학평. 시행 순서대로 적는다 (최신이 데이터 앞에 오도록 역순으로 처리한다).
@@ -37,6 +38,8 @@ const ISS_EXAMS = [
   { seq: 355, month: '06', grade: '고2' },
   { seq: 358, month: '09', grade: '고1' },
   { seq: 359, month: '09', grade: '고2' },
+  { seq: 361, month: '10', grade: '고1' },
+  { seq: 362, month: '10', grade: '고2' },
 ];
 
 // 과목 → 메가스터디 조회 정보. catStyle: 한국지리만 '학평/모' 접미사를 쓴다.

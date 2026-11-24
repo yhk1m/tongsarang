@@ -38,8 +38,8 @@ const iss = JSON.parse(fs.readFileSync('./public/data/통합사회.json', 'utf8'
 const fm = new FilterManager();
 const only2 = fm.applyFilters(iss, { 학년: '고2' }, null, '통합사회');
 const only1 = fm.applyFilters(iss, { 학년: '고1' }, null, '통합사회');
-eq('학년 필터 고2 = 75문항 (3·6·9월)', only2.length, 75);
-eq('학년 필터 고1 = 730문항 (2026 3·6·9월 포함)', only1.length, 730);
+eq('학년 필터 고2 = 100문항 (3·6·9·10월)', only2.length, 100);
+eq('학년 필터 고1 = 755문항 (2026 3·6·9·10월 포함)', only1.length, 755);
 eq('학년 + 분류 조합', fm.applyFilters(iss, { 학년: '고2', 분류: '3월' }, null, '통합사회').length, 25);
 eq('고2 9월 학평 25문항', fm.applyFilters(iss, { 학년: '고2', 분류: '9월' }, null, '통합사회').length, 25);
 eq('고1 9월 학평 25문항', fm.applyFilters(iss, { 학년: '고1', 분류: '9월', 학년도: '2026' }, null, '통합사회').length, 25);
