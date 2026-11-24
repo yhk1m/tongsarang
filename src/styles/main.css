@@ -194,6 +194,9 @@ body { min-height: 100vh; }
 
 .site-footer a:hover { color: var(--text-strong); }
 
+/* 패밀리 사이트 목록: body 의 overflow-wrap:anywhere 때문에 이름이 쪼개지지 않게 */
+.site-footer .bgnl-fam { overflow-wrap: normal; }
+
 .visitor-counter strong {
   color: var(--text);
   font-weight: var(--fw-semibold);
