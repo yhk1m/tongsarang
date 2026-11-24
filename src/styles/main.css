@@ -194,6 +194,15 @@ body { min-height: 100vh; }
 
 .site-footer a:hover { color: var(--text-strong); }
 
+/* 방문자 수와 Family Sites 버튼은 늘 한 줄 */
+.site-footer .footer-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
 /* 패밀리 사이트 목록: body 의 overflow-wrap:anywhere 때문에 이름이 쪼개지지 않게 */
 .site-footer .bgnl-fam { overflow-wrap: normal; }
 
