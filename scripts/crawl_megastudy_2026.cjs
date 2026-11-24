@@ -27,6 +27,7 @@ const G3_EXAMS = [
   { seq: 356, month: '06', moc: true },
   { seq: 357, month: '07', moc: false },
   { seq: 360, month: '09', moc: true },   // 2026.09.02 9월 모평 → 2027학년도
+  { seq: 364, month: '11', moc: true },   // 2026.11.19 수능 → 2027학년도 (이름 없음, EBSi 해설지 정답·3점 위치로 확인)
 ];
 // 통합사회 학평. 시행 순서대로 적는다 (최신이 데이터 앞에 오도록 역순으로 처리한다).
 const ISS_EXAMS = [
@@ -53,6 +54,7 @@ const SUBJECTS = {
 };
 
 function category(month, moc, catStyle) {
+  if (month === '11') return '수능';
   const n = String(Number(month));
   if (catStyle === 'hakpyeong') return moc ? `${n}모` : `${n}월학평`;
   return `${n}월`;

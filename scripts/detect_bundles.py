@@ -10,6 +10,11 @@
   end = 그 문항 그림에서 공통 자료가 끝나는 줄(px). 그 아래부터 그 문항의 번호와 발문이다.
 
 쓰는 법: python scripts/detect_bundles.py [과목 ...]   (과목을 안 주면 전부)
+        python scripts/detect_bundles.py --exam 2027_수능 [과목 ...]
+            (그 시험만 새로 찾아 기존 목록에 더한다. 새 시험을 넣었을 때는 이쪽이 훨씬 빠르다.
+             --exam 은 쉼표로 여러 개, 통합사회 고2 는 2026_9월_고2 식)
+
+돌릴 때마다 사람이 읽는 목록 docs/묶음문항_목록.md 도 bundles.json 에서 새로 만든다.
 """
 import json, os, sys
 from collections import defaultdict
@@ -184,7 +189,12 @@ def passage_end(a, b, dy, dx):
     return None
 
 
-def detect(subject):
+def exam_id(exam):
+    year, cat, grade = exam
+    return f'{year}_{cat}' + (f'_{grade}' if grade else '')
+
+
+def detect(subject, only=None):
     data = json.load(open(os.path.join(DATA, f'{subject}.json'), encoding='utf-8'))
     exams = defaultdict(dict)
     for q in data:
@@ -195,6 +205,8 @@ def detect(subject):
     found = {}
     pairs = 0
     for exam, by_num in exams.items():
+        if only and exam_id(exam) not in only:
+            continue
         cache = {}
 
         def get(n):
@@ -237,17 +249,61 @@ def detect(subject):
     return found, pairs
 
 
+def write_list(result):
+    """bundles.json 을 과목별, 시험별 표로 적은 docs/묶음문항_목록.md"""
+    def sort_key(exam):
+        year, rest = exam.split('_', 1)
+        cat = rest.split('_')[0]
+        return (-int(year), MONTH.get(cat, '00'), rest)
+
+    lines = ['# 묶음 문항 목록', '',
+             '자료 하나를 두 문항 이상이 함께 쓰는 문항입니다. `scripts/detect_bundles.py` 가 '
+             '`public/data/bundles.json` 과 함께 만들므로 이 파일은 손으로 고치지 않습니다.', '',
+             '| 과목 | 묶음 수 |', '|---|---:|']
+    sections = []
+    for subject in SUBJECT_CODE:
+        groups = defaultdict(set)
+        for key, v in result.get(subject, {}).items():
+            groups[key.rsplit('_', 1)[0]].add(tuple(v['group']))
+        total = sum(len(g) for g in groups.values())
+        lines.append(f'| {subject} | {total} |')
+        if not total:
+            continue
+        sec = ['', f'## {subject}', '', '| 시험 | 묶음 문항 |', '|---|---|']
+        for exam in sorted(groups, key=sort_key):
+            label = exam.replace('_', ' ')
+            nums = ', '.join(f'{g[0]}~{g[-1]}번' for g in sorted(groups[exam]))
+            sec.append(f'| {label} | {nums} |')
+        sections += sec
+    path = os.path.join(ROOT, 'docs', '묶음문항_목록.md')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(lines + sections) + '\n')
+    print(f'목록: {path}', flush=True)
+
+
 def main():
-    subjects = sys.argv[1:] or list(SUBJECT_CODE)
+    args = sys.argv[1:]
+    only = None
+    if '--exam' in args:
+        i = args.index('--exam')
+        only = set(args[i + 1].split(','))
+        args = args[:i] + args[i + 2:]
+    subjects = args or list(SUBJECT_CODE)
     out_path = os.path.join(DATA, 'bundles.json')
     result = json.load(open(out_path, encoding='utf-8')) if os.path.exists(out_path) else {}
     for s in subjects:
-        found, pairs = detect(s)
+        found, pairs = detect(s, only)
+        if only:
+            # 그 시험의 옛 결과만 지우고 새 결과를 더한다
+            kept = {k: v for k, v in result.get(s, {}).items() if k.rsplit('_', 1)[0] not in only}
+            found = {**kept, **found}
         result[s] = dict(sorted(found.items()))
         groups = {tuple(v['group']) + (k.rsplit('_', 1)[0],) for k, v in found.items()}
         print(f'{s}: 이웃 문항 {pairs}쌍 중 묶음 {len(groups)}개', flush=True)
     with open(out_path, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(result, f, ensure_ascii=False, indent=1)
+    write_list(result)
 
 
 if __name__ == '__main__':

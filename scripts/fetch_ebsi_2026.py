@@ -95,11 +95,16 @@ def parse_list(html):
         if '짝수' in title:
             continue
         m_month = re.search(r'고[123]\s*(\d{1,2})월', title)
-        if not m_month:
+        if m_month:
+            month = m_month.group(1).zfill(2)
+        elif '대학수학능력시험' in title:
+            # 수능 제목은 "2027학년도 대학수학능력시험 한국지리" 식이라 월이 없다.
+            month = '11'
+        else:
             continue
         papers.append({
             'title': title,
-            'month': m_month.group(1).zfill(2),
+            'month': month,
             'is_moc': '모평' in title,
             'path': m_pdf.group(1),
         })
