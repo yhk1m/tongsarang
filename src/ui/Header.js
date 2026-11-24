@@ -24,6 +24,7 @@ export function renderFooter() {
       <span>만든 사람 양정고등학교 지리교사 김용현</span>
       <a href="mailto:bgnlkim@gmail.com">bgnlkim@gmail.com</a>
       <span class="visitor-counter" id="visitorCounter">오늘 <strong id="vcToday" class="num">-</strong>명, 전체 <strong id="vcTotal" class="num">-</strong>명</span>
+      <div data-bgnl-family></div>
     </footer>
   `;
 }

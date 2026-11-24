@@ -181,6 +181,7 @@ body { min-height: 100vh; }
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: var(--sp-1) var(--sp-4);
   padding: var(--sp-4) var(--sp-6) var(--sp-8);
   font-size: var(--fs-caption);
