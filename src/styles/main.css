@@ -62,15 +62,17 @@ body { min-height: 100vh; }
   padding: 0 var(--sp-3);
   border: 0;
   border-radius: var(--r-control);
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
   font: inherit;
   font-size: var(--fs-body);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
-.subject-menu-btn:hover { background: var(--gray-200); }
+.subject-menu-btn:hover { background: var(--ctl-weak-press); }
+.subject-menu-btn:active { scale: 0.97; }
 
 /* 휴대폰 과목 목록 (왼쪽에서 나옴) */
 .subject-sheet-backdrop {
@@ -211,48 +213,50 @@ body { min-height: 100vh; }
   font-weight: var(--fw-semibold);
 }
 
-/* ===== 버튼 ===== */
+/* ===== 버튼 (controls.css .dt-btn 모양에 맞춤: 굵게, 반투명 회색, 누르면 0.97) ===== */
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   min-height: var(--btn-h);
-  padding: 0 var(--sp-4);
+  padding: 0 0.875rem;
   border: 0;
   border-radius: var(--r-control);
   font: inherit;
-  font-size: var(--fs-body);
-  font-weight: var(--fw-semibold);
+  font-size: 0.875rem;
+  font-weight: var(--fw-bold);
+  line-height: 1.35;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
 
-.btn:active:not(:disabled) { transform: scale(0.97); }
-.btn:disabled { cursor: default; opacity: 0.45; }
+.btn:active:not(:disabled) { scale: 0.97; }
+.btn:disabled { cursor: not-allowed; color: var(--text-disabled); background: var(--ctl-weak); box-shadow: none; filter: none; }
 
 /* 1 채움: 화면마다 하나 */
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);
 }
-.btn-primary:hover:not(:disabled) { background: var(--gray-700); }
+.btn-primary:hover:not(:disabled), .btn-primary:active:not(:disabled) { background: var(--accent-press); }
 
-/* 3 회색 */
+/* 3 회색 (반투명 회색) */
 .btn-secondary {
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
 }
-.btn-secondary:hover:not(:disabled) { background: var(--gray-200); }
+.btn-secondary:hover:not(:disabled) { background: var(--ctl-weak-press); }
 
 /* 4 글자만 */
 .btn-ghost {
   background: transparent;
   color: var(--text);
-  padding: 0 var(--sp-3);
 }
-.btn-ghost:hover:not(:disabled) { background: var(--fill-subtle); color: var(--text-strong); }
+.btn-ghost:hover:not(:disabled) { background: var(--ctl-weak); }
+.btn-ghost:disabled { background: transparent; }
 
 /* 표 안 문제 보기 */
 .btn-view {
@@ -263,16 +267,17 @@ body { min-height: 100vh; }
   padding: 0 var(--sp-2);
   border: 0;
   border-radius: var(--r-control);
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
   font: inherit;
   font-size: var(--fs-small);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
-.btn-view:hover { background: var(--gray-200); }
+.btn-view:hover { background: var(--ctl-weak-press); }
+.btn-view:active { scale: 0.97; }
 .btn-view .icon { color: var(--text-muted); }
 
 /* ===== 배지 (자료 구분: 회색 단계만 씀) ===== */
@@ -331,15 +336,15 @@ body { min-height: 100vh; }
   min-height: var(--btn-h-s);
   padding: 0 var(--sp-2);
   border-radius: var(--r-control);
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
   font-size: var(--fs-small);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
   text-decoration: none;
   white-space: nowrap;
   transition: background-color var(--dur-fast) var(--ease);
 }
-.geotester-link:hover { background: var(--gray-200); }
+.geotester-link:hover { background: var(--ctl-weak-press); }
 .geotester-link .icon:last-child { color: var(--text-muted); }
 .geotester-no { color: var(--text-muted); }
 

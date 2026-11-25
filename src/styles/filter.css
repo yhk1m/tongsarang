@@ -31,16 +31,17 @@
   padding: 0 var(--sp-3);
   border: 0;
   border-radius: var(--r-control);
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
   font: inherit;
   font-size: var(--fs-body);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
-.filter-toggle:hover { background: var(--gray-200); }
+.filter-toggle:hover { background: var(--ctl-weak-press); }
+.filter-toggle:active { scale: 0.97; }
 .filter-toggle > .icon { color: var(--text-muted); }
 .filter-toggle-arrow { display: flex; color: var(--icon-muted); transition: transform var(--dur-fast) var(--ease); }
 .filter-toggle.open .filter-toggle-arrow { transform: rotate(180deg); }
@@ -175,7 +176,7 @@
   white-space: nowrap;
 }
 .checkbox-item:hover { background: var(--fill-subtle); }
-.checkbox-item input { width: 16px; height: 16px; cursor: pointer; }
+/* 체크 모양은 controls.css (20px 네모) */
 
 @media (max-width: 768px) {
   .filter-section { padding: var(--sp-3); }

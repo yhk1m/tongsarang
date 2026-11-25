@@ -298,8 +298,7 @@
 }
 
 .linker-standard-item input[type="radio"] {
-  margin-top: 2px;
-  accent-color: var(--text-strong);
+  margin-top: 1px;
   flex-shrink: 0;
 }
 
@@ -320,8 +319,8 @@
 }
 
 .linker-btn-clear {
-  padding: 4px 12px;
-  font-size: 0.8em;
+  min-height: var(--btn-h-s);
+  padding: 0 0.875rem;
 }
 
 /* Footer */
@@ -347,8 +346,8 @@
 }
 
 .linker-nav-btn {
-  padding: 6px 14px;
-  font-size: 0.82em;
+  min-height: var(--btn-h-s);
+  padding: 0 0.875rem;
 }
 
 .linker-footer-count {

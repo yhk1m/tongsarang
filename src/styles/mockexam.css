@@ -91,24 +91,31 @@
 .me-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  min-height: var(--btn-h-s);
-  padding: 0 var(--sp-3);
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 0.75rem;
   border: 0;
   border-radius: var(--r-full);
-  background: var(--fill-subtle);
+  background: var(--ctl-weak);
   color: var(--text-strong);
   font: inherit;
-  font-size: var(--fs-body);
+  font-size: 0.875rem;
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease);
+  user-select: none;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
-.me-chip:hover:not(:disabled):not(.active) { background: var(--gray-200); }
-.me-chip.active { background: var(--accent); color: var(--on-accent); font-weight: var(--fw-semibold); }
-.me-chip:disabled { color: var(--text-disabled); cursor: default; }
+.me-chip:hover:not(:disabled):not(.active) { background: var(--ctl-weak-press); }
+.me-chip:active:not(:disabled) { scale: 0.96; }
+/* 고른 칩은 진한 회색 채움 (controls.css .dt-chip) */
+.me-chip.active { background: var(--text-strong); color: var(--bg); font-weight: var(--fw-bold); }
+.me-chip:disabled { color: var(--text-disabled); cursor: not-allowed; }
 .me-chip-count { font-size: var(--fs-caption); color: var(--text-muted); }
-.me-chip.active .me-chip-count { color: var(--on-accent); opacity: 0.8; }
+.me-chip.active .me-chip-count { color: var(--bg); opacity: 0.8; }
 
 /* 조건 칸: 이름이 늘 보이게 */
 .me-filter-bar {
@@ -205,7 +212,7 @@
 
 .me-question-table thead th:first-child,
 .me-question-table tbody td:first-child { width: 36px !important; text-align: center !important; }
-.me-question-table input[type="checkbox"] { width: 16px; height: 16px; vertical-align: middle; cursor: pointer; }
+.me-question-table input[type="checkbox"] { vertical-align: middle; }   /* 모양은 controls.css */
 
 .me-question-table tbody tr.me-row { cursor: pointer; }
 .me-question-table tbody td { white-space: nowrap; }

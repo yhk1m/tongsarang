@@ -327,11 +327,15 @@
   border-radius: var(--r-control);
   font: inherit;
   font-size: var(--fs-small);
-  font-weight: var(--fw-semibold);
+  font-weight: var(--fw-bold);
   cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), scale var(--dur-fast) var(--ease);
 }
+.report-desc-save:active, .report-desc-cancel:active { scale: 0.97; }
 .report-desc-save { background: var(--accent); color: var(--on-accent); }
-.report-desc-cancel { background: var(--fill-subtle); color: var(--text-strong); }
+.report-desc-save:hover { background: var(--accent-press); }
+.report-desc-cancel { background: var(--ctl-weak); color: var(--text-strong); }
+.report-desc-cancel:hover { background: var(--ctl-weak-press); }
 
 @media (max-width: 768px) {
   .report-card { width: 100%; max-width: none; max-height: 100vh; height: 100%; border-radius: 0; }
